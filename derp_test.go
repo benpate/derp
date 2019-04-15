@@ -44,6 +44,26 @@ func TestErrorInterface(t *testing.T) {
 	assert.Equal(t, innerError.Error(), "Location Name: Error Description")
 }
 
+func TestStandardError(t *testing.T) {
+
+	// Testing how derp handles an error from the standard library
+	err := errors.New("This is a standard error")
+
+	// Wrap it up.
+	outer := New("TestStandardError", "Encapsulating Error", 0, err, "detail")
+
+	assert.Equal(t, "TestStandardError", outer.Location)
+	assert.Equal(t, "Encapsulating Error", outer.Message)
+	assert.Equal(t, CodeInternalError, outer.Code)
+	assert.Equal(t, 1, len(outer.Details))
+	assert.NotNil(t, outer.InnerError)
+
+	assert.Equal(t, "Embedded Error", outer.InnerError.Location)
+	assert.Equal(t, "This is a standard error", outer.InnerError.Message)
+	assert.Equal(t, CodeInternalError, outer.InnerError.Code)
+	assert.Nil(t, outer.InnerError.InnerError)
+}
+
 func ExampleNew() error {
 
 	// Mock an error

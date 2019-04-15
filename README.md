@@ -6,26 +6,46 @@ Derp is a drop-in replacement for the default error objects, and can be used any
 
 ## Better Error Tracking
 
+Derp encapulates all of the data you can collect to troubleshoot the root cause of runtime errors.  Here's a quick look at each argument.
 
 * **Location** The location where the error took place, typically the name of the package and function
-* **Code** A custom error code for tracking exactly what error occurred.
 * **Message** A human readable description of the error
-* **Error**
-* **Details**
+* **Code** A custom error code for tracking exactly what error occurred.
+* **Error** Nested error that lets you see down the call stack
+* **Details** Variadic of additional parameters that may be helpful in debugging this error.
 ```go
 
-func MyFunction(arg1 string, arg2, arg3) error {
+func TopLevelFunction(arg1 string, arg2 string arg3 string) {
+
+	if err := InnerFunction(arg1, arg2, arg3); err != nil {
+		// Wraps the inner error with additional details, and reports it to ops.
+		derp.New("AppName.TopLevelFunction", "Error calling InnerFunction", 0, err).Report()
+	}
+}
+
+func InnerFunction(arg1 string, arg2 string, arg3 string) error {
 
 	if err := doTheThing(); err != nil {
-		return derp.New("AppName.MyFunction", "Error doing the thing", err, arg1, arg2, arg3)
+
+		// Create a derp error with additional troubleshooting details.
+		return derp.New("AppName.MyFunction", "Error doing the thing", derp.CodeNotFound, err, arg1, arg2, arg3)
 	}
+
+	return nil
+}
 ```
 
 ## Nested Errors
 
-Errors usually 
+Derp lets you include information about your entire call stack, so that you can pinpoint exactly what's going on, and how you got there.  You can embed any object that supports the `Error` interface.
 
-## Error Reporting
+### Nested Error Codes
+
+Every error in derp includes a numeric error code.  We suggest using standard **HTTP status codes**, but you can return any number that works for you.  To help you dig to the original cause of the error, nested error codes will "bubble up" from the original root cause, unless you specifically override them.
+
+To set an error code, just pass a **non-zero** `code` number to the `derp.New` function.  To let underlying codes bubble up, just pass a **zero**.
+
+## Error Reporting Plug-Ins
 The derp package uses "reporters" to report errors to an external source.  These may be to th error console, to a database, or an external service.  The package includes a small number of default reporters, and you can add to this list easily by `Connect()`-ing an object that implements the `Reporter` interface at startup.
 
 * `Console` writes a human-friendly error report to the console
@@ -33,5 +53,3 @@ The derp package uses "reporters" to report errors to an external source.  These
 * `Mongodb` writes errors to a MongoDB database collection
 * `SendGrid` sends a human-friendly error report via SendGrid email service.
 
-## HTTP Error Codes
-Using HTTP error codes with derp is recommended, but not required.  This standard includes useful codes for most errors that occur on a server, and makes it easy to use derp errors directly in HTTP server responses.

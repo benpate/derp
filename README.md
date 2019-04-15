@@ -1,10 +1,11 @@
-# DERP 🤪 Better error reporting for Go
+# DERP 🤪
 
 [![GoDoc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](http://godoc.org/github.com/benpate/derp)
 [![Go Report Card](https://goreportcard.com/badge/github.com/benpate/derp?style=flat-square)](https://goreportcard.com/report/github.com/benpate/derp)
 [![Build Status](http://img.shields.io/travis/benpate/derp.svg?style=flat-square)](https://travis-ci.org/benpate/derp)
 [![Codecov](https://img.shields.io/codecov/c/github/benpate/derp.svg?style=flat-square)](https://codecov.io/gh/benpate/derp)
 
+### Better error reporting for Go
 Derp is a drop-in replacement for the default error objects, and can be used anywhere that expects or requires an error value.  It enhances Go's default with additional tracking codes, error nesting, and plug-ins for reporting errors to external sources.
 
 # More Informative Errors
@@ -18,20 +19,19 @@ Derp encapulates all of the data you can collect to troubleshoot the root cause 
 * **Details** Variadic of additional parameters that may be helpful in debugging this error.
 ```go
 
-func TopLevelFunction(arg1 string, arg2 string arg3 string) {
+func TopLevelFunc(arg1 string, arg2 string arg3 string) {
 
 	if err := InnerFunction(arg1, arg2, arg3); err != nil {
-		// Wraps the inner error with additional details, and reports it to ops.
-		derp.New("AppName.TopLevelFunction", "Error calling InnerFunction", 0, err).Report()
+		// Wraps the inner error with more details, and reports to Ops.
+		derp.New("App.TopLevelFunc", "Error calling InnerFunction", 0, err).Report()
 	}
 }
 
-func InnerFunction(arg1 string, arg2 string, arg3 string) error {
+func InnerFunc(arg1 string) error {
 
 	if err := doTheThing(); err != nil {
-
-		// Create a derp error with additional troubleshooting details.
-		return derp.New("AppName.MyFunction", "Error doing the thing", derp.CodeNotFound, err, arg1, arg2, arg3)
+		// Derp create errors with more troubleshooting info than standard errors.
+		return derp.New("App.InnerFunc", "Error doing the thing", derp.CodeNotFound, err, arg)
 	}
 
 	return nil
@@ -61,11 +61,11 @@ func init() {
 	// By default, derp uses the ConsolePlugin{}.  You can remove
 	// this default behavior by calling derp.Plugins.Clear()
 
-	// Send all errors to database
+	// Add a database plugin to insert error reports into your database.
 	derp.Plugins.Add(mongodb.New(connectionString, collectionName)) 
 }
 
-func later() {
+func SomewhereInYourCode() {
 	// Report passes the error to each of the configured
 	// plugins, to deliver the error to its destination.
 	derp.New("location", "description", 0, nil).Report()
@@ -86,6 +86,6 @@ Older versions of derp included other error reporting plugins.  These are being 
 
 
 # What About Go2?
-One of the stated goals for Go2 is to improve error handling in a number of ways.  While the specifics are still being hammered out, a consensus is forming around removing `if err != nil` stutter, and possibly adding nesting capabilities similar to those in derp.
+One of the stated goals for Go2 is to [improve error handling](https://go.googlesource.com/proposal/+/master/design/go2draft-error-inspection.md) in a number of ways.  While the specifics are still being hammered out, a consensus is forming around: 1) removing `if err != nil` stutter, 2) making functions that error more "chainable", and 3)possibly adding nesting capabilities similar to those in derp.
 
 As the new standard library evolves, a new semantic version of derp will be released to use and augment as much of the default error objects as possible.

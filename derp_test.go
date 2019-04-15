@@ -19,6 +19,7 @@ func TestDerp(t *testing.T) {
 	assert.Equal(t, innerError.Details[0], "detail1")
 	assert.Equal(t, innerError.Details[1], "detail2")
 	assert.Equal(t, innerError.Details[2], "detail3")
+	assert.Equal(t, innerError.NotFound(), true)
 
 	// Create an outer error
 	outerError := New("TestDerp", "OuterError", 0, innerError, "other details here")
@@ -28,6 +29,7 @@ func TestDerp(t *testing.T) {
 	assert.Equal(t, outerError.Code, 404) // This is still 404 because we've let the inner error code bubble up
 	assert.NotNil(t, outerError.InnerError)
 	assert.Equal(t, outerError.Details[0], "other details here")
+	assert.Equal(t, outerError.NotFound(), false)
 }
 
 func ExampleNew() error {

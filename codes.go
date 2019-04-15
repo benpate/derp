@@ -10,6 +10,6 @@ const (
 	// CodeForbidden means that the current user does not have the required permissions to access the requested resource.
 	CodeForbidden = 403
 
-	// CodeInternalServer represents a generic error message, given when an unexpected condition was encountered and no more specific message is suitable.
+	// CodeInternalError represents a generic error message, given when an unexpected condition was encountered and no more specific message is suitable.
 	CodeInternalError = 500
 )

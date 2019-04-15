@@ -57,15 +57,15 @@ The derp package uses plugins to report errors to an external source.  Plugins c
 Plugins should be configured once, on a system-wide basis, when your application starts up.  If you don't set up any 
 
 ```go
-import "github.com/benpate/derp/plugins/console"
 import "github.com/benpate/derp/plugins/mongodb"
 
 func init() {
-	// Send all errors to console
-	derp.Connect(console.New())
+
+	// By default, derp uses the ConsolePlugin{}.  You can remove
+	// this default behavior by calling derp.Plugins.Clear()
 
 	// Send all errors to database
-	derp.Connect(mongodb.New(connectionString, collectionName)) 
+	derp.Plugins.Add(mongodb.New(connectionString, collectionName)) 
 }
 
 func later() {
@@ -76,7 +76,7 @@ func later() {
 ```
 
 ### Default Plug-Ins
-The package includes a small number of default reporters, and you can add to this list easily by `Connect()`-ing an object that implements the `Reporter` interface at startup.
+The package includes a small number of default reporters, and you can add to this list easily using `derp.Plugins.Add()` to add any object that implements the `Plugin` interface at startup.
 
 * `Console` write a human-friendly error report to the console
 

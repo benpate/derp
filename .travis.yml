@@ -3,5 +3,8 @@ language: go
 go:
 - 1.12.x
 
-env:
-  - CODECOV_TOKEN=c04b8923-ac7b-4fbe-8e1d-c202fef252fb
+script:
+  - go test -race -coverprofile=coverage.txt -covermode=atomic
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

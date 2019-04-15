@@ -11,10 +11,10 @@ import (
 func TestDerp(t *testing.T) {
 
 	// Create an inner error
-	innerError := New("TestDerp", "Inner Error: Not Found", CodeNotFoundError, nil, "detail1", "detail2", "detail3")
+	innerError := New("InnerError", "Not Found", CodeNotFoundError, nil, "detail1", "detail2", "detail3")
 
-	assert.Equal(t, innerError.Location, "TestDerp")
-	assert.Equal(t, innerError.Message, "Inner Error: Not Found")
+	assert.Equal(t, innerError.Location, "InnerError")
+	assert.Equal(t, innerError.Message, "Not Found")
 	assert.Equal(t, innerError.Code, 404)
 	assert.Equal(t, innerError.Details[0], "detail1")
 	assert.Equal(t, innerError.Details[1], "detail2")
@@ -22,14 +22,17 @@ func TestDerp(t *testing.T) {
 	assert.Equal(t, innerError.NotFound(), true)
 
 	// Create an outer error
-	outerError := New("TestDerp", "OuterError", 0, innerError, "other details here")
+	outerError := New("OuterError", "Inherited", 0, innerError, "other details here")
 
-	assert.Equal(t, outerError.Location, "TestDerp")
-	assert.Equal(t, outerError.Message, "OuterError")
+	assert.Equal(t, outerError.Location, "OuterError")
+	assert.Equal(t, outerError.Message, "Inherited")
 	assert.Equal(t, outerError.Code, 404) // This is still 404 because we've let the inner error code bubble up
 	assert.NotNil(t, outerError.InnerError)
 	assert.Equal(t, outerError.Details[0], "other details here")
 	assert.Equal(t, outerError.NotFound(), true)
+
+	// Test the RootCause() function
+	assert.Equal(t, "InnerError", outerError.RootCause().Location)
 }
 
 func TestErrorInterface(t *testing.T) {

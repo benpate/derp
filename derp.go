@@ -4,22 +4,23 @@ import (
 	"time"
 )
 
-var reporters []Reporter
+// Plugins is the array of objects that are able to report a derp when err.Report() is called.
+var Plugins []Reporter
 
-// Connect is called at system startup, and adds a new reporter to the slice of reporters to be notified when we report an error
+// Connect should be called at system startup, and adds a new reporter to the slice of reporters to be notified when we report an error
 func Connect(reporter Reporter) {
-	reporters = append(reporters, reporter)
+	Plugins = append(Plugins, reporter)
 }
 
 // New generates a new Error object
-func New(location string, code int, message string, innerError error, details ...interface{}) *Error {
+func New(location string, message string, code int, innerError error, details ...interface{}) *Error {
 
 	result := Error{
 		Location:  location,
 		Code:      code,
 		Message:   message,
 		Details:   details,
-		TimeStamp: time.Now().Unix(),
+		TimeStamp: time.Now().Truncate(1 * time.Second),
 	}
 
 	if innerError != nil {

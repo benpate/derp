@@ -1,13 +1,15 @@
 package derp
 
+import "time"
+
 // Error represents a runtime error.  It includes
 type Error struct {
-	Location   string        // Function name (or other location description) of where the error occurred
-	Code       int           // Numeric error code (such as an HTTP status code) to report to the client.
-	Message    string        // Primary (top-level) error message for this error
-	InnerError *Error        // An underlying error object used to identify the root cause of this error.
-	Details    []interface{} // Additional information related to this error message, such as parameters to the function that caused the error.
-	TimeStamp  int64         // Unix Epoch timestamp of the date/time when this error was created
+	Location   string        `json:"location"`   // Function name (or other location description) of where the error occurred
+	Message    string        `json:"message"`    // Primary (top-level) error message for this error
+	Code       int           `json:"code"`       // Numeric error code (such as an HTTP status code) to report to the client.
+	TimeStamp  time.Time     `json:"timestamp"`  // Unix Epoch timestamp of the date/time when this error was created
+	Details    []interface{} `json:"details"`    // Additional information related to this error message, such as parameters to the function that caused the error.
+	InnerError *Error        `json:"innerError"` // An underlying error object used to identify the root cause of this error.
 }
 
 // Error implements the Error interface, which allows derp.Error objects to be
@@ -27,11 +29,11 @@ func (err *Error) RootCause() *Error {
 	return err
 }
 
-// Report sends this error to all configured reporters, to be reported via their various error reporting channels.
+// Report sends this error to all configured plugins, to be reported via their various error reporting channels.
 func (err *Error) Report() *Error {
 
-	for _, reporter := range reporters {
-		reporter.Report(err)
+	for _, plugin := range Plugins {
+		plugin.Report(err)
 	}
 
 	return err
@@ -39,5 +41,5 @@ func (err *Error) Report() *Error {
 
 // NotFound returns TRUE if the error `Code` is a 404 / Not Found error.
 func (err *Error) NotFound() bool {
-	return err.Code == CodeNotFound
+	return err.Code == CodeNotFoundError
 }

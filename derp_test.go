@@ -30,7 +30,7 @@ func TestDerp(t *testing.T) {
 	assert.Equal(t, outerError.Details[0], "other details here")
 }
 
-func ExampleDerp() error {
+func ExampleNew() error {
 
 	// Mock an error
 	thisBreaks := func() error {
@@ -39,7 +39,13 @@ func ExampleDerp() error {
 
 	// Try something that fails
 	if err := thisBreaks(); err != nil {
-		return New("Example", "Something broke in `thisBreaks`", CodeInternalError, err).Report()
+
+		// Populate a derp.Error with everything you know about the error
+		result := New("Example", "Something broke in `thisBreaks`", CodeInternalError, err)
+
+		// Call .Report() to send an error to Ops. This is a system-wide
+		// configuration that's set up during initialization.
+		result.Report()
 	}
 
 	return nil

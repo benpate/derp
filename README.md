@@ -51,11 +51,36 @@ Every error in derp includes a numeric error code.  We suggest using standard **
 
 To set an error code, just pass a **non-zero** `code` number to the `derp.New` function.  To let underlying codes bubble up, just pass a **zero**.
 
-## Error Reporting Plug-Ins
-The derp package uses "reporters" to report errors to an external source.  These may be to th error console, to a database, or an external service.  The package includes a small number of default reporters, and you can add to this list easily by `Connect()`-ing an object that implements the `Reporter` interface at startup.
+## Error Reporting 
+The derp package uses plugins to report errors to an external source.  Plugins can send the error to the error console, to a database, an external service, or anywhere else you desire.
 
-* `Console` writes a human-friendly error report to the console
+Plugins should be configured once, on a system-wide basis, when your application starts up.  If you don't set up any 
+
+```go
+import "github.com/benpate/derp/plugins/console"
+import "github.com/benpate/derp/plugins/mongodb"
+
+func init() {
+	// Send all errors to console
+	derp.Connect(console.New())
+
+	// Send all errors to database
+	derp.Connect(mongodb.New(connectionString, collectionName)) 
+}
+
+func later() {
+	// Report passes the error to each of the configured
+	// plugins, to deliver the error to its destination.
+	derp.New("location", "description", 0, nil).Report()
+}
+```
+
+### Default Plug-Ins
+The package includes a small number of default reporters, and you can add to this list easily by `Connect()`-ing an object that implements the `Reporter` interface at startup.
+
+* `Console` write a human-friendly error report to the console
+
+Future plugin development:
+* `Mongodb` write errors to a MongoDB database collection
+* `SMTP` send a human-friendly error report via email.
 * `Loggly` sends error reports to the Loggly web service
-* `Mongodb` writes errors to a MongoDB database collection
-* `SendGrid` sends a human-friendly error report via SendGrid email service.
-

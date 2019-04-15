@@ -42,7 +42,6 @@ func TestErrorInterface(t *testing.T) {
 
 	// Verify that the error interface is outputting what we expect.
 	assert.Equal(t, innerError.Error(), "Location Name: Error Description")
-
 }
 
 func ExampleNew() error {

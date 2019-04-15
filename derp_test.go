@@ -10,7 +10,7 @@ import (
 func TestDerp(t *testing.T) {
 
 	// Create an inner error
-	innerError := New("TestDerp", "Inner Error: Not Found", CodeNotFound, nil, "detail1", "detail2", "detail3")
+	innerError := New("TestDerp", "Inner Error: Not Found", CodeNotFoundError, nil, "detail1", "detail2", "detail3")
 
 	assert.Equal(t, innerError.Location, "TestDerp")
 	assert.Equal(t, innerError.Message, "Inner Error: Not Found")

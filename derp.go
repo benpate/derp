@@ -12,40 +12,46 @@ func Connect(reporter Reporter) {
 }
 
 // New generates a new Error object
-func New(location string, message string, innerError error, details ...interface{}) *Error {
+func New(location string, code int, message string, innerError error, details ...interface{}) *Error {
 
 	result := Error{
 		Location:  location,
+		Code:      code,
 		Message:   message,
 		Details:   details,
 		TimeStamp: time.Now().Unix(),
 	}
 
-	// If we have an InnerError to work with...
-	if result.InnerError != nil {
+	if innerError != nil {
 
-		// set the InnerError
-		result.InnerError = Inspector(innerError)
-		result.Code = result.InnerError.Code
+		switch e := innerError.(type) {
+		case *Error:
+
+			// Embed the innerError into the new object we're creating.
+			result.InnerError = e
+
+			if result.Code == 0 {
+				result.Code = e.Code
+			}
+
+		default:
+
+			// Other, unrecognized kinds of errors get wrapped in a derp.Error, so that we can embed them correctly.
+			result.InnerError = &Error{
+				Location: "Embedded Error",
+				Message:  e.Error(),
+				Details:  []interface{}{e},
+				Code:     CodeInternalError,
+			}
+
+			result.Code = CodeInternalError
+		}
 	}
 
-	// If we still don't have an HTTP error code, then default to 500.
+	// If we still don't have an HTTP error code, then default to CodeInternalError.
 	if result.Code == 0 {
-		result.Code = 500
+		result.Code = CodeInternalError
 	}
 
 	return &result
-}
-
-// NewWithCode generates a new Error object
-func NewWithCode(location string, message string, innerError error, code int, details ...interface{}) *Error {
-
-	return &Error{
-		Location:   location,
-		Code:       code,
-		Message:    message,
-		Details:    details,
-		TimeStamp:  time.Now().Unix(),
-		InnerError: Inspector(innerError),
-	}
 }

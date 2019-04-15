@@ -1,13 +1,13 @@
 package derp
 
-// Error represents a Derp error
+// Error represents a runtime error.  It includes
 type Error struct {
-	Code       int           // Numeric error code (such as an HTTP status code) to report to the client.
-	TimeStamp  int64         // Date Time Stamp
 	Location   string        // Function name (or other location description) of where the error occurred
+	Code       int           // Numeric error code (such as an HTTP status code) to report to the client.
 	Message    string        // Primary (top-level) error message for this error
-	Details    []interface{} // Additional information related to this error message
 	InnerError *Error        // An underlying error object used to identify the root cause of this error.
+	Details    []interface{} // Additional information related to this error message, such as parameters to the function that caused the error.
+	TimeStamp  int64         // Unix Epoch timestamp of the date/time when this error was created
 }
 
 // Error implements the Error interface, which allows derp.Error objects to be
@@ -35,4 +35,9 @@ func (err *Error) Report() *Error {
 	}
 
 	return err
+}
+
+// NotFound returns TRUE if the error `Code` is a 404 / Not Found error.
+func (err *Error) NotFound() bool {
+	return err.Code == CodeNotFound
 }

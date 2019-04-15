@@ -89,3 +89,10 @@ Older versions of derp included other error reporting plugins.  These are being 
 One of the stated goals for Go2 is to [improve error handling](https://go.googlesource.com/proposal/+/master/design/go2draft-error-inspection.md) in a number of ways.  While the specifics are still being hammered out, a consensus is forming around: 1) removing `if err != nil` stutter, 2) making functions that error more "chainable", and 3)possibly adding nesting capabilities similar to those in derp.
 
 As the new standard library evolves, a new semantic version of derp will be released to use and augment as much of the default error objects as possible.
+
+## Pull Requests Welcome
+Original versions of the derp library have been used in production on commercial applications for years, and the extra data collection has been a tremendous help for everyone involved.  
+
+I'm now open sourcing this library, and others, with hopes that you'll also benefit from a more robust error package.
+
+Please use GitHub to make suggestions, pull requests, and enhancements.  We're all in this together! 🤪

@@ -29,7 +29,17 @@ func TestDerp(t *testing.T) {
 	assert.Equal(t, outerError.Code, 404) // This is still 404 because we've let the inner error code bubble up
 	assert.NotNil(t, outerError.InnerError)
 	assert.Equal(t, outerError.Details[0], "other details here")
-	assert.Equal(t, outerError.NotFound(), false)
+	assert.Equal(t, outerError.NotFound(), true)
+}
+
+func TestErrorInterface(t *testing.T) {
+
+	// Create an error
+	innerError := New("Location Name", "Error Description", CodeNotFoundError, nil, "details")
+
+	// Verify that the error interface is outputting what we expect.
+	assert.Equal(t, innerError.Error(), "Location Name: Error Description")
+
 }
 
 func ExampleNew() error {

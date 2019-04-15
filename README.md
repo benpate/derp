@@ -1,6 +1,4 @@
-# derp 🤪
-
-## Better error reporting for Go
+# DERP 🤪 Better error reporting for Go
 
 [![GoDoc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](http://godoc.org/github.com/benpate/derp)
 [![Go Report Card](https://goreportcard.com/badge/github.com/benpate/derp?style=flat-square)](https://goreportcard.com/report/github.com/benpate/derp)

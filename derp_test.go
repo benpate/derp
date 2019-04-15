@@ -1,6 +1,7 @@
 package derp
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -27,4 +28,19 @@ func TestDerp(t *testing.T) {
 	assert.Equal(t, outerError.Code, 404) // This is still 404 because we've let the inner error code bubble up
 	assert.NotNil(t, outerError.InnerError)
 	assert.Equal(t, outerError.Details[0], "other details here")
+}
+
+func ExampleDerp() error {
+
+	// Mock an error
+	thisBreaks := func() error {
+		return errors.New("Something failed")
+	}
+
+	// Try something that fails
+	if err := thisBreaks(); err != nil {
+		return New("Example", "Something broke in `thisBreaks`", CodeInternalError, err).Report()
+	}
+
+	return nil
 }

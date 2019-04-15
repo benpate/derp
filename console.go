@@ -14,9 +14,3 @@ func (consolePlugin ConsolePlugin) Report(err *Error) {
 	json, _ := json.MarshalIndent(err, "", "\t")
 	fmt.Print(string(json))
 }
-
-// Console returns a new console plugin, and is called by default when the
-// derp system initializes.
-func Console() Plugin {
-	return ConsolePlugin{}
-}

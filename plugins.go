@@ -14,7 +14,7 @@ type PluginList []Plugin
 // configure and append additional plugins during initialization.  It should be called
 // during system startup only.
 func (list PluginList) Add(plugin Plugin) PluginList {
-	list = append(list, plugin)
+	Plugins = append(Plugins, plugin)
 
 	return list
 }
@@ -23,7 +23,7 @@ func (list PluginList) Add(plugin Plugin) PluginList {
 // removing the library default Console() from the list of plugins, in the event that
 // you don't want to report errors to the console.
 func (list PluginList) Clear() PluginList {
-	list = []Plugin{}
+	Plugins = []Plugin{}
 
 	return list
 }

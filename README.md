@@ -91,7 +91,7 @@ One of the stated goals for Go2 is to [improve error handling](https://go.google
 As the new standard library evolves, a new semantic version of derp will be released to use and augment as much of the default error objects as possible.
 
 ## Pull Requests Welcome
-Original versions of the derp library have been used in production on commercial applications for years, and the extra data collection has been a tremendous help for everyone involved.  
+Original versions of this library have been used in production on commercial applications for years, and the extra data collection has been a tremendous help for everyone involved.  
 
 I'm now open sourcing this library, and others, with hopes that you'll also benefit from a more robust error package.
 

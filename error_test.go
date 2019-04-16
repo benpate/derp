@@ -7,24 +7,24 @@ import (
 )
 
 func TestError(t *testing.T) {
-	e := New("Location", "Message", 0, nil)
+	e := New(CodeInternalError, "Location", "Message")
 	assert.Equal(t, "Location: Message", e.Error())
 }
 
 func TestRootCause(t *testing.T) {
-	inner := New("Inner", "Message", CodeForbiddenError, nil)
-	outer := New("Outer", "Message", 0, inner)
+	inner := New(CodeForbiddenError, "Inner", "Message")
+	outer := Wrap(inner, "Outer", "Message")
 
 	assert.Equal(t, "Inner: Message", inner.RootCause().Error())
 	assert.Equal(t, CodeForbiddenError, outer.RootCause().Code)
 }
 
 func TestReport(t *testing.T) {
-	e := New("Location", "Message", 0, nil)
+	e := New(CodeInternalError, "Location", "Message")
 	assert.Equal(t, "Location: Message", e.Error())
 }
 
 func TestNotFound(t *testing.T) {
-	e := New("Location", "Message", CodeNotFoundError, nil)
+	e := New(CodeNotFoundError, "Location", "Message")
 	assert.Equal(t, 404, e.Code)
 }

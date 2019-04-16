@@ -19,23 +19,26 @@ Derp encapulates all of the data you can collect to troubleshoot the root cause 
 * **Details** Variadic of additional parameters that may be helpful in debugging this error.
 ```go
 
-func TopLevelFunc(arg1 string, arg2 string arg3 string) {
-
-	if err := InnerFunction(arg1, arg2, arg3); err != nil {
-		// Wraps the inner error with more details, and reports to Ops.
-		derp.New("App.TopLevelFunc", "Error calling InnerFunction", 0, err).Report()
-	}
-}
-
-func InnerFunc(arg1 string) error {
+func InnerFunc(arg1 string) *derp.Error {
 
 	if err := doTheThing(); err != nil {
 		// Derp create errors with more troubleshooting info than standard errors.
-		return derp.New("App.InnerFunc", "Error doing the thing", derp.CodeNotFound, err, arg)
+		return derp.New(derp.CodeNotFound, "App.InnerFunc", "Error doing the thing", err.Error(), arg1)
 	}
 
 	return nil
 }
+
+func OuterFunc(arg1 string, arg2 string) {
+
+	// Call InnerFunc with required arguments.
+	if err := InnerFunction(arg1); err != nil {
+		
+		// Wraps errors with additional details and nested stack trace, then report to Ops.
+		derp.Wrap(err, "App.OuterFunc", "Error calling InnerFunction", arg1, arg2).Report()
+	}
+}
+
 ```
 
 ## 2. Nested Errors

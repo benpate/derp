@@ -9,11 +9,11 @@ import (
 func TestConsole(t *testing.T) {
 
 	// Create a new error
-	err1 := New("TestConsole", "Error 1", CodeInternalError, nil)
+	err1 := New(CodeInternalError, "TestConsole", "Error 1")
 
-	err2 := New("TestConsole", "Error 2", CodeNotFoundError, err1)
+	err2 := Wrap(err1, "TestConsole", "Error 2")
 
-	err3 := New("TestConsole", "Error 3", CodeInternalError, err2)
+	err3 := Wrap(err2, "TestConsole", "Error 3")
 
 	err3.Report()
 

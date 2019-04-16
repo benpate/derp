@@ -11,7 +11,7 @@ import (
 func TestDerp(t *testing.T) {
 
 	// Create an inner error
-	innerError := New("InnerError", "Not Found", CodeNotFoundError, nil, "detail1", "detail2", "detail3")
+	innerError := New(CodeNotFoundError, "InnerError", "Not Found", "detail1", "detail2", "detail3")
 
 	assert.Equal(t, innerError.Location, "InnerError")
 	assert.Equal(t, innerError.Message, "Not Found")
@@ -22,7 +22,7 @@ func TestDerp(t *testing.T) {
 	assert.Equal(t, innerError.NotFound(), true)
 
 	// Create an outer error
-	outerError := New("OuterError", "Inherited", 0, innerError, "other details here")
+	outerError := Wrap(innerError, "OuterError", "Inherited", "other details here")
 
 	assert.Equal(t, outerError.Location, "OuterError")
 	assert.Equal(t, outerError.Message, "Inherited")
@@ -38,7 +38,7 @@ func TestDerp(t *testing.T) {
 func TestErrorInterface(t *testing.T) {
 
 	// Create an error
-	innerError := New("Location Name", "Error Description", CodeNotFoundError, nil, "details")
+	innerError := New(CodeNotFoundError, "Location Name", "Error Description", "details")
 
 	// Verify that the error interface is outputting what we expect.
 	assert.Equal(t, innerError.Error(), "Location Name: Error Description")
@@ -49,22 +49,17 @@ func TestStandardError(t *testing.T) {
 	// Testing how derp handles an error from the standard library
 	err := errors.New("This is a standard error")
 
-	// Wrap it up.
-	outer := New("TestStandardError", "Encapsulating Error", 0, err, "detail")
+	// Wrap it the stdlib error in a derp.  This means: 1) assigning an error code, and 2) making the original error message a property of the derp.Error.
+	outer := New(CodeInternalError, "TestStandardError", "Encapsulating Error", err.Error())
 
 	assert.Equal(t, "TestStandardError", outer.Location)
 	assert.Equal(t, "Encapsulating Error", outer.Message)
 	assert.Equal(t, CodeInternalError, outer.Code)
 	assert.Equal(t, 1, len(outer.Details))
-	assert.NotNil(t, outer.InnerError)
-
-	assert.Equal(t, "Embedded Error", outer.InnerError.Location)
-	assert.Equal(t, "This is a standard error", outer.InnerError.Message)
-	assert.Equal(t, CodeInternalError, outer.InnerError.Code)
-	assert.Nil(t, outer.InnerError.InnerError)
+	assert.Nil(t, outer.InnerError)
 }
 
-func ExampleNew() error {
+func ExampleNew() {
 
 	// Mock an error
 	thisBreaks := func() error {
@@ -75,12 +70,10 @@ func ExampleNew() error {
 	if err := thisBreaks(); err != nil {
 
 		// Populate a derp.Error with everything you know about the error
-		result := New("Example", "Something broke in `thisBreaks`", CodeInternalError, err)
+		result := New(CodeInternalError, "Example", "Something broke in `thisBreaks`", err.Error())
 
 		// Call .Report() to send an error to Ops. This is a system-wide
 		// configuration that's set up during initialization.
 		result.Report()
 	}
-
-	return nil
 }

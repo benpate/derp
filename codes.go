@@ -4,6 +4,10 @@ package derp
 // Several of the most useful messages are listed here as defaults.
 
 const (
+
+	// CodeBadRequestError indicates that the request is not properly formatted.
+	CodeBadRequestError = 400
+
 	// CodeForbiddenError means that the current user does not have the required permissions to access the requested resource.
 	CodeForbiddenError = 403
 

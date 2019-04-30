@@ -5,7 +5,7 @@
 [![Build Status](http://img.shields.io/travis/benpate/derp.svg?style=flat-square)](https://travis-ci.org/benpate/derp)
 [![Codecov](https://img.shields.io/codecov/c/github/benpate/derp.svg?style=flat-square)](https://codecov.io/gh/benpate/derp)
 
-## Better Error Reporting for Go
+##Better Error Reporting for Go
 Derp is a drop-in replacement for the default error objects, and can be used anywhere that expects or requires an error value.  It enhances Go's default with additional tracking codes, error nesting, and plug-ins for reporting errors to external sources.
 
 ## 1. More Informative Errors
@@ -17,6 +17,7 @@ Derp encapulates all of the data you can collect to troubleshoot the root cause 
 * **Code** A custom error code for tracking exactly what error occurred.
 * **Error** Nested error that lets you see down the call stack
 * **Details** Variadic of additional parameters that may be helpful in debugging this error.
+
 ```go
 
 func InnerFunc(arg1 string) *derp.Error {
@@ -76,11 +77,13 @@ func SomewhereInYourCode() {
 ```
 
 ### Default Plug-In
+
 The package includes a small number of default reporters, and you can add to this list easily using `derp.Plugins.Add()` to add any object that implements the `Plugin` interface at startup.
 
 * `Console` write a human-friendly error report to the console
 
 ### In-Progress Plugins
+
 Older versions of derp included other error reporting plugins.  These are being ported over to this open source library, and should be available soon.
 
 * `Mongodb` write errors to a MongoDB database collection
@@ -89,11 +92,13 @@ Older versions of derp included other error reporting plugins.  These are being 
 
 
 ## What About Go2?
+
 One of the stated goals for Go2 is to [improve error handling](https://go.googlesource.com/proposal/+/master/design/go2draft-error-inspection.md) in a number of ways.  While the specifics are still being hammered out, a consensus is forming around: 1) removing `if err != nil` stutter, 2) making functions that error more "chainable", and 3)possibly adding nesting capabilities similar to those in derp.
 
 As the new standard library evolves, a new semantic version of derp will be released to use and augment as much of the default error objects as possible.
 
 ## Pull Requests Welcome
+
 Original versions of this library have been used in production on commercial applications for years, and the extra data collection has been a tremendous help for everyone involved.  
 
 I'm now open sourcing this library, and others, with hopes that you'll also benefit from a more robust error package.

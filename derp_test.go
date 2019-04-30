@@ -59,6 +59,17 @@ func TestStandardError(t *testing.T) {
 	assert.Nil(t, outer.InnerError)
 }
 
+func TestEmptyInnerError(t *testing.T) {
+
+	err := Wrap(nil, "TestEmptyInnerError", "Don't Do This")
+
+	assert.Equal(t, 500, err.Code)
+	assert.Nil(t, err.InnerError)
+	assert.Equal(t, "TestEmptyInnerError", err.Location)
+	assert.Equal(t, "Don't Do This", err.Message)
+	assert.Empty(t, err.Details)
+}
+
 func ExampleNew() {
 
 	// Mock an error

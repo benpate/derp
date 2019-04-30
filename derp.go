@@ -27,15 +27,11 @@ func Wrap(inner *Error, location string, message string, details ...interface{})
 		Message:    message,
 		Details:    details,
 		TimeStamp:  time.Now().Truncate(1 * time.Second),
+		Code:       CodeInternalError,
 	}
 
 	if inner != nil {
 		result.Code = inner.Code
-	}
-
-	// If we still don't have an HTTP error code, then default to CodeInternalError.
-	if result.Code == 0 {
-		result.Code = CodeInternalError
 	}
 
 	return &result

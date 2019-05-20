@@ -35,7 +35,7 @@ func OuterFunc(arg1 string, arg2 string) {
 
 	// Call InnerFunc with required arguments.
 	if err := InnerFunction(arg1); err != nil {
-		
+
 		// Wraps errors with additional details and nested stack trace, then report to Ops.
 		derp.Wrap(err, "App.OuterFunc", "Error calling InnerFunction", arg1, arg2).Report()
 	}
@@ -56,7 +56,7 @@ To set an error code, just pass a **non-zero** `code` number to the `derp.New` f
 ## 3. Reporting Plug-Ins
 The derp package uses plugins to report errors to an external source.  Plugins can send the error to the error console, to a database, an external service, or anywhere else you desire.
 
-Plugins should be configured once, on a system-wide basis, when your application starts up.  If you don't set up any 
+Plugins should be configured once, on a system-wide basis, when your application starts up.  If you don't set up any
 
 ```go
 import "github.com/benpate/derp/plugins/mongodb"
@@ -67,7 +67,7 @@ func init() {
 	// this default behavior by calling derp.Plugins.Clear()
 
 	// Add a database plugin to insert error reports into your database.
-	derp.Plugins.Add(mongodb.New(connectionString, collectionName)) 
+	derp.Plugins.Add(mongodb.New(connectionString, collectionName))
 }
 
 func SomewhereInYourCode() {
@@ -100,7 +100,7 @@ As the new standard library evolves, a new semantic version of derp will be rele
 
 ## Pull Requests Welcome
 
-Original versions of this library have been used in production on commercial applications for years, and the extra data collection has been a tremendous help for everyone involved.  
+Original versions of this library have been used in production on commercial applications for years, and the extra data collection has been a tremendous help for everyone involved.
 
 I'm now open sourcing this library, and others, with hopes that you'll also benefit from a more robust error package.
 

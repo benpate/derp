@@ -18,6 +18,12 @@ func (err *Error) Error() string {
 	return err.Location + ": " + err.Message
 }
 
+// ErrorCode returns the error Code embedded in this Error.  This is useful for matching
+// interfaces in other package.
+func (err *Error) ErrorCode() int {
+	return err.Code
+}
+
 // RootCause digs into the error stack and returns the original error
 // that caused the DERP
 func (err *Error) RootCause() *Error {

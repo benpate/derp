@@ -59,6 +59,21 @@ func TestStandardError(t *testing.T) {
 	assert.Nil(t, outer.InnerError)
 }
 
+func TestWrapGenericError(t *testing.T) {
+
+	generic := errors.New("oof. that was bad")
+	err := Wrap(generic, "TestEmptyInnerError", "Don't Do This")
+
+	assert.Equal(t, 500, err.Code)
+	assert.Nil(t, err.InnerError)
+	assert.Equal(t, "TestEmptyInnerError", err.Location)
+	assert.Equal(t, "Don't Do This", err.Message)
+	assert.Equal(t, len(err.Details), 1)
+
+	unwrapped := err.Unwrap()
+	assert.Equal(t, "oof. that was bad", unwrapped.Error())
+}
+
 func TestEmptyInnerError(t *testing.T) {
 
 	err := Wrap(nil, "TestEmptyInnerError", "Don't Do This")
@@ -68,6 +83,9 @@ func TestEmptyInnerError(t *testing.T) {
 	assert.Equal(t, "TestEmptyInnerError", err.Location)
 	assert.Equal(t, "Don't Do This", err.Message)
 	assert.Empty(t, err.Details)
+
+	inner := err.Unwrap()
+	assert.Nil(t, inner)
 }
 
 func ExampleNew() {

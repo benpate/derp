@@ -16,6 +16,4 @@ func TestConsole(t *testing.T) {
 	err3 := Wrap(err2, "TestConsole", "Error 3")
 
 	err3.Report()
-
-	// t.Fail() // Uncomment this to show output without using -v
 }

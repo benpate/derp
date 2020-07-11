@@ -3,7 +3,7 @@ package derp
 // Plugin wraps the "Report" method, which reports a derp error to an external
 // source. Reporters are responsible for handling and swallowing any errors they generate.
 type Plugin interface {
-	Report(error)
+	Report(*Error)
 }
 
 // PluginList represents an array of plugins, which will be called in succession whenever
@@ -27,6 +27,3 @@ func (list PluginList) Clear() PluginList {
 
 	return list
 }
-
-// Plugins is the array of objects that are able to report a derp when err.Report() is called.
-var Plugins PluginList

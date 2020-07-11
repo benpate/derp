@@ -21,7 +21,7 @@ Derp encapulates all of the data you can collect to troubleshoot the root cause 
 
 ```go
 
-func InnerFunc(arg1 string) *derp.Error {
+func InnerFunc(arg1 string) error {
 
 	if err := doTheThing(); err != nil {
 		// Derp create errors with more troubleshooting info than standard errors.

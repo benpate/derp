@@ -56,16 +56,6 @@ func (err *Error) RootCause() *Error {
 	return err
 }
 
-// Report sends this error to all configured plugins, to be reported via their various error reporting channels.
-func (err *Error) Report() *Error {
-
-	for _, plugin := range Plugins {
-		plugin.Report(err)
-	}
-
-	return err
-}
-
 // NotFound returns TRUE if the error `Code` is a 404 / Not Found error.
 func (err *Error) NotFound() bool {
 	return err.Code == CodeNotFoundError

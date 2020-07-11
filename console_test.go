@@ -15,5 +15,5 @@ func TestConsole(t *testing.T) {
 
 	err3 := Wrap(err2, "TestConsole", "Error 3")
 
-	err3.Report()
+	Report(err3)
 }

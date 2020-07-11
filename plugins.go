@@ -3,7 +3,7 @@ package derp
 // Plugin wraps the "Report" method, which reports a derp error to an external
 // source. Reporters are responsible for handling and swallowing any errors they generate.
 type Plugin interface {
-	Report(*Error)
+	Report(error)
 }
 
 // PluginList represents an array of plugins, which will be called in succession whenever

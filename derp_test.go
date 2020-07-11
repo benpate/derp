@@ -103,6 +103,6 @@ func ExampleNew() {
 
 		// Call .Report() to send an error to Ops. This is a system-wide
 		// configuration that's set up during initialization.
-		result.Report()
+		Report(result)
 	}
 }

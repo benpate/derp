@@ -17,3 +17,14 @@ const (
 	// CodeInternalError represents a generic error message, given when an unexpected condition was encountered and no more specific message is suitable.
 	CodeInternalError = 500
 )
+
+// Code returns an error code for any error.  It tries to read the error code
+// from a native derp object.  If it cannot, then it assigns a generic "Internal Server Error" code 500.
+func Code(err error) int {
+
+	if derpError, ok := err.(*Error); ok {
+		return derpError.Code
+	}
+
+	return CodeInternalError
+}

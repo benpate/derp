@@ -20,5 +20,5 @@ func Report(err error) {
 
 	// Fall through to here means it is NOT a derp error.  Wrap the original in a
 	// new derp, and then report.
-	Report(Wrap(err, "", ""))
+	Report(Wrap(err, "derp.Report", "Reporting Generic Error"))
 }

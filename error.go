@@ -9,7 +9,7 @@ type Error struct {
 	Message    string        `json:"message"`    // Primary (top-level) error message for this error
 	TimeStamp  time.Time     `json:"timestamp"`  // Unix Epoch timestamp of the date/time when this error was created
 	Details    []interface{} `json:"details"`    // Additional information related to this error message, such as parameters to the function that caused the error.
-	InnerError *Error        `json:"innerError"` // An underlying error object used to identify the root cause of this error.
+	InnerError error         `json:"innerError"` // An underlying error object used to identify the root cause of this error.
 }
 
 // Error implements the Error interface, which allows derp.Error objects to be
@@ -26,34 +26,7 @@ func (err *Error) ErrorCode() int {
 
 // Unwrap supports Go 1.13+ error unwrapping
 func (err *Error) Unwrap() error {
-
-	// If we have an InnerError, then return that
-	if err.InnerError != nil {
-		return err.InnerError
-	}
-
-	// Otherise, look for a generic error wrapped into the details
-	if length := len(err.Details); length > 0 {
-
-		// If the last item is an error, then return that
-		if err, ok := err.Details[length-1].(error); ok {
-			return err
-		}
-	}
-
-	// Fall through means that we couldn't find anything.
-	return nil
-}
-
-// RootCause digs into the error stack and returns the original error
-// that caused the DERP
-func (err *Error) RootCause() *Error {
-
-	if (err.InnerError != nil) && (err.InnerError.Message != "") {
-		return err.InnerError.RootCause()
-	}
-
-	return err
+	return err.InnerError
 }
 
 // NotFound returns TRUE if the error `Code` is a 404 / Not Found error.

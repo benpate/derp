@@ -32,7 +32,7 @@ func TestDerp(t *testing.T) {
 	assert.Equal(t, outerError.NotFound(), true)
 
 	// Test the RootCause() function
-	assert.Equal(t, "InnerError", outerError.RootCause().Location)
+	assert.Equal(t, "InnerError", RootCause(outerError).(*Error).Location)
 }
 
 func TestErrorInterface(t *testing.T) {
@@ -65,7 +65,7 @@ func TestWrapGenericError(t *testing.T) {
 	err := Wrap(generic, "TestEmptyInnerError", "Don't Do This")
 
 	assert.Equal(t, 500, err.Code)
-	assert.Nil(t, err.InnerError)
+	assert.NotNil(t, err.InnerError)
 	assert.Equal(t, "TestEmptyInnerError", err.Location)
 	assert.Equal(t, "Don't Do This", err.Message)
 	assert.Equal(t, len(err.Details), 1)
@@ -77,15 +77,7 @@ func TestWrapGenericError(t *testing.T) {
 func TestEmptyInnerError(t *testing.T) {
 
 	err := Wrap(nil, "TestEmptyInnerError", "Don't Do This")
-
-	assert.Equal(t, 500, err.Code)
-	assert.Nil(t, err.InnerError)
-	assert.Equal(t, "TestEmptyInnerError", err.Location)
-	assert.Equal(t, "Don't Do This", err.Message)
-	assert.Empty(t, err.Details)
-
-	inner := err.Unwrap()
-	assert.Nil(t, inner)
+	assert.Nil(t, err)
 }
 
 func ExampleNew() {

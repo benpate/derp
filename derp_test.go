@@ -4,6 +4,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -72,12 +73,23 @@ func TestWrapGenericError(t *testing.T) {
 
 	unwrapped := err.Unwrap()
 	assert.Equal(t, "oof. that was bad", unwrapped.Error())
+	Report(err)
+	spew.Dump(err)
+	spew.Dump(err.InnerError)
 }
 
 func TestEmptyInnerError(t *testing.T) {
 
-	err := Wrap(nil, "TestEmptyInnerError", "Don't Do This")
-	assert.Nil(t, err)
+	{
+		err := Wrap(nil, "TestEmptyInnerError", "Don't Do This")
+		assert.NotNil(t, err)
+	}
+
+	{
+		var innerError error
+		outer := Wrap(innerError, "Should Still Be Empty", "Really")
+		assert.NotNil(t, outer)
+	}
 }
 
 func ExampleNew() {

@@ -33,3 +33,9 @@ func (err *Error) Unwrap() error {
 func (err *Error) NotFound() bool {
 	return err.Code == CodeNotFoundError
 }
+
+// Report calls the centralized reporting function to send this error to any configured services.
+func (err *Error) Report() *Error {
+	Report(err)
+	return err
+}

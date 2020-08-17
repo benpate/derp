@@ -21,6 +21,10 @@ func New(code int, location string, message string, details ...interface{}) *Err
 // Wrap encapsulates an existing derp.Error
 func Wrap(inner error, location string, message string, details ...interface{}) *Error {
 
+	if inner == nil {
+		return nil
+	}
+
 	result := Error{
 		InnerError: inner,
 		Location:   location,

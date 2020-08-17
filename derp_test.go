@@ -82,13 +82,13 @@ func TestEmptyInnerError(t *testing.T) {
 
 	{
 		err := Wrap(nil, "TestEmptyInnerError", "Don't Do This")
-		assert.NotNil(t, err)
+		assert.Nil(t, err)
 	}
 
 	{
 		var innerError error
 		outer := Wrap(innerError, "Should Still Be Empty", "Really")
-		assert.NotNil(t, outer)
+		assert.Nil(t, outer)
 	}
 }
 

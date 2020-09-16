@@ -1,6 +1,7 @@
 package derp
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -9,16 +10,16 @@ import (
 func TestMultiError_Append(t *testing.T) {
 
 	{
-		e := Append(
-			Invalid("name", "Name is required"),
-			Invalid("email", "Email is required"),
-			Invalid("password", "Password is not long enough"),
+		e := NewMultiError().Append(
+			errors.New("first error here"),
+			errors.New("second error here"),
+			errors.New("third error here"),
 		)
 
 		require.Equal(t, 3, len(e.Errors))
-		require.Equal(t, "name", e.Errors[0].(*ValidationError).Path)
-		require.Equal(t, "email", e.Errors[1].(*ValidationError).Path)
-		require.Equal(t, "password", e.Errors[2].(*ValidationError).Path)
+		require.Equal(t, "first error here", e.Errors[0].Error())
+		require.Equal(t, "second error here", e.Errors[1].Error())
+		require.Equal(t, "third error here", e.Errors[2].Error())
 
 		Report(e)
 	}
@@ -27,35 +28,23 @@ func TestMultiError_Append(t *testing.T) {
 func TestMultiError_AppendNested(t *testing.T) {
 
 	{
-		e := Append(
-			Invalid("name", "Name is required"),
-			Invalid("email", "Email is required"),
-			Append(
-				Invalid("password", "Password does not meet complexity requirements"),
-				Invalid("confirm_password", "Password entries do not match."),
+		e := NewMultiError()
+		e.Append(
+			errors.New("first error here"),
+			errors.New("second error here"),
+			NewMultiError().Append(
+				errors.New("first nested error here"),
+				errors.New("second nested error here"),
 			),
 		)
 
 		require.Equal(t, 4, len(e.Errors))
-		require.Equal(t, CodeValidationError, e.ErrorCode())
-		require.Equal(t, CodeValidationError, ErrorCode(e))
-		require.Equal(t, "name", e.Errors[0].(*ValidationError).Path)
-		require.Equal(t, "email", e.Errors[1].(*ValidationError).Path)
-		require.Equal(t, "password", e.Errors[2].(*ValidationError).Path)
-		require.Equal(t, "confirm_password", e.Errors[3].(*ValidationError).Path)
-
-		Report(e)
-	}
-}
-
-func TestMultiError_Report(t *testing.T) {
-
-	{
-		e := Append(
-			Invalid("name", "Name is required"),
-			Invalid("email", "Email is required"),
-			Invalid("password", "Password is not long enough"),
-		)
+		require.Equal(t, 500, e.ErrorCode())
+		require.Equal(t, 500, ErrorCode(e))
+		require.Equal(t, "first error here", e.Errors[0].Error())
+		require.Equal(t, "second error here", e.Errors[1].Error())
+		require.Equal(t, "first nested error here", e.Errors[2].Error())
+		require.Equal(t, "second nested error here", e.Errors[3].Error())
 
 		Report(e)
 	}
@@ -64,9 +53,9 @@ func TestMultiError_Report(t *testing.T) {
 func TestMultiError_AppendNil(t *testing.T) {
 
 	{
-		e := Append(nil, nil, nil)
-		require.Nil(t, e)
+		e := NewMultiError().Append(nil, nil, nil)
 		require.Zero(t, ErrorCode(e))
+		require.Zero(t, len(e.Errors))
 	}
 
 	{

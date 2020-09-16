@@ -14,9 +14,6 @@ const (
 	// CodeNotFoundError represents a request for a resource that does not exist, such as a database query that returns "not found"
 	CodeNotFoundError = 404
 
-	// CodeValidationError represents a request that has invalid input.
-	CodeValidationError = 422
-
 	// CodeInternalError represents a generic error message, given when an unexpected condition was encountered and no more specific message is suitable.
 	CodeInternalError = 500
 )

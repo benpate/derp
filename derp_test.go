@@ -144,17 +144,15 @@ func TestIsNil(t *testing.T) {
 	}
 
 	{
-		multiError := Append(
+
+		multiError := NewMultiError()
+
+		multiError.Append(
 			errors.New("first error"),
 			errors.New("second error"),
 		)
 
 		require.False(t, isNil(multiError))
-	}
-
-	{
-		emptyMultiError := &MultiError{}
-		require.True(t, isNil(emptyMultiError))
 	}
 }
 

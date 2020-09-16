@@ -32,23 +32,6 @@ func ExampleWrap() {
 	Report(outerErr)
 }
 
-func ExampleInvalid() {
-
-	// Derp includes a custom error type for data validation, that tracks
-	// the name (or path) of the invalid field and the reason that it is invalid
-
-	err := Invalid("field.name", "Field is required, or is too short, or is something else we don't like.")
-
-	// ValidationErrors work anywhere that a standard error works
-	fmt.Println(err.Error())
-
-	// Derp also calculates the HTTP error code for ValidationErrors, which is 422 "Unprocessable Entity".
-	fmt.Println(ErrorCode(err))
-
-	// Output: Field is required, or is too short, or is something else we don't like.
-	// 422
-}
-
 func ExampleWrap_standardErrors() {
 
 	// Wrap also works with standard library errors
@@ -79,17 +62,15 @@ func ExampleMultiError() {
 
 	err1 := New(500, "Code Location", "Error Message", "works with native derp errors")
 
-	err2 := Invalid("user.name", "Works with validation errors")
-
-	err3 := errors.New("Works with standard library errors")
+	err2 := errors.New("Works with standard library errors")
 
 	// Multiple errors appended into a single slice
-	multi := Append(err1, err2, err3)
+	multi := NewMultiError()
+	multi.Append(err1, err2)
 
 	// MultiErrors can be used anywhere a standard Error can be
 	fmt.Println(multi.Error())
 
 	// Output: Code Location: Error Message
-	// Works with validation errors
 	// Works with standard library errors
 }

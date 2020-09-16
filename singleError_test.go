@@ -35,7 +35,7 @@ func TestSingleError_WrapSingle(t *testing.T) {
 
 func TestSingleError_WrapMultiple(t *testing.T) {
 
-	inner := Append(
+	inner := NewMultiError().Append(
 		errors.New("first error"),
 		errors.New("second error"),
 		errors.New("third error"),
@@ -51,21 +51,6 @@ func TestSingleError_WrapMultiple(t *testing.T) {
 	require.Equal(t, innerAgain.Errors[0].Error(), "first error")
 	require.Equal(t, innerAgain.Errors[1].Error(), "second error")
 	require.Equal(t, innerAgain.Errors[2].Error(), "third error")
-}
-
-func TestSingleError_WrapValidation(t *testing.T) {
-
-	inner := Invalid("name", "'name' is required")
-	outer := Wrap(inner, "C", "D")
-
-	require.Equal(t, CodeValidationError, outer.Code)
-	require.Equal(t, "C", outer.Location)
-	require.Equal(t, "D", outer.Message)
-
-	innerAgain := outer.Unwrap().(*ValidationError)
-	require.Equal(t, CodeValidationError, innerAgain.ErrorCode())
-	require.Equal(t, "name", innerAgain.Path)
-	require.Equal(t, "'name' is required", innerAgain.Message)
 }
 
 func TestSingleError_WrapGeneric(t *testing.T) {

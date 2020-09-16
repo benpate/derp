@@ -2,8 +2,8 @@ package derp
 
 import "time"
 
-// Error represents a runtime error.  It includes
-type Error struct {
+// SingleError represents a runtime error.  It includes
+type SingleError struct {
 	Code       int           `json:"code"`       // Numeric error code (such as an HTTP status code) to report to the client.
 	Location   string        `json:"location"`   // Function name (or other location description) of where the error occurred
 	Message    string        `json:"message"`    // Primary (top-level) error message for this error
@@ -14,28 +14,23 @@ type Error struct {
 
 // Error implements the Error interface, which allows derp.Error objects to be
 // used anywhere a standard error is used.
-func (err *Error) Error() string {
+func (err *SingleError) Error() string {
 	return err.Location + ": " + err.Message
 }
 
 // ErrorCode returns the error Code embedded in this Error.  This is useful for matching
 // interfaces in other package.
-func (err *Error) ErrorCode() int {
+func (err *SingleError) ErrorCode() int {
 	return err.Code
 }
 
+// SetErrorCode returns the error Code embedded in this Error.  This is useful for matching
+// interfaces in other package.
+func (err *SingleError) SetErrorCode(code int) {
+	err.Code = code
+}
+
 // Unwrap supports Go 1.13+ error unwrapping
-func (err *Error) Unwrap() error {
+func (err *SingleError) Unwrap() error {
 	return err.InnerError
-}
-
-// NotFound returns TRUE if the error `Code` is a 404 / Not Found error.
-func (err *Error) NotFound() bool {
-	return err.Code == CodeNotFoundError
-}
-
-// Report calls the centralized reporting function to send this error to any configured services.
-func (err *Error) Report() *Error {
-	Report(err)
-	return err
 }

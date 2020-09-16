@@ -3,6 +3,7 @@ package derp
 import (
 	"testing"
 
+	"github.com/benpate/derp/plugins"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,9 +17,9 @@ func TestPlugins(t *testing.T) {
 	assert.Equal(t, 0, len(Plugins))
 
 	// Test adding items to the list
-	Plugins.Add(ConsolePlugin{})
-	Plugins.Add(ConsolePlugin{})
-	Plugins.Add(ConsolePlugin{})
+	Plugins.Add(plugins.Console{})
+	Plugins.Add(plugins.Console{})
+	Plugins.Add(plugins.Console{})
 	assert.Equal(t, 3, len(Plugins))
 
 }

@@ -8,7 +8,7 @@ func RootCause(err error) error {
 	if unwrapper, ok := err.(Unwrapper); ok {
 
 		// Try to unwrap the error.  If it is a not-Nil result, then keep digging
-		if next := unwrapper.Unwrap(); next != nil {
+		if next := unwrapper.Unwrap(); !isNil(next) {
 			return RootCause(next)
 		}
 	}

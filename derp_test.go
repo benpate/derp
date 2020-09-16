@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // TestDerp tests basic derp functions (separate from features of a specific reporter)
@@ -20,7 +20,7 @@ func TestDerp(t *testing.T) {
 	assert.Equal(t, innerError.Details[0], "detail1")
 	assert.Equal(t, innerError.Details[1], "detail2")
 	assert.Equal(t, innerError.Details[2], "detail3")
-	assert.Equal(t, innerError.NotFound(), true)
+	assert.Equal(t, NotFound(innerError), true)
 
 	// Create an outer error
 	outerError := Wrap(innerError, "OuterError", "Inherited", "other details here")
@@ -30,10 +30,10 @@ func TestDerp(t *testing.T) {
 	assert.Equal(t, outerError.Code, 404) // This is still 404 because we've let the inner error code bubble up
 	assert.NotNil(t, outerError.InnerError)
 	assert.Equal(t, outerError.Details[0], "other details here")
-	assert.Equal(t, outerError.NotFound(), true)
+	assert.Equal(t, NotFound(outerError), true)
 
 	// Test the RootCause() function
-	assert.Equal(t, "InnerError", RootCause(outerError).(*Error).Location)
+	assert.Equal(t, "InnerError", RootCause(outerError).(*SingleError).Location)
 }
 
 func TestErrorInterface(t *testing.T) {
@@ -69,13 +69,11 @@ func TestWrapGenericError(t *testing.T) {
 	assert.NotNil(t, err.InnerError)
 	assert.Equal(t, "TestEmptyInnerError", err.Location)
 	assert.Equal(t, "Don't Do This", err.Message)
-	assert.Equal(t, len(err.Details), 1)
+	// assert.Equal(t, len(err.Details), 1)
 
 	unwrapped := err.Unwrap()
 	assert.Equal(t, "oof. that was bad", unwrapped.Error())
 	Report(err)
-	spew.Dump(err)
-	spew.Dump(err.InnerError)
 }
 
 func TestEmptyInnerError(t *testing.T) {
@@ -92,21 +90,83 @@ func TestEmptyInnerError(t *testing.T) {
 	}
 }
 
-func ExampleNew() {
+func TestNotFound(t *testing.T) {
 
-	// Mock an error
-	thisBreaks := func() error {
-		return errors.New("Something failed")
+	{
+		err := errors.New("regular error")
+		require.False(t, NotFound(err))
 	}
 
-	// Try something that fails
-	if err := thisBreaks(); err != nil {
-
-		// Populate a derp.Error with everything you know about the error
-		result := New(CodeInternalError, "Example", "Something broke in `thisBreaks`", err.Error())
-
-		// Call .Report() to send an error to Ops. This is a system-wide
-		// configuration that's set up during initialization.
-		Report(result)
+	{
+		err := errors.New("not found")
+		require.True(t, NotFound(err))
 	}
+
+	{
+		err := New(500, "", "")
+		require.False(t, NotFound(err))
+	}
+
+	{
+		err := New(404, "", "")
+		require.True(t, NotFound(err))
+	}
+
+	{
+		e := New(CodeNotFoundError, "Location", "Message")
+		assert.Equal(t, CodeNotFoundError, ErrorCode(e))
+	}
+}
+
+func TestIsNil(t *testing.T) {
+
+	// IsNil has some strange edge cases, so make sure that nobody
+	// makes derp panic because they define a strange error type
+
+	{
+		var nilPointer *SingleError
+		require.True(t, isNil(nilPointer))
+	}
+
+	{
+		var nilInterface error
+		require.True(t, isNil(nilInterface))
+	}
+
+	{
+		actualError := errors.New("this should not be nil")
+		require.False(t, isNil(actualError))
+	}
+
+	{
+		derpError := New(404, "Code Location", "Error Message")
+		require.False(t, isNil(derpError))
+	}
+
+	{
+		multiError := Append(
+			errors.New("first error"),
+			errors.New("second error"),
+		)
+
+		require.False(t, isNil(multiError))
+	}
+
+	{
+		emptyMultiError := &MultiError{}
+		require.True(t, isNil(emptyMultiError))
+	}
+}
+
+type weirdErrorType string
+
+func (w weirdErrorType) Error() string {
+	return "sure, it's an error"
+}
+
+func TestIsNil_WeirdErrorTypes(t *testing.T) {
+	{
+		require.False(t, isNil(weirdErrorType("")))
+	}
+
 }

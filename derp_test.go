@@ -145,9 +145,7 @@ func TestIsNil(t *testing.T) {
 
 	{
 
-		multiError := NewMultiError()
-
-		multiError.Append(
+		multiError := Append(
 			errors.New("first error"),
 			errors.New("second error"),
 		)

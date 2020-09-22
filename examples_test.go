@@ -65,12 +65,14 @@ func ExampleMultiError() {
 	err2 := errors.New("Works with standard library errors")
 
 	// Multiple errors appended into a single slice
-	multi := NewMultiError()
-	multi.Append(err1, err2)
+	multi := Append(err1, err2)
+
+	multi = Append(multi, errors.New("Add errors after the original is already created, too."))
 
 	// MultiErrors can be used anywhere a standard Error can be
 	fmt.Println(multi.Error())
 
 	// Output: Code Location: Error Message
 	// Works with standard library errors
+	// Add errors after the original is already created, too.
 }

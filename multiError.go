@@ -3,44 +3,21 @@ package derp
 import "strings"
 
 // MultiError represents a runtime error.  It includes
-type MultiError struct {
-	Errors []error
-}
+type MultiError []error
 
-// NewMultiError returns a pointer to a new MultiError record
-func NewMultiError() *MultiError {
+func (m *MultiError) Len() int {
 
-	return &MultiError{
-		Errors: make([]error, 0),
-	}
-}
-
-// Append adds more errors into this MultiError
-func (err *MultiError) Append(errs ...error) *MultiError {
-
-	for _, item := range errs {
-
-		if multi, ok := item.(*MultiError); ok {
-			err.Append(multi.Errors...)
-			continue
-		}
-
-		if !isNil(item) {
-			err.Errors = append(err.Errors, item)
-		}
-	}
-
-	return err
+	return len(*m)
 }
 
 // Error implements the Error interface, which allows derp.Error objects to be
 // used anywhere a standard error is used.
-func (err *MultiError) Error() string {
+func (m *MultiError) Error() string {
 
 	b := strings.Builder{}
 
-	for _, e := range err.Errors {
-		b.WriteString(e.Error() + "\n")
+	for _, err := range *m {
+		b.WriteString(err.Error() + "\n")
 	}
 
 	return b.String()
@@ -48,11 +25,18 @@ func (err *MultiError) Error() string {
 
 // ErrorCode returns the error Code embedded in this Error.  This is useful for matching
 // interfaces in other package.
-func (err *MultiError) ErrorCode() int {
+func (m *MultiError) ErrorCode() int {
 
-	if len(err.Errors) == 0 {
+	if m.Len() == 0 {
 		return 0
 	}
 
-	return ErrorCode(err.Errors[0])
+	for _, err := range *m {
+
+		if errorWithCode, ok := err.(ErrorCodeGetter); ok {
+			return errorWithCode.ErrorCode()
+		}
+	}
+
+	return 500
 }

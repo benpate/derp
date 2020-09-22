@@ -43,6 +43,31 @@ func Wrap(inner error, location string, message string, details ...interface{}) 
 	}
 }
 
+func Append(errs ...error) *MultiError {
+
+	result := MultiError{}
+
+	for _, nextError := range errs {
+
+		if isNil(nextError) {
+			continue
+		}
+
+		if nextMultiError, ok := nextError.(*MultiError); ok {
+			result = append(result, *nextMultiError...)
+			continue
+		}
+
+		result = append(result, nextError)
+	}
+
+	if result.Len() == 0 {
+		return nil
+	}
+
+	return &result
+}
+
 // NotFound returns TRUE if the error `Code` is a 404 / Not Found error.
 func NotFound(err error) bool {
 
@@ -59,8 +84,9 @@ func isNil(i error) bool {
 	if i == nil {
 		return true
 	}
+
 	switch reflect.TypeOf(i).Kind() {
-	case reflect.Ptr, reflect.Map, reflect.Array, reflect.Chan, reflect.Slice:
+	case reflect.Ptr, reflect.Array, reflect.Slice, reflect.Chan, reflect.Map:
 		return reflect.ValueOf(i).IsNil()
 	}
 	return false

@@ -23,7 +23,7 @@ func TestDerp(t *testing.T) {
 	assert.Equal(t, NotFound(innerError), true)
 
 	// Create an outer error
-	outerError := Wrap(innerError, "OuterError", "Inherited", "other details here")
+	outerError := Wrap(innerError, "OuterError", "Inherited", "other details here").(SingleError)
 
 	assert.Equal(t, outerError.Location, "OuterError")
 	assert.Equal(t, outerError.Message, "Inherited")
@@ -33,7 +33,7 @@ func TestDerp(t *testing.T) {
 	assert.Equal(t, NotFound(outerError), true)
 
 	// Test the RootCause() function
-	assert.Equal(t, "InnerError", RootCause(outerError).(*SingleError).Location)
+	assert.Equal(t, "InnerError", RootCause(outerError).(SingleError).Location)
 }
 
 func TestErrorInterface(t *testing.T) {
@@ -63,7 +63,7 @@ func TestStandardError(t *testing.T) {
 func TestWrapGenericError(t *testing.T) {
 
 	generic := errors.New("oof. that was bad")
-	err := Wrap(generic, "TestEmptyInnerError", "Don't Do This")
+	err := Wrap(generic, "TestEmptyInnerError", "Don't Do This").(SingleError)
 
 	assert.Equal(t, 500, err.Code)
 	assert.NotNil(t, err.InnerError)
@@ -144,13 +144,15 @@ func TestIsNil(t *testing.T) {
 	}
 
 	{
+		c := NewCollector()
 
-		multiError := Append(
+		c.Add(
 			errors.New("first error"),
 			errors.New("second error"),
 		)
 
-		require.False(t, isNil(multiError))
+		e := c.Error()
+		require.False(t, isNil(e))
 	}
 }
 

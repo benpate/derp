@@ -6,9 +6,9 @@ import (
 )
 
 // New returns a new Error object
-func New(code int, location string, message string, details ...interface{}) *SingleError {
+func New(code int, location string, message string, details ...interface{}) SingleError {
 
-	return &SingleError{
+	return SingleError{
 		Location:  location,
 		Code:      code,
 		Message:   message,
@@ -18,7 +18,7 @@ func New(code int, location string, message string, details ...interface{}) *Sin
 }
 
 // Wrap encapsulates an existing derp.Error
-func Wrap(inner error, location string, message string, details ...interface{}) *SingleError {
+func Wrap(inner error, location string, message string, details ...interface{}) error {
 
 	// If the inner error is nil, then the wrapped error is nil, too.
 	if isNil(inner) {
@@ -27,13 +27,13 @@ func Wrap(inner error, location string, message string, details ...interface{}) 
 
 	// If the inner error is not of a known type, then serialize it into the details.
 	switch inner.(type) {
-	case *SingleError:
-	case *MultiError:
+	case SingleError:
+	case MultiError:
 	default:
 		details = append(details, inner.Error())
 	}
 
-	return &SingleError{
+	return SingleError{
 		InnerError: inner,
 		Location:   location,
 		Message:    message,
@@ -41,31 +41,6 @@ func Wrap(inner error, location string, message string, details ...interface{}) 
 		TimeStamp:  time.Now().Truncate(1 * time.Second),
 		Code:       ErrorCode(inner),
 	}
-}
-
-func Append(errs ...error) *MultiError {
-
-	result := MultiError{}
-
-	for _, nextError := range errs {
-
-		if isNil(nextError) {
-			continue
-		}
-
-		if nextMultiError, ok := nextError.(*MultiError); ok {
-			result = append(result, *nextMultiError...)
-			continue
-		}
-
-		result = append(result, nextError)
-	}
-
-	if result.Len() == 0 {
-		return nil
-	}
-
-	return &result
 }
 
 // NotFound returns TRUE if the error `Code` is a 404 / Not Found error.

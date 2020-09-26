@@ -58,21 +58,26 @@ func ExampleWrap_standardErrors() {
 
 func ExampleMultiError() {
 
-	// MultiError type contains multiple errors in a single data structure
+	// Use a "Collector" to collect multiple errors into a single data structure.
+	c := NewCollector()
 
 	err1 := New(500, "Code Location", "Error Message", "works with native derp errors")
 
-	err2 := errors.New("Works with standard library errors")
+	err2 := errors.New("works with standard library errors")
 
 	// Multiple errors appended into a single slice
-	multi := Append(err1, err2)
+	c.Add(err1, err2)
 
-	multi = Append(multi, errors.New("Add errors after the original is already created, too."))
+	c.Add(errors.New("add errors after the original is already created, too"))
 
-	// MultiErrors can be used anywhere a standard Error can be
-	fmt.Println(multi.Error())
+	// Extract the the resulting MultiError from the Collector.
+	// If no values are present, then this returns nil.
+	result := c.Error()
+
+	// MultiErrors can be used anywhere a standard Error can
+	fmt.Println(result.Error())
 
 	// Output: Code Location: Error Message
-	// Works with standard library errors
-	// Add errors after the original is already created, too.
+	// works with standard library errors
+	// add errors after the original is already created, too
 }

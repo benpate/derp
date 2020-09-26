@@ -14,13 +14,13 @@ type SingleError struct {
 
 // Error implements the Error interface, which allows derp.Error objects to be
 // used anywhere a standard error is used.
-func (err *SingleError) Error() string {
+func (err SingleError) Error() string {
 	return err.Location + ": " + err.Message
 }
 
 // ErrorCode returns the error Code embedded in this Error.  This is useful for matching
 // interfaces in other package.
-func (err *SingleError) ErrorCode() int {
+func (err SingleError) ErrorCode() int {
 	return err.Code
 }
 
@@ -31,6 +31,6 @@ func (err *SingleError) SetErrorCode(code int) {
 }
 
 // Unwrap supports Go 1.13+ error unwrapping
-func (err *SingleError) Unwrap() error {
+func (err SingleError) Unwrap() error {
 	return err.InnerError
 }

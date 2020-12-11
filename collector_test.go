@@ -19,7 +19,7 @@ func (t testCustomCodeError) ErrorCode() int {
 	return int(t)
 }
 
-func TestMultiError_Append(t *testing.T) {
+func TestCollector_Append(t *testing.T) {
 
 	{
 		c := Collector{} // Also testing just in case someone uses this value raw..
@@ -40,7 +40,7 @@ func TestMultiError_Append(t *testing.T) {
 	}
 }
 
-func TestMultiError_AppendNested(t *testing.T) {
+func TestCollector_AppendNested(t *testing.T) {
 
 	{
 		c1 := NewCollector()
@@ -71,7 +71,7 @@ func TestMultiError_AppendNested(t *testing.T) {
 	}
 }
 
-func TestMultiError_AppendNil(t *testing.T) {
+func TestCollector_AppendNil(t *testing.T) {
 
 	{
 		c := NewCollector()
@@ -88,7 +88,7 @@ func TestMultiError_AppendNil(t *testing.T) {
 	}
 }
 
-func TestMultiError_Code(t *testing.T) {
+func TestCollector_Code(t *testing.T) {
 
 	{
 		e := MultiError{

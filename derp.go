@@ -43,6 +43,21 @@ func Wrap(inner error, location string, message string, details ...interface{}) 
 	}
 }
 
+// Message retrieves the best-fit error message for any type of error
+func Message(err error) string {
+
+	switch d := err.(type) {
+	case *SingleError:
+		return d.Message
+	case *MultiError:
+		if len(*d) > 0 {
+			return Message((*d)[0])
+		}
+	}
+
+	return err.Error()
+}
+
 // NotFound returns TRUE if the error `Code` is a 404 / Not Found error.
 func NotFound(err error) bool {
 

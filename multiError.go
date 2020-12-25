@@ -5,6 +5,22 @@ import "strings"
 // MultiError represents a runtime error.  It includes
 type MultiError []error
 
+func (m MultiError) Message() string {
+
+	if len(m) == 0 {
+		return ""
+	}
+
+	for _, err := range m {
+
+		if messager, ok := err.(MessageGetter); ok {
+			return messager.Message()
+		}
+	}
+
+	return "Unrecognized Error"
+}
+
 // Error implements the Error interface, which allows derp.Error objects to be
 // used anywhere a standard error is used.
 func (m MultiError) Error() string {

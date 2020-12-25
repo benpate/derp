@@ -16,6 +16,13 @@ type ErrorCodeSetter interface {
 	SetErrorCode(int)
 }
 
+// MessageGetter interface describes any error that can also report a "Message"
+type MessageGetter interface {
+
+	// Message returns a human-friendly string representation of the error.
+	Message() string
+}
+
 // Unwrapper interface describes any error that can be "unwrapped".  It supports
 // the Unwrap method added in Go 1.13+
 type Unwrapper interface {

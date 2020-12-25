@@ -43,31 +43,6 @@ func Wrap(inner error, location string, message string, details ...interface{}) 
 	}
 }
 
-// Message retrieves the best-fit error message for any type of error
-func Message(err error) string {
-
-	switch d := err.(type) {
-	case *SingleError:
-		return d.Message
-	case *MultiError:
-		if len(*d) > 0 {
-			return Message((*d)[0])
-		}
-	}
-
-	return err.Error()
-}
-
-// NotFound returns TRUE if the error `Code` is a 404 / Not Found error.
-func NotFound(err error) bool {
-
-	if coder, ok := err.(ErrorCodeGetter); ok {
-		return coder.ErrorCode() == CodeNotFoundError
-	}
-
-	return err.Error() == "not found"
-}
-
 func isNil(i error) bool {
 
 	// Shout out to: https://medium.com/@mangatmodi/go-check-nil-interface-the-right-way-d142776edef1

@@ -5,6 +5,7 @@ import "strings"
 // MultiError represents a runtime error.  It includes
 type MultiError []error
 
+// Message retrieves the error message from the first message in the slice that is a messageGetter
 func (m MultiError) Message() string {
 
 	if len(m) == 0 {
@@ -13,8 +14,8 @@ func (m MultiError) Message() string {
 
 	for _, err := range m {
 
-		if messager, ok := err.(MessageGetter); ok {
-			return messager.Message()
+		if message := Message(err); message != "" {
+			return message
 		}
 	}
 

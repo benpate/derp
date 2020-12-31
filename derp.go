@@ -13,7 +13,7 @@ func New(code int, location string, message string, details ...interface{}) Sing
 		Code:      code,
 		Message:   message,
 		Details:   details,
-		TimeStamp: time.Now().Truncate(1 * time.Second),
+		TimeStamp: time.Now().Unix(),
 	}
 }
 
@@ -38,7 +38,7 @@ func Wrap(inner error, location string, message string, details ...interface{}) 
 		Location:   location,
 		Message:    message,
 		Details:    details,
-		TimeStamp:  time.Now().Truncate(1 * time.Second),
+		TimeStamp:  time.Now().Unix(),
 		Code:       ErrorCode(inner),
 	}
 }

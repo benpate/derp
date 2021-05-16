@@ -3,6 +3,10 @@ package derp
 // Message retrieves the best-fit error message for any type of error
 func Message(err error) string {
 
+	if isNil(err) {
+		return ""
+	}
+
 	switch e := err.(type) {
 	case *SingleError:
 		return e.Message
@@ -16,6 +20,10 @@ func Message(err error) string {
 
 // NotFound returns TRUE if the error `Code` is a 404 / Not Found error.
 func NotFound(err error) bool {
+
+	if isNil(err) {
+		return false
+	}
 
 	if coder, ok := err.(ErrorCodeGetter); ok {
 		return coder.ErrorCode() == CodeNotFoundError

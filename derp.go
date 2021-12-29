@@ -17,6 +17,22 @@ func New(code int, location string, message string, details ...interface{}) Sing
 	}
 }
 
+func BadRequest(location string, message string, details ...interface{}) SingleError {
+	return New(CodeBadRequestError, location, message, details...)
+}
+
+func NewForbiddenError(location string, message string, details ...interface{}) SingleError {
+	return New(CodeForbiddenError, location, message, details...)
+}
+
+func NewInternalError(location string, message string, details ...interface{}) SingleError {
+	return New(CodeInternalError, location, message, details...)
+}
+
+func NewNotFoundError(location string, message string, details ...interface{}) SingleError {
+	return New(CodeNotFoundError, location, message, details...)
+}
+
 // Wrap encapsulates an existing derp.Error
 func Wrap(inner error, location string, message string, details ...interface{}) error {
 

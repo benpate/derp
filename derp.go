@@ -17,7 +17,7 @@ func New(code int, location string, message string, details ...interface{}) Sing
 	}
 }
 
-func BadRequest(location string, message string, details ...interface{}) SingleError {
+func NewBadRequestError(location string, message string, details ...interface{}) SingleError {
 	return New(CodeBadRequestError, location, message, details...)
 }
 

@@ -1,10 +1,10 @@
 # DERP 🤪
 
-[![GoDoc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](http://godoc.org/github.com/benpate/derp)
-[![Build Status](http://img.shields.io/travis/benpate/derp.svg?style=flat-square)](https://travis-ci.org/benpate/derp)
+[![GoDoc](https://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](http://pkg.go.dev/github.com/benpate/derp)
+[![Build Status](https://img.shields.io/github/workflow/status/benpate/derp/Go/master)](https://github.com/benpate/derp/actions/workflows/go.yml)
 [![Codecov](https://img.shields.io/codecov/c/github/benpate/derp.svg?style=flat-square)](https://codecov.io/gh/benpate/derp)
 [![Go Report Card](https://goreportcard.com/badge/github.com/benpate/derp?style=flat-square)](https://goreportcard.com/report/github.com/benpate/derp)
-![Version](https://img.shields.io/github/v/release/benpate/derp?include_prereleases&style=flat-square&color=brightgreen)
+[![Version](https://img.shields.io/github/v/release/benpate/derp?include_prereleases&style=flat-square&color=brightgreen)](https://github.com/benpate/derp/releases)
 
 ## Better Error Reporting for Go
 
@@ -24,22 +24,22 @@ Derp encapulates all of the data you can collect to troubleshoot the root cause 
 
 func InnerFunc(arg1 string) error {
 
-	if err := doTheThing(); err != nil {
-		// Derp create errors with more troubleshooting info than standard errors.
-		return derp.New(derp.CodeNotFound, "App.InnerFunc", "Error doing the thing", err.Error(), arg1)
-	}
+    if err := doTheThing(); err != nil {
+        // Derp create errors with more troubleshooting info than standard errors.
+        return derp.New(derp.CodeNotFound, "App.InnerFunc", "Error doing the thing", err.Error(), arg1)
+    }
 
-	return nil
+    return nil
 }
 
 func OuterFunc(arg1 string, arg2 string) {
 
-	// Call InnerFunc with required arguments.
-	if err := InnerFunction(arg1); err != nil {
+    // Call InnerFunc with required arguments.
+    if err := InnerFunction(arg1); err != nil {
 
-		// Wraps errors with additional details and nested stack trace, then report to Ops.
-		derp.Wrap(err, "App.OuterFunc", "Error calling InnerFunction", arg1, arg2).Report()
-	}
+        // Wraps errors with additional details and nested stack trace, then report to Ops.
+        derp.Wrap(err, "App.OuterFunc", "Error calling InnerFunction", arg1, arg2).Report()
+    }
 }
 
 ```
@@ -55,6 +55,7 @@ Every error in derp includes a numeric error code.  We suggest using standard **
 To set an error code, just pass a **non-zero** `code` number to the `derp.New` function.  To let underlying codes bubble up, just pass a **zero**.
 
 ## 3. Reporting Plug-Ins
+
 The derp package uses plugins to report errors to an external source.  Plugins can send the error to the error console, to a database, an external service, or anywhere else you desire.
 
 Plugins should be configured once, on a system-wide basis, when your application starts up.  If you don't set up any
@@ -64,17 +65,17 @@ import "github.com/benpate/derp/plugins/mongodb"
 
 func init() {
 
-	// By default, derp uses the ConsolePlugin{}.  You can remove
-	// this default behavior by calling derp.Plugins.Clear()
+    // By default, derp uses the ConsolePlugin{}.  You can remove
+    // this default behavior by calling derp.Plugins.Clear()
 
-	// Add a database plugin to insert error reports into your database.
-	derp.Plugins.Add(mongodb.New(connectionString, collectionName))
+    // Add a database plugin to insert error reports into your database.
+    derp.Plugins.Add(mongodb.New(connectionString, collectionName))
 }
 
 func SomewhereInYourCode() {
-	// Report passes the error to each of the configured
-	// plugins, to deliver the error to its destination.
-	derp.New("location", "description", 0, nil).Report()
+    // Report passes the error to each of the configured
+    // plugins, to deliver the error to its destination.
+    derp.New("location", "description", 0, nil).Report()
 }
 ```
 
@@ -91,7 +92,6 @@ Older versions of derp included other error reporting plugins.  These are being 
 * `Mongodb` write errors to a MongoDB database collection
 * `SMTP` send a human-friendly error report via email.
 * `Loggly` sends error reports to the Loggly web service
-
 
 ## What About Go2?
 

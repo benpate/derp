@@ -26,7 +26,7 @@ func InnerFunc(arg1 string) error {
 
     if err := doTheThing(); err != nil {
         // Derp create errors with more troubleshooting info than standard errors.
-        return derp.New(derp.CodeNotFound, "App.InnerFunc", "Error doing the thing", err.Error(), arg1)
+        return derp.NewNotFoundError("App.InnerFunc", "Error doing the thing", err.Error(), arg1)
     }
 
     return nil

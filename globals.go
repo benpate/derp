@@ -8,8 +8,8 @@ func Message(err error) string {
 	}
 
 	switch e := err.(type) {
-	case *SingleError:
-		return e.Message
+	case SingleError:
+		return e.Error()
 
 	case MessageGetter:
 		return e.Message()

@@ -142,18 +142,6 @@ func TestIsNil(t *testing.T) {
 		derpError := New(404, "Code Location", "Error Message")
 		require.False(t, isNil(derpError))
 	}
-
-	{
-		c := NewCollector()
-
-		c.Add(
-			errors.New("first error"),
-			errors.New("second error"),
-		)
-
-		e := c.Error()
-		require.False(t, isNil(e))
-	}
 }
 
 type weirdErrorType string
@@ -166,5 +154,4 @@ func TestIsNil_WeirdErrorTypes(t *testing.T) {
 	{
 		require.False(t, isNil(weirdErrorType("")))
 	}
-
 }

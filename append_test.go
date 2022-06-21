@@ -22,6 +22,10 @@ func TestAppend(t *testing.T) {
 	result = Append(result, errors.New("omg"))
 	require.Equal(t, "omg", result.Error())
 
+	// Append a nil to an existing error
+	result = Append(result, nil)
+	require.Equal(t, "omg", result.Error())
+
 	// Append a second error.  Should now be a multi-error
 	result = Append(result, errors.New("yet-another-error"))
 	require.Equal(t, "omg\nyet-another-error\n", result.Error())
@@ -31,4 +35,9 @@ func TestAppend(t *testing.T) {
 		multi := result.(MultiError)
 		require.Equal(t, 2, len(multi))
 	}
+
+	// Append to a multi-error.  Should still be a multi-error
+	result = Append(result, errors.New("make-it-stop"))
+	require.Equal(t, "omg\nyet-another-error\nmake-it-stop\n", result.Error())
+
 }

@@ -36,6 +36,21 @@ func TestDerp(t *testing.T) {
 	assert.Equal(t, "InnerError", RootCause(outerError).(SingleError).Location)
 }
 
+func TestConvenienceFns(t *testing.T) {
+
+	badRequest := NewBadRequestError("location", "description")
+	require.Equal(t, CodeBadRequestError, ErrorCode(badRequest))
+
+	forbidden := NewForbiddenError("location", "description")
+	require.Equal(t, CodeForbiddenError, ErrorCode(forbidden))
+
+	internal := NewInternalError("location", "description")
+	require.Equal(t, CodeInternalError, ErrorCode(internal))
+
+	notFound := NewNotFoundError("location", "description")
+	require.Equal(t, CodeNotFoundError, ErrorCode(notFound))
+
+}
 func TestErrorInterface(t *testing.T) {
 
 	// Create an error

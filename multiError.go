@@ -8,10 +8,6 @@ type MultiError []error
 // Message retrieves the error message from the first message in the slice that is a messageGetter
 func (m MultiError) Message() string {
 
-	if len(m) == 0 {
-		return ""
-	}
-
 	for _, err := range m {
 
 		if message := Message(err); message != "" {
@@ -19,7 +15,7 @@ func (m MultiError) Message() string {
 		}
 	}
 
-	return "Unrecognized Error"
+	return ""
 }
 
 // Error implements the Error interface, which allows derp.Error objects to be

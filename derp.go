@@ -33,6 +33,10 @@ func NewNotFoundError(location string, message string, details ...interface{}) S
 	return New(CodeNotFoundError, location, message, details...)
 }
 
+func NewUnauthorizedError(location string, message string, details ...interface{}) SingleError {
+	return New(CodeUnauthorizedError, location, message, details...)
+}
+
 // Wrap encapsulates an existing derp.Error
 func Wrap(inner error, location string, message string, details ...interface{}) error {
 

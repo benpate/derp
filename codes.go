@@ -8,6 +8,9 @@ const (
 	// CodeBadRequestError indicates that the request is not properly formatted.
 	CodeBadRequestError = 400
 
+	// CodeUnauthorizedError indicates that the request requires user authentication.
+	CodeUnauthorizedError = 401
+
 	// CodeForbiddenError means that the current user does not have the required permissions to access the requested resource.
 	CodeForbiddenError = 403
 

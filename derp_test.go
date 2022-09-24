@@ -50,6 +50,8 @@ func TestConvenienceFns(t *testing.T) {
 	notFound := NewNotFoundError("location", "description")
 	require.Equal(t, CodeNotFoundError, ErrorCode(notFound))
 
+	unauthorized := NewUnauthorizedError("location", "description")
+	require.Equal(t, CodeUnauthorizedError, ErrorCode(unauthorized))
 }
 func TestErrorInterface(t *testing.T) {
 

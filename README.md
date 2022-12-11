@@ -75,7 +75,7 @@ func init() {
 func SomewhereInYourCode() {
     // Report passes the error to each of the configured
     // plugins, to deliver the error to its destination.
-    derp.New("location", "description", 0, nil).Report()
+    derp.New(code, "location", "description", 0, nil).Report()
 }
 ```
 

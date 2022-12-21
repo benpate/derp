@@ -6,7 +6,7 @@ import (
 )
 
 // New returns a new Error object
-func New(code int, location string, message string, details ...interface{}) SingleError {
+func New(code int, location string, message string, details ...any) SingleError {
 
 	return SingleError{
 		Location:  location,
@@ -17,28 +17,28 @@ func New(code int, location string, message string, details ...interface{}) Sing
 	}
 }
 
-func NewBadRequestError(location string, message string, details ...interface{}) SingleError {
+func NewBadRequestError(location string, message string, details ...any) SingleError {
 	return New(CodeBadRequestError, location, message, details...)
 }
 
-func NewForbiddenError(location string, message string, details ...interface{}) SingleError {
+func NewForbiddenError(location string, message string, details ...any) SingleError {
 	return New(CodeForbiddenError, location, message, details...)
 }
 
-func NewInternalError(location string, message string, details ...interface{}) SingleError {
+func NewInternalError(location string, message string, details ...any) SingleError {
 	return New(CodeInternalError, location, message, details...)
 }
 
-func NewNotFoundError(location string, message string, details ...interface{}) SingleError {
+func NewNotFoundError(location string, message string, details ...any) SingleError {
 	return New(CodeNotFoundError, location, message, details...)
 }
 
-func NewUnauthorizedError(location string, message string, details ...interface{}) SingleError {
+func NewUnauthorizedError(location string, message string, details ...any) SingleError {
 	return New(CodeUnauthorizedError, location, message, details...)
 }
 
 // Wrap encapsulates an existing derp.Error
-func Wrap(inner error, location string, message string, details ...interface{}) error {
+func Wrap(inner error, location string, message string, details ...any) error {
 
 	// If the inner error is nil, then the wrapped error is nil, too.
 	if isNil(inner) {

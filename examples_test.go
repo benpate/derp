@@ -10,7 +10,7 @@ func ExampleNew() {
 	// Derp errors work anywhere that you use normal errors.
 	// They just contain more information about what actually happened.
 	// Here's how to create a new error to report back to a caller
-	err := New(404, "Code Location", "Error Message", "additional details here", 12345, map[string]interface{}{})
+	err := New(404, "Code Location", "Error Message", "additional details here", 12345, map[string]any{})
 
 	// Pluggable error reporting interface can dump errors to the console
 	// or anywhere else that you want to send them.

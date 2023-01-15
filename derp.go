@@ -37,6 +37,10 @@ func NewUnauthorizedError(location string, message string, details ...any) Singl
 	return New(CodeUnauthorizedError, location, message, details...)
 }
 
+func NewValidationError(message string, details ...any) SingleError {
+	return New(CodeValidationError, "", message, details...)
+}
+
 // Wrap encapsulates an existing derp.Error
 func Wrap(inner error, location string, message string, details ...any) error {
 

@@ -16,14 +16,17 @@ func (err SingleError) Error() string {
 	return err.Location + ": " + err.Message
 }
 
-// ErrorCode returns the error Code embedded in this Error.  This is useful for matching
-// interfaces in other package.
+// ErrorCode returns the error Code embedded in this Error.
 func (err SingleError) ErrorCode() int {
 	return err.Code
 }
 
-// SetErrorCode returns the error Code embedded in this Error.  This is useful for matching
-// interfaces in other package.
+// SetMessage updates the Message field of this Error.
+func (err *SingleError) SetMessage(message string) {
+	err.Message = message
+}
+
+// SetErrorCode returns the error Code embedded in this Error.
 func (err *SingleError) SetErrorCode(code int) {
 	err.Code = code
 }

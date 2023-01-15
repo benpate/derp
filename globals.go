@@ -18,6 +18,21 @@ func Message(err error) string {
 	return err.Error()
 }
 
+// SetMessage sets the error message for any errors that allow it.
+func SetMessage(err error, message string) {
+
+	if isNil(err) {
+		return
+	}
+
+	switch e := err.(type) {
+	case SingleError:
+		e.SetMessage(message)
+	case MessageSetter:
+		e.SetMessage(message)
+	}
+}
+
 // NotFound returns TRUE if the error `Code` is a 404 / Not Found error.
 func NotFound(err error) bool {
 

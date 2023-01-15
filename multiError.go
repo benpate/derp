@@ -1,9 +1,28 @@
 package derp
 
-import "strings"
+import (
+	"strings"
+)
 
 // MultiError represents a runtime error.  It includes
 type MultiError []error
+
+func (m *MultiError) Append(err error) {
+	if err != nil {
+		*m = append(*m, err)
+	}
+}
+
+func (m MultiError) Length() int {
+	if m == nil {
+		return 0
+	}
+	return len(m)
+}
+
+func (m MultiError) IsEmpty() bool {
+	return m.Length() == 0
+}
 
 // Message retrieves the error message from the first message in the slice that is a messageGetter
 func (m MultiError) Message() string {
@@ -16,6 +35,19 @@ func (m MultiError) Message() string {
 	}
 
 	return ""
+}
+
+func (m MultiError) AddPrefixes(prefix string) {
+
+	for index, err := range m {
+		switch typed := err.(type) {
+		case SingleError:
+			typed.SetMessage(prefix + typed.Message)
+			m[index] = typed
+		case MessageSetter:
+			typed.SetMessage(prefix + Message(err))
+		}
+	}
 }
 
 // Error implements the Error interface, which allows derp.Error objects to be

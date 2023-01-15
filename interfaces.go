@@ -23,6 +23,15 @@ type MessageGetter interface {
 	Message() string
 }
 
+type MessageSetter interface {
+	SetMessage(string)
+}
+
+type MessageGetterSetter interface {
+	MessageGetter
+	MessageSetter
+}
+
 // Unwrapper interface describes any error that can be "unwrapped".  It supports
 // the Unwrap method added in Go 1.13+
 type Unwrapper interface {

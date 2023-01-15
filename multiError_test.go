@@ -4,7 +4,6 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/require"
 )
 
@@ -37,7 +36,6 @@ func TestMultiError_Empty(t *testing.T) {
 func TestMultiError_Append(t *testing.T) {
 
 	var err MultiError
-	spew.Config.DisableMethods = true
 
 	err.Append(NewBadRequestError("location", "first"))
 	err.Append(NewForbiddenError("location", "second"))

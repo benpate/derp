@@ -8,13 +8,13 @@ import (
 type MultiError []error
 
 func (m *MultiError) Append(err error) {
-	if err != nil {
+	if !isNil(err) {
 		*m = append(*m, err)
 	}
 }
 
 func (m MultiError) Length() int {
-	if m == nil {
+	if isNil(m) {
 		return 0
 	}
 	return len(m)
@@ -67,7 +67,7 @@ func (m MultiError) Error() string {
 // interfaces in other package.
 func (m MultiError) ErrorCode() int {
 
-	if len(m) == 0 {
+	if m.IsEmpty() {
 		return 0
 	}
 

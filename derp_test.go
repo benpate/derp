@@ -135,6 +135,16 @@ func TestNotFound(t *testing.T) {
 	}
 }
 
+func TestNil(t *testing.T) {
+
+	var err error
+
+	require.Zero(t, ErrorCode(err))
+	require.Empty(t, Message(err))
+	require.False(t, NotFound(err))
+	SetErrorCode(err, 500) // this should not break
+}
+
 func TestIsNil(t *testing.T) {
 
 	// IsNil has some strange edge cases, so make sure that nobody

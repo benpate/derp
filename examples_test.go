@@ -2,7 +2,6 @@ package derp
 
 import (
 	"errors"
-	"fmt"
 )
 
 func ExampleNew() {
@@ -54,31 +53,4 @@ func ExampleWrap_standardErrors() {
 		// configuration that's set up during initialization.
 		Report(result)
 	}
-}
-
-func ExampleMultiError() {
-
-	// Start with a regular-old nil error object
-	var err error
-
-	// Append errors to it (just like a slice)
-
-	// Either derp errors
-	err = Append(err, New(500, "Code Location", "Error Message", "works with native derp errors"))
-
-	// Or regular ones
-	err = Append(err, errors.New("works with standard library errors"))
-
-	// Append is null-safe for all of its arguments
-	err = Append(err, nil)
-
-	// Extract the the resulting MultiError from the Collector.
-	// If no values are present, then this returns nil.
-	result := err.Error()
-
-	// MultiErrors can be used anywhere a standard Error can
-	fmt.Println(result)
-
-	// Output: Code Location: Error Message
-	// works with standard library errors
 }

@@ -33,26 +33,6 @@ func TestSingleError_WrapSingle(t *testing.T) {
 	require.Equal(t, innerAgain.Message, "B")
 }
 
-func TestSingleError_WrapMultiple(t *testing.T) {
-
-	inner := MultiError{
-		errors.New("first error"),
-		errors.New("second error"),
-		errors.New("third error"),
-	}
-
-	outer := Wrap(inner, "C", "D").(SingleError)
-
-	require.Equal(t, outer.Code, 500)
-	require.Equal(t, outer.Location, "C")
-	require.Equal(t, outer.Message, "D")
-
-	innerAgain := outer.Unwrap().(MultiError)
-	require.Equal(t, innerAgain[0].Error(), "first error")
-	require.Equal(t, innerAgain[1].Error(), "second error")
-	require.Equal(t, innerAgain[2].Error(), "third error")
-}
-
 func TestSingleError_WrapGeneric(t *testing.T) {
 
 	inner := errors.New("omg it works")

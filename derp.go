@@ -141,7 +141,6 @@ func Wrap(inner error, location string, message string, details ...any) error {
 	// If the inner error is not of a known type, then serialize it into the details.
 	switch inner.(type) {
 	case SingleError:
-	case MultiError:
 	default:
 		details = append(details, inner.Error())
 	}

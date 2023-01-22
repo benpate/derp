@@ -93,12 +93,6 @@ Older versions of derp included other error reporting plugins.  These are being 
 * `SMTP` send a human-friendly error report via email.
 * `Loggly` sends error reports to the Loggly web service
 
-## What About Go2?
-
-One of the stated goals for Go2 is to [improve error handling](https://go.googlesource.com/proposal/+/master/design/go2draft-error-inspection.md) in a number of ways.  While the specifics are still being hammered out, a consensus is forming around: 1) removing `if err != nil` stutter, 2) making functions that error more "chainable", and 3)possibly adding nesting capabilities similar to those in derp.
-
-As the new standard library evolves, a new semantic version of derp will be released to use and augment as much of the default error objects as possible.
-
 ## Pull Requests Welcome
 
 Original versions of this library have been used in production on commercial applications for years, and the extra data collection has been a tremendous help for everyone involved.

@@ -2,16 +2,12 @@ package derp
 
 // Report takes ANY error (hopefully a derp error) and attempts to report it
 // via all configured error reporting mechanisms.
-func Report(err error) error {
+func Report(err error) {
 
-	// If the error is nil, then there's nothing to do.
-	if isNil(err) {
-		return nil
+	// If the error is NOT nil, then send "Report" to each installed plugin.
+	if !isNil(err) {
+		for _, plugin := range Plugins {
+			plugin.Report(err)
+		}
 	}
-
-	for _, plugin := range Plugins {
-		plugin.Report(err)
-	}
-
-	return err
 }

@@ -1,8 +1,8 @@
 # DERP 🤪
 
 [![GoDoc](https://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](http://pkg.go.dev/github.com/benpate/derp)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/benpate/derp/go.yml?branch=main)](https://github.com/benpate/derp/actions/workflows/go.yml)
 [![Version](https://img.shields.io/github/v/release/benpate/derp?include_prereleases&style=flat-square&color=brightgreen)](https://github.com/benpate/derp/releases)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/benpate/derp/go.yml?branch=main)](https://github.com/benpate/derp/actions/workflows/go.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/benpate/derp?style=flat-square)](https://goreportcard.com/report/github.com/benpate/derp)
 [![Codecov](https://img.shields.io/codecov/c/github/benpate/derp.svg?style=flat-square)](https://codecov.io/gh/benpate/derp)
 

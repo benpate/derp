@@ -2,9 +2,9 @@
 
 [![GoDoc](https://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](http://pkg.go.dev/github.com/benpate/derp)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/benpate/derp/go.yml?branch=main)](https://github.com/benpate/derp/actions/workflows/go.yml)
-[![Codecov](https://img.shields.io/codecov/c/github/benpate/derp.svg?style=flat-square)](https://codecov.io/gh/benpate/derp)
-[![Go Report Card](https://goreportcard.com/badge/github.com/benpate/derp?style=flat-square)](https://goreportcard.com/report/github.com/benpate/derp)
 [![Version](https://img.shields.io/github/v/release/benpate/derp?include_prereleases&style=flat-square&color=brightgreen)](https://github.com/benpate/derp/releases)
+[![Go Report Card](https://goreportcard.com/badge/github.com/benpate/derp?style=flat-square)](https://goreportcard.com/report/github.com/benpate/derp)
+[![Codecov](https://img.shields.io/codecov/c/github/benpate/derp.svg?style=flat-square)](https://codecov.io/gh/benpate/derp)
 
 ## Better Error Reporting for Go
 
@@ -84,14 +84,7 @@ func SomewhereInYourCode() {
 The package includes a small number of default reporters, and you can add to this list easily using `derp.Plugins.Add()` to add any object that implements the `Plugin` interface at startup.
 
 * `Console` write a human-friendly error report to the console
-
-### In-Progress Plugins
-
-Older versions of derp included other error reporting plugins.  These are being ported over to this open source library, and should be available soon.
-
-* `Mongodb` write errors to a MongoDB database collection
-* `SMTP` send a human-friendly error report via email.
-* `Loggly` sends error reports to the Loggly web service
+* `ZeroLog` writes error reports to the [zerolog](https://github.com/rs/zerolog) logging package
 
 ## Pull Requests Welcome
 

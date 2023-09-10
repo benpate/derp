@@ -155,6 +155,13 @@ func Wrap(inner error, location string, message string, details ...any) error {
 	}
 }
 
+// ReportAndReturn reports an error to the logger
+// and also returns it to the caller.
+func ReportAndReturn(err error) error {
+	Report(err)
+	return err
+}
+
 /******************************************
  * Other Helpers
  ******************************************/

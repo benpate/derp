@@ -45,3 +45,8 @@ func TestSingleError_WrapGeneric(t *testing.T) {
 	innerAgain := outer.Unwrap()
 	require.Equal(t, innerAgain.Error(), "omg it works")
 }
+
+func TestErrorCodeSetter(t *testing.T) {
+	err := NewInternalError("test", "test", WithNotFound)
+	require.Equal(t, 404, ErrorCode(err))
+}

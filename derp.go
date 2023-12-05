@@ -36,13 +36,23 @@ func NewValidationError(message string, details ...any) SingleError {
 // New returns a new Error object
 func New(code int, location string, message string, details ...any) SingleError {
 
-	return SingleError{
+	result := SingleError{
 		Location:  location,
 		Code:      code,
 		Message:   message,
-		Details:   details,
+		Details:   make([]any, len(details)),
 		TimeStamp: time.Now().Unix(),
 	}
+
+	for _, detail := range details {
+		if option, ok := detail.(Option); ok {
+			option(&result)
+		} else {
+			result.Details = append(result.Details, detail)
+		}
+	}
+
+	return result
 }
 
 /******************************************
@@ -101,6 +111,7 @@ func ErrorCode(err error) int {
 // SetErrorCode tries to set an error code for the provided error.  If the error matches the
 // ErrorCodeSetter interface, then the code is set directly in the error.  Otherwise,
 // it has no effect.
+// deprecated: Use WithCode instead
 func SetErrorCode(err error, code int) {
 
 	if isNil(err) {
@@ -160,14 +171,24 @@ func Wrap(inner error, location string, message string, details ...any) error {
 		details = append(details, inner.Error())
 	}
 
-	return SingleError{
-		InnerError: inner,
-		Location:   location,
-		Message:    message,
-		Details:    details,
-		TimeStamp:  time.Now().Unix(),
-		Code:       ErrorCode(inner),
+	result := SingleError{
+		WrappedValue: inner,
+		Location:     location,
+		Message:      message,
+		Details:      make([]any, len(details)),
+		TimeStamp:    time.Now().Unix(),
+		Code:         ErrorCode(inner),
 	}
+
+	for _, detail := range details {
+		if option, ok := detail.(Option); ok {
+			option(&result)
+		} else {
+			result.Details = append(result.Details, detail)
+		}
+	}
+
+	return result
 }
 
 // ReportAndReturn reports an error to the logger

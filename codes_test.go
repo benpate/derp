@@ -25,7 +25,7 @@ func TestCodeGeneric(t *testing.T) {
 func TestSetCode(t *testing.T) {
 
 	{
-		var err *SingleError
+		var err *Error
 		SetErrorCode(err, 404)
 		require.Equal(t, 0, ErrorCode(err))
 	}
@@ -37,7 +37,7 @@ func TestSetCode(t *testing.T) {
 	}
 
 	{
-		err := &SingleError{}
+		err := &Error{}
 		SetErrorCode(err, 404)
 		require.Equal(t, 404, ErrorCode(err))
 	}

@@ -12,9 +12,9 @@ import (
 func TestDerp(t *testing.T) {
 
 	// Create an inner error
-	innerError := New(CodeNotFoundError, "InnerError", "Not Found", "detail1", "detail2", "detail3")
+	innerError := New(CodeNotFoundError, "WrappedValue", "Not Found", "detail1", "detail2", "detail3")
 
-	assert.Equal(t, innerError.Location, "InnerError")
+	assert.Equal(t, innerError.Location, "WrappedValue")
 	assert.Equal(t, innerError.Message, "Not Found")
 	assert.Equal(t, innerError.Code, 404)
 	assert.Equal(t, innerError.Details[0], "detail1")
@@ -23,17 +23,17 @@ func TestDerp(t *testing.T) {
 	assert.Equal(t, NotFound(innerError), true)
 
 	// Create an outer error
-	outerError := Wrap(innerError, "OuterError", "Inherited", "other details here").(SingleError)
+	outerError := Wrap(innerError, "OuterError", "Inherited", "other details here").(Error)
 
 	assert.Equal(t, outerError.Location, "OuterError")
 	assert.Equal(t, outerError.Message, "Inherited")
 	assert.Equal(t, outerError.Code, 404) // This is still 404 because we've let the inner error code bubble up
-	assert.NotNil(t, outerError.InnerError)
+	assert.NotNil(t, outerError.WrappedValue)
 	assert.Equal(t, outerError.Details[0], "other details here")
 	assert.Equal(t, NotFound(outerError), true)
 
 	// Test the RootCause() function
-	assert.Equal(t, "InnerError", RootCause(outerError).(SingleError).Location)
+	assert.Equal(t, "WrappedValue", RootCause(outerError).(Error).Location)
 }
 
 func TestConvenienceFns(t *testing.T) {
@@ -74,17 +74,17 @@ func TestStandardError(t *testing.T) {
 	assert.Equal(t, "Encapsulating Error", outer.Message)
 	assert.Equal(t, CodeInternalError, outer.Code)
 	assert.Equal(t, 1, len(outer.Details))
-	assert.Nil(t, outer.InnerError)
+	assert.Nil(t, outer.WrappedValue)
 }
 
 func TestWrapGenericError(t *testing.T) {
 
 	generic := errors.New("oof. that was bad")
-	err := Wrap(generic, "TestEmptyInnerError", "Don't Do This").(SingleError)
+	err := Wrap(generic, "TestEmptyWrappedValue", "Don't Do This").(Error)
 
 	assert.Equal(t, 500, err.Code)
-	assert.NotNil(t, err.InnerError)
-	assert.Equal(t, "TestEmptyInnerError", err.Location)
+	assert.NotNil(t, err.WrappedValue)
+	assert.Equal(t, "TestEmptyWrappedValue", err.Location)
 	assert.Equal(t, "Don't Do This", err.Message)
 	// assert.Equal(t, len(err.Details), 1)
 
@@ -93,10 +93,10 @@ func TestWrapGenericError(t *testing.T) {
 	Report(err)
 }
 
-func TestEmptyInnerError(t *testing.T) {
+func TestEmptyWrappedValue(t *testing.T) {
 
 	{
-		err := Wrap(nil, "TestEmptyInnerError", "Don't Do This")
+		err := Wrap(nil, "TestEmptyWrappedValue", "Don't Do This")
 		assert.Nil(t, err)
 	}
 
@@ -151,7 +151,7 @@ func TestIsNil(t *testing.T) {
 	// makes derp panic because they define a strange error type
 
 	{
-		var nilPointer *SingleError
+		var nilPointer *Error
 		require.True(t, isNil(nilPointer))
 	}
 

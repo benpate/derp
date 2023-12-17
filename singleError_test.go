@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestSingleError(t *testing.T) {
+func TestError(t *testing.T) {
 	e := New(CodeInternalError, "Location", "Message")
 	require.Equal(t, "Location: Message", e.Error())
 	require.Equal(t, CodeInternalError, ErrorCode(e))
@@ -18,25 +18,25 @@ func TestSingleError(t *testing.T) {
 	require.True(t, NotFound(e))
 }
 
-func TestSingleError_WrapSingle(t *testing.T) {
+func TestError_WrapSingle(t *testing.T) {
 
 	inner := New(101, "A", "B", "C")
-	outer := Wrap(inner, "C", "D").(SingleError)
+	outer := Wrap(inner, "C", "D").(Error)
 
 	require.Equal(t, outer.Code, 101)
 	require.Equal(t, outer.Location, "C")
 	require.Equal(t, outer.Message, "D")
 
-	innerAgain := outer.Unwrap().(SingleError)
+	innerAgain := outer.Unwrap().(Error)
 	require.Equal(t, innerAgain.Code, 101)
 	require.Equal(t, innerAgain.Location, "A")
 	require.Equal(t, innerAgain.Message, "B")
 }
 
-func TestSingleError_WrapGeneric(t *testing.T) {
+func TestError_WrapGeneric(t *testing.T) {
 
 	inner := errors.New("omg it works")
-	outer := Wrap(inner, "C", "D").(SingleError)
+	outer := Wrap(inner, "C", "D").(Error)
 
 	require.Equal(t, outer.Code, 500)
 	require.Equal(t, outer.Location, "C")
@@ -47,6 +47,6 @@ func TestSingleError_WrapGeneric(t *testing.T) {
 }
 
 func TestErrorCodeSetter(t *testing.T) {
-	err := NewInternalError("test", "test", WithNotFound)
+	err := NewInternalError("test", "test", WithNotFound())
 	require.Equal(t, 404, ErrorCode(err))
 }

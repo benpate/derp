@@ -9,38 +9,38 @@ import (
  * Constructor Functions
  ******************************************/
 
-func NewBadRequestError(location string, message string, details ...any) SingleError {
+func NewBadRequestError(location string, message string, details ...any) Error {
 	return New(CodeBadRequestError, location, message, details...)
 }
 
-func NewForbiddenError(location string, message string, details ...any) SingleError {
+func NewForbiddenError(location string, message string, details ...any) Error {
 	return New(CodeForbiddenError, location, message, details...)
 }
 
-func NewInternalError(location string, message string, details ...any) SingleError {
+func NewInternalError(location string, message string, details ...any) Error {
 	return New(CodeInternalError, location, message, details...)
 }
 
-func NewNotFoundError(location string, message string, details ...any) SingleError {
+func NewNotFoundError(location string, message string, details ...any) Error {
 	return New(CodeNotFoundError, location, message, details...)
 }
 
-func NewUnauthorizedError(location string, message string, details ...any) SingleError {
+func NewUnauthorizedError(location string, message string, details ...any) Error {
 	return New(CodeUnauthorizedError, location, message, details...)
 }
 
-func NewValidationError(message string, details ...any) SingleError {
+func NewValidationError(message string, details ...any) Error {
 	return New(CodeValidationError, "", message, details...)
 }
 
 // New returns a new Error object
-func New(code int, location string, message string, details ...any) SingleError {
+func New(code int, location string, message string, details ...any) Error {
 
-	result := SingleError{
+	result := Error{
 		Location:  location,
 		Code:      code,
 		Message:   message,
-		Details:   make([]any, len(details)),
+		Details:   make([]any, 0, len(details)),
 		TimeStamp: time.Now().Unix(),
 	}
 
@@ -67,8 +67,8 @@ func Message(err error) string {
 	}
 
 	switch e := err.(type) {
-	case SingleError:
-		return e.Error()
+	case Error:
+		return e.Message
 
 	case MessageGetter:
 		return e.Message()
@@ -85,7 +85,7 @@ func SetMessage(err error, message string) {
 	}
 
 	switch e := err.(type) {
-	case SingleError:
+	case Error:
 		e.SetMessage(message)
 	case MessageSetter:
 		e.SetMessage(message)
@@ -166,16 +166,16 @@ func Wrap(inner error, location string, message string, details ...any) error {
 
 	// If the inner error is not of a known type, then serialize it into the details.
 	switch inner.(type) {
-	case SingleError:
+	case Error:
 	default:
 		details = append(details, inner.Error())
 	}
 
-	result := SingleError{
+	result := Error{
 		WrappedValue: inner,
 		Location:     location,
 		Message:      message,
-		Details:      make([]any, len(details)),
+		Details:      make([]any, 0, len(details)),
 		TimeStamp:    time.Now().Unix(),
 		Code:         ErrorCode(inner),
 	}

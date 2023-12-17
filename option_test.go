@@ -4,8 +4,7 @@ import "testing"
 
 func TestOption(t *testing.T) {
 
-	var f any
-	f = WithNotFound()
+	var f any = WithNotFound()
 
 	if _, ok := f.(Option); ok {
 		t.Log("f is an Option")

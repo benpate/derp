@@ -1,7 +1,7 @@
 package derp
 
 // Derp recommends, but does not require, using HTTP status codes as error messages.
-// Several of the most useful messages are listed here as defaults.
+// The values used in derp functions are enumerated here.
 
 const (
 
@@ -21,11 +21,11 @@ const (
 	// https://www.rfc-editor.org/rfc/rfc9110.html#name-404-not-found
 	CodeNotFoundError = 404
 
-	// CodeInternalError represents a generic error message, given when an unexpected condition was encountered and no more specific message is suitable.
-	// https://www.rfc-editor.org/rfc/rfc9110.html#name-500-internal-server-error
-	CodeInternalError = 500
-
 	// CodeValidationError retpresents a request that contains invalid data.
 	// https://www.rfc-editor.org/rfc/rfc9110.html#name-422-unprocessable-content
 	CodeValidationError = 422
+
+	// CodeInternalError represents a generic error message, given when an unexpected condition was encountered and no more specific message is suitable.
+	// https://www.rfc-editor.org/rfc/rfc9110.html#name-500-internal-server-error
+	CodeInternalError = 500
 )

@@ -9,7 +9,7 @@ func ExampleNew() {
 	// Derp errors work anywhere that you use normal errors.
 	// They just contain more information about what actually happened.
 	// Here's how to create a new error to report back to a caller
-	err := New(404, "Code Location", "Error Message", "additional details here", 12345, map[string]any{})
+	err := NewNotFoundError("Code Location", "Error Message", "additional details here", 12345, map[string]any{})
 
 	// Pluggable error reporting interface can dump errors to the console
 	// or anywhere else that you want to send them.
@@ -22,7 +22,7 @@ func ExampleWrap() {
 	// about the entire call stack, with specifics about what went
 	// wrong at every level
 
-	innerErr := New(404, "Inner Function", "Original Error")
+	innerErr := NewNotFoundError("Inner Function", "Original Error")
 
 	middleErr := Wrap(innerErr, "Middleware Function", "Error calling 'innerErr'", "parameter", "list", "here")
 
@@ -44,10 +44,7 @@ func ExampleWrap_standardErrors() {
 	if err := thisBreaks(); err != nil {
 
 		// Populate a derp.Error with everything you know about the error
-		result := Wrap(err, "Example", "Something broke in `thisBreaks`", "additional details go here")
-
-		// Additional data (such as a custom error code) can be added here.
-		SetErrorCode(result, 404)
+		result := Wrap(err, "Example", "Something broke in `thisBreaks`", WithCode(404), "additional details go here")
 
 		// Call .Report() to send an error to Ops. This is a system-wide
 		// configuration that's set up during initialization.

@@ -1,7 +1,7 @@
 package derp
 
-// SingleError represents a runtime error.  It includes
-type SingleError struct {
+// Error represents a runtime error.  It includes
+type Error struct {
 	Code         int    `json:"code"`       // Numeric error code (such as an HTTP status code) to report to the client.
 	Location     string `json:"location"`   // Function name (or other location description) of where the error occurred
 	Message      string `json:"message"`    // Primary (top-level) error message for this error
@@ -12,26 +12,26 @@ type SingleError struct {
 
 // Error implements the Error interface, which allows derp.Error objects to be
 // used anywhere a standard error is used.
-func (err SingleError) Error() string {
+func (err Error) Error() string {
 	return err.Location + ": " + err.Message
 }
 
 // ErrorCode returns the error Code embedded in this Error.
-func (err SingleError) ErrorCode() int {
+func (err Error) ErrorCode() int {
 	return err.Code
 }
 
 // SetMessage updates the Message field of this Error.
-func (err *SingleError) SetMessage(message string) {
+func (err *Error) SetMessage(message string) {
 	err.Message = message
 }
 
 // SetErrorCode returns the error Code embedded in this Error.
-func (err *SingleError) SetErrorCode(code int) {
+func (err *Error) SetErrorCode(code int) {
 	err.Code = code
 }
 
 // Unwrap supports Go 1.13+ error unwrapping
-func (err SingleError) Unwrap() error {
+func (err Error) Unwrap() error {
 	return err.WrappedValue
 }

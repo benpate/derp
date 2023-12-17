@@ -79,12 +79,13 @@ func SomewhereInYourCode() {
 }
 ```
 
-### Default Plug-In
+### Plug-Ins
 
-The package includes a small number of default reporters, and you can add to this list easily using `derp.Plugins.Add()` to add any object that implements the `Plugin` interface at startup.
+The package includes a default reporter, and you can add to this list easily using `derp.Plugins.Add()` to add any object that implements the `Plugin` interface at startup.
 
-* `Console` write a human-friendly error report to the console
-* `ZeroLog` writes error reports to the [zerolog](https://github.com/rs/zerolog) logging package
+* `Console` write a human-friendly error report to the console (this package)
+* [`derp-mongo`](https://github.com/benpate/derp-mongo) writes error reports to a MongoDB database
+* [`derp-zerolog`](https://github.com/benpate/derp-zerolog) writes error reports to the [zerolog](https://github.com/rs/zerolog) logging package
 
 ## Pull Requests Welcome
 

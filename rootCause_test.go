@@ -36,10 +36,10 @@ func TestRootCause_Deep(t *testing.T) {
 		"Fifth Message",
 	)
 
-	require.Equal(t, 123, e.(SingleError).ErrorCode())
+	require.Equal(t, 123, e.(Error).ErrorCode())
 	require.Equal(t, 123, ErrorCode(e))
 
-	rootCause := RootCause(e).(SingleError)
+	rootCause := RootCause(e).(Error)
 
 	require.Equal(t, 123, rootCause.ErrorCode())
 	require.Equal(t, 123, ErrorCode(rootCause))

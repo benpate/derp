@@ -123,35 +123,6 @@ func SetErrorCode(err error, code int) {
 	}
 }
 
-// NotFound returns TRUE if the error `Code` is a 404 / Not Found error.
-func NotFound(err error) bool {
-
-	if isNil(err) {
-		return false
-	}
-
-	if coder, ok := err.(ErrorCodeGetter); ok {
-		return coder.ErrorCode() == CodeNotFoundError
-	}
-
-	return err.Error() == "not found"
-}
-
-// NilOrNotFound returns TRUE if the error is nil or a 404 / Not Found error.
-// All other errors return FALSE
-func NilOrNotFound(err error) bool {
-
-	if isNil(err) {
-		return true
-	}
-
-	if NotFound(err) {
-		return true
-	}
-
-	return false
-}
-
 /******************************************
  * Other Manipulations
  ******************************************/

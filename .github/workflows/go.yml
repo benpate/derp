@@ -27,5 +27,8 @@ jobs:
     - name: Upload Coverage Report to codecov.io
       uses: codecov/codecov-action@v4
       with:
+        fail_ci_if_error: true 
         file: ./coverage.txt
         flags: unittests
+        token: ${{ secrets.CODECOV_TOKEN }} # required
+        verbose: true

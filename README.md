@@ -58,7 +58,7 @@ To set an error code, just pass a **non-zero** `code` number to the `derp.New` f
 
 The derp package uses plugins to report errors to an external source.  Plugins can send the error to the error console, to a database, an external service, or anywhere else you desire.
 
-Plugins should be configured once, on a system-wide basis, when your application starts up.  If you don't set up any
+Plugins should be configured once, on a system-wide basis, when your application starts up.  If you don't set up any plugins, then the default setting is to report errors to the system console.
 
 ```go
 import "github.com/benpate/derp/plugins/mongodb"

@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestCodes(t *testing.T) {
@@ -22,23 +21,12 @@ func TestCodeGeneric(t *testing.T) {
 	assert.Equal(t, 500, ErrorCode(err))
 }
 
-func TestSetCode(t *testing.T) {
+func TestWithCode(t *testing.T) {
+	err := New(123, "whatever", "dude", WithCode(404))
+	assert.Equal(t, 404, ErrorCode(err))
+}
 
-	{
-		var err *Error
-		SetErrorCode(err, 404)
-		require.Equal(t, 0, ErrorCode(err))
-	}
-
-	{
-		var err error
-		SetErrorCode(err, 404)
-		require.Equal(t, 0, ErrorCode(err))
-	}
-
-	{
-		err := &Error{}
-		SetErrorCode(err, 404)
-		require.Equal(t, 404, ErrorCode(err))
-	}
+func TestWithMessage(t *testing.T) {
+	err := New(123, "whatever", "dude", WithMessage("message"))
+	assert.Equal(t, "message", Message(err))
 }

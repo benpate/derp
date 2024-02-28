@@ -12,8 +12,8 @@ func TestError(t *testing.T) {
 	require.Equal(t, "Location: Message", e.Error())
 	require.Equal(t, CodeInternalError, ErrorCode(e))
 
-	e.SetErrorCode(404)
-	require.Equal(t, 404, e.ErrorCode())
+	WithNotFound()(&e)
+	require.Equal(t, 404, e.GetErrorCode())
 	require.Equal(t, 404, ErrorCode(e))
 	require.True(t, NotFound(e))
 }

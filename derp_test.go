@@ -52,7 +52,22 @@ func TestConvenienceFns(t *testing.T) {
 
 	unauthorized := NewUnauthorizedError("location", "description")
 	require.Equal(t, CodeUnauthorizedError, ErrorCode(unauthorized))
+
+	invalid := NewValidationError("location", "description")
+	require.Equal(t, CodeValidationError, ErrorCode(invalid))
 }
+
+func TestMessage(t *testing.T) {
+
+	require.Equal(t, "", Message(nil))
+
+	derp := NewNotFoundError("location", "description")
+	require.Equal(t, "description", Message(derp))
+
+	standard := errors.New("this is a standard error")
+	require.Equal(t, "this is a standard error", Message(standard))
+}
+
 func TestErrorInterface(t *testing.T) {
 
 	// Create an error
@@ -109,6 +124,8 @@ func TestEmptyWrappedValue(t *testing.T) {
 
 func TestNotFound(t *testing.T) {
 
+	require.False(t, NotFound(nil))
+
 	{
 		err := errors.New("regular error")
 		require.False(t, NotFound(err))
@@ -133,16 +150,6 @@ func TestNotFound(t *testing.T) {
 		e := New(CodeNotFoundError, "Location", "Message")
 		assert.Equal(t, CodeNotFoundError, ErrorCode(e))
 	}
-}
-
-func TestNil(t *testing.T) {
-
-	var err error
-
-	require.Zero(t, ErrorCode(err))
-	require.Empty(t, Message(err))
-	require.False(t, NotFound(err))
-	SetErrorCode(err, 500) // this should not break
 }
 
 func TestIsNil(t *testing.T) {
@@ -171,6 +178,26 @@ func TestIsNil(t *testing.T) {
 	}
 }
 
+func TestNilOrNotFound(t *testing.T) {
+
+	require.True(t, NilOrNotFound(nil))
+
+	{
+		err := errors.New("not found")
+		require.True(t, NilOrNotFound(err))
+	}
+
+	{
+		err := New(500, "", "")
+		require.False(t, NilOrNotFound(err))
+	}
+
+	{
+		err := New(404, "", "")
+		require.True(t, NilOrNotFound(err))
+	}
+}
+
 type weirdErrorType string
 
 func (w weirdErrorType) Error() string {
@@ -180,5 +207,97 @@ func (w weirdErrorType) Error() string {
 func TestIsNil_WeirdErrorTypes(t *testing.T) {
 	{
 		require.False(t, isNil(weirdErrorType("")))
+	}
+}
+
+func TestNilErrorCode(t *testing.T) {
+	require.Equal(t, 0, ErrorCode(nil))
+}
+
+func TestReportAndReturn(t *testing.T) {
+
+	{
+		err := errors.New("regular error")
+		require.Equal(t, err, ReportAndReturn(err))
+	}
+
+	{
+		err := New(404, "Location", "Message")
+		require.Equal(t, err, ReportAndReturn(err))
+	}
+}
+
+func TestIsInformational(t *testing.T) {
+	{
+		e := New(99, "location", "message")
+		require.False(t, IsInformational(e))
+	}
+	{
+		e := New(100, "Location", "Message")
+		require.True(t, IsInformational(e))
+	}
+	{
+		e := New(200, "Location", "Message")
+		require.False(t, IsInformational(e))
+	}
+}
+
+func TestIsSuccess(t *testing.T) {
+	{
+		e := New(99, "location", "message")
+		require.False(t, IsSuccess(e))
+	}
+	{
+		e := New(100, "Location", "Message")
+		require.True(t, IsSuccess(e))
+	}
+	{
+		e := New(200, "Location", "Message")
+		require.False(t, IsSuccess(e))
+	}
+}
+
+func TestIsRedirection(t *testing.T) {
+	{
+		e := New(199, "location", "message")
+		require.False(t, IsRedirection(e))
+	}
+	{
+		e := New(200, "Location", "Message")
+		require.True(t, IsRedirection(e))
+	}
+	{
+		e := New(300, "Location", "Message")
+		require.False(t, IsRedirection(e))
+	}
+}
+
+func TestIsClientError(t *testing.T) {
+	{
+		e := New(299, "location", "message")
+		require.False(t, IsClientError(e))
+	}
+	{
+		e := New(300, "Location", "Message")
+		require.True(t, IsClientError(e))
+	}
+	{
+		e := New(400, "Location", "Message")
+		require.False(t, IsClientError(e))
+	}
+}
+
+func TestIsServerError(t *testing.T) {
+	{
+		e := New(499, "location", "message")
+		require.False(t, IsServerError(e))
+	}
+	{
+		e := New(500, "Location", "Message")
+		require.True(t, IsServerError(e))
+	}
+	{
+		e := New(600, "Location", "Message")
+		require.False(t, IsServerError(e))
 	}
 }

@@ -36,6 +36,13 @@ func WithWrappedValue(inner error) Option {
 	}
 }
 
+// WithMessage returns an option that sets the derp.Error message
+func WithMessage(message string) Option {
+	return func(e *Error) {
+		e.Message = message
+	}
+}
+
 // WithLocation returns an option that sets the derp.Error location
 func WithLocation(location string) Option {
 	return func(e *Error) {

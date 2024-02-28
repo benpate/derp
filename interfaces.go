@@ -5,31 +5,14 @@ type ErrorCodeGetter interface {
 
 	// ErrorCode returns a numeric, application-specific code that references this error.
 	// HTTP status codes are recommended, but not required
-	ErrorCode() int
-}
-
-// ErrorCodeSetter interface describes any error that can also "set" an error code value
-type ErrorCodeSetter interface {
-
-	// SetErrorCode sets a numeric, application-specific code that for this error.
-	// HTTP status codes are recommended, but not required
-	SetErrorCode(int)
+	GetErrorCode() int
 }
 
 // MessageGetter interface describes any error that can also report a "Message"
 type MessageGetter interface {
 
 	// Message returns a human-friendly string representation of the error.
-	Message() string
-}
-
-type MessageSetter interface {
-	SetMessage(string)
-}
-
-type MessageGetterSetter interface {
-	MessageGetter
-	MessageSetter
+	GetMessage() string
 }
 
 // Unwrapper interface describes any error that can be "unwrapped".  It supports

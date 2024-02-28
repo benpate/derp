@@ -17,18 +17,13 @@ func (err Error) Error() string {
 }
 
 // ErrorCode returns the error Code embedded in this Error.
-func (err Error) ErrorCode() int {
+func (err Error) GetErrorCode() int {
 	return err.Code
 }
 
-// SetMessage updates the Message field of this Error.
-func (err *Error) SetMessage(message string) {
-	err.Message = message
-}
-
-// SetErrorCode returns the error Code embedded in this Error.
-func (err *Error) SetErrorCode(code int) {
-	err.Code = code
+// ErrorMessage returns the error Message embedded in this Error.
+func (err Error) GetMessage() string {
+	return err.Message
 }
 
 // Unwrap supports Go 1.13+ error unwrapping

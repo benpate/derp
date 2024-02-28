@@ -66,30 +66,11 @@ func Message(err error) string {
 		return ""
 	}
 
-	switch e := err.(type) {
-	case Error:
-		return e.Message
-
-	case MessageGetter:
-		return e.Message()
+	if getter, ok := err.(MessageGetter); ok {
+		return getter.GetMessage()
 	}
 
 	return err.Error()
-}
-
-// SetMessage sets the error message for any errors that allow it.
-func SetMessage(err error, message string) {
-
-	if isNil(err) {
-		return
-	}
-
-	switch e := err.(type) {
-	case Error:
-		e.SetMessage(message)
-	case MessageSetter:
-		e.SetMessage(message)
-	}
 }
 
 // ErrorCode returns an error code for any error.  It tries to read the error code
@@ -102,25 +83,10 @@ func ErrorCode(err error) int {
 	}
 
 	if getter, ok := err.(ErrorCodeGetter); ok {
-		return getter.ErrorCode()
+		return getter.GetErrorCode()
 	}
 
 	return CodeInternalError
-}
-
-// SetErrorCode tries to set an error code for the provided error.  If the error matches the
-// ErrorCodeSetter interface, then the code is set directly in the error.  Otherwise,
-// it has no effect.
-// deprecated: Use WithCode instead
-func SetErrorCode(err error, code int) {
-
-	if isNil(err) {
-		return
-	}
-
-	if setter, ok := err.(ErrorCodeSetter); ok {
-		setter.SetErrorCode(code)
-	}
 }
 
 /******************************************

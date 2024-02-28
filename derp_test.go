@@ -237,6 +237,10 @@ func TestIsInformational(t *testing.T) {
 		require.True(t, IsInformational(e))
 	}
 	{
+		e := New(199, "Location", "Message")
+		require.True(t, IsInformational(e))
+	}
+	{
 		e := New(200, "Location", "Message")
 		require.False(t, IsInformational(e))
 	}
@@ -244,45 +248,57 @@ func TestIsInformational(t *testing.T) {
 
 func TestIsSuccess(t *testing.T) {
 	{
-		e := New(99, "location", "message")
+		e := New(199, "location", "message")
 		require.False(t, IsSuccess(e))
 	}
 	{
-		e := New(100, "Location", "Message")
+		e := New(200, "Location", "Message")
 		require.True(t, IsSuccess(e))
 	}
 	{
-		e := New(200, "Location", "Message")
+		e := New(299, "Location", "Message")
+		require.True(t, IsSuccess(e))
+	}
+	{
+		e := New(300, "Location", "Message")
 		require.False(t, IsSuccess(e))
 	}
 }
 
 func TestIsRedirection(t *testing.T) {
 	{
-		e := New(199, "location", "message")
+		e := New(299, "location", "message")
 		require.False(t, IsRedirection(e))
 	}
 	{
-		e := New(200, "Location", "Message")
+		e := New(300, "Location", "Message")
 		require.True(t, IsRedirection(e))
 	}
 	{
-		e := New(300, "Location", "Message")
+		e := New(399, "Location", "Message")
+		require.True(t, IsRedirection(e))
+	}
+	{
+		e := New(400, "Location", "Message")
 		require.False(t, IsRedirection(e))
 	}
 }
 
 func TestIsClientError(t *testing.T) {
 	{
-		e := New(299, "location", "message")
+		e := New(399, "location", "message")
 		require.False(t, IsClientError(e))
 	}
 	{
-		e := New(300, "Location", "Message")
+		e := New(400, "Location", "Message")
 		require.True(t, IsClientError(e))
 	}
 	{
-		e := New(400, "Location", "Message")
+		e := New(499, "Location", "Message")
+		require.True(t, IsClientError(e))
+	}
+	{
+		e := New(500, "Location", "Message")
 		require.False(t, IsClientError(e))
 	}
 }
@@ -294,6 +310,10 @@ func TestIsServerError(t *testing.T) {
 	}
 	{
 		e := New(500, "Location", "Message")
+		require.True(t, IsServerError(e))
+	}
+	{
+		e := New(599, "Location", "Message")
 		require.True(t, IsServerError(e))
 	}
 	{

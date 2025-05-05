@@ -8,28 +8,44 @@ import (
  * Constructor Functions
  ******************************************/
 
+// NewBadRequestError returns a (400) Bad Request error
 func NewBadRequestError(location string, message string, details ...any) Error {
 	return New(CodeBadRequestError, location, message, details...)
 }
 
-func NewForbiddenError(location string, message string, details ...any) Error {
-	return New(CodeForbiddenError, location, message, details...)
-}
-
-func NewInternalError(location string, message string, details ...any) Error {
-	return New(CodeInternalError, location, message, details...)
-}
-
-func NewNotFoundError(location string, message string, details ...any) Error {
-	return New(CodeNotFoundError, location, message, details...)
-}
-
+// NewUnauthorizedError returns a (401) Unauthorized error
 func NewUnauthorizedError(location string, message string, details ...any) Error {
 	return New(CodeUnauthorizedError, location, message, details...)
 }
 
+// NewForbiddenError returns a (403) Forbidden error
+func NewForbiddenError(location string, message string, details ...any) Error {
+	return New(CodeForbiddenError, location, message, details...)
+}
+
+// NewNotFoundError returns a (404) Not Found error
+func NewNotFoundError(location string, message string, details ...any) Error {
+	return New(CodeNotFoundError, location, message, details...)
+}
+
+// NewTeapotError returns a (418) I'm a Teapot error
+func NewTeapotError(location string, message string, details ...any) Error {
+	return New(CodeTeapotError, location, message, details...)
+}
+
+// NewMisdirectedRequestError returns a (421) Misdirected Request error.
+func NewMisdirectedRequestError(location string, message string, details ...any) Error {
+	return New(CodeMisdirectedRequestError, location, message, details...)
+}
+
+// NewValidationError returns a (422) Validation error
 func NewValidationError(message string, details ...any) Error {
 	return New(CodeValidationError, "", message, details...)
+}
+
+// NewInternalError returns a (500) Internal Server Error
+func NewInternalError(location string, message string, details ...any) Error {
+	return New(CodeInternalError, location, message, details...)
 }
 
 // New returns a new Error object

@@ -21,7 +21,16 @@ const (
 	// https://www.rfc-editor.org/rfc/rfc9110.html#name-404-not-found
 	CodeNotFoundError = 404
 
-	// CodeValidationError retpresents a request that contains invalid data.
+	// CodeTeapotError indicates that the server is a teapot and cannot serve HTTP requests.
+	// https://www.rfc-editor.org/rfc/rfc7168.html#name-418-im-a-teapot
+	// https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#418
+	CodeTeapotError = 418
+
+	// CodeMisdirectedRequestError indicates that the request was directed to a server that is not able to produce a response.
+	// https://www.rfc-editor.org/rfc/rfc9110.html#name-421-misdirected-request
+	CodeMisdirectedRequestError = 421
+
+	// CodeValidationError represents a request that contains invalid data.
 	// https://www.rfc-editor.org/rfc/rfc9110.html#name-422-unprocessable-content
 	CodeValidationError = 422
 

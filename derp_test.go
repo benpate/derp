@@ -12,7 +12,7 @@ import (
 func TestDerp(t *testing.T) {
 
 	// Create an inner error
-	innerError := New(CodeNotFoundError, "WrappedValue", "Not Found", "detail1", "detail2", "detail3")
+	innerError := NewNotFoundError("WrappedValue", "Not Found", "detail1", "detail2", "detail3")
 
 	assert.Equal(t, innerError.Location, "WrappedValue")
 	assert.Equal(t, innerError.Message, "Not Found")
@@ -39,22 +39,31 @@ func TestDerp(t *testing.T) {
 func TestConvenienceFns(t *testing.T) {
 
 	badRequest := NewBadRequestError("location", "description")
-	require.Equal(t, CodeBadRequestError, ErrorCode(badRequest))
+	require.Equal(t, codeBadRequestError, ErrorCode(badRequest))
 
 	forbidden := NewForbiddenError("location", "description")
-	require.Equal(t, CodeForbiddenError, ErrorCode(forbidden))
+	require.Equal(t, codeForbiddenError, ErrorCode(forbidden))
 
 	internal := NewInternalError("location", "description")
-	require.Equal(t, CodeInternalError, ErrorCode(internal))
+	require.Equal(t, codeInternalError, ErrorCode(internal))
 
 	notFound := NewNotFoundError("location", "description")
-	require.Equal(t, CodeNotFoundError, ErrorCode(notFound))
+	require.Equal(t, codeNotFoundError, ErrorCode(notFound))
 
 	unauthorized := NewUnauthorizedError("location", "description")
-	require.Equal(t, CodeUnauthorizedError, ErrorCode(unauthorized))
+	require.Equal(t, codeUnauthorizedError, ErrorCode(unauthorized))
 
 	invalid := NewValidationError("location", "description")
-	require.Equal(t, CodeValidationError, ErrorCode(invalid))
+	require.Equal(t, codeValidationError, ErrorCode(invalid))
+
+	teapot := NewTeapotError("location", "description")
+	require.Equal(t, codeTeapotError, ErrorCode(teapot))
+
+	misdirected := NewMisdirectedRequestError("location", "description")
+	require.Equal(t, codeMisdirectedRequestError, ErrorCode(misdirected))
+
+	notImplemented := NewNotImplementedError("location", "description")
+	require.Equal(t, codeNotImplementedError, ErrorCode(notImplemented))
 }
 
 func TestMessage(t *testing.T) {
@@ -71,7 +80,7 @@ func TestMessage(t *testing.T) {
 func TestErrorInterface(t *testing.T) {
 
 	// Create an error
-	innerError := New(CodeNotFoundError, "Location Name", "Error Description", "details")
+	innerError := NewNotFoundError("Location Name", "Error Description", "details")
 
 	// Verify that the error interface is outputting what we expect.
 	assert.Equal(t, innerError.Error(), "Location Name: Error Description")
@@ -83,11 +92,11 @@ func TestStandardError(t *testing.T) {
 	err := errors.New("This is a standard error")
 
 	// Wrap it the stdlib error in a derp.  This means: 1) assigning an error code, and 2) making the original error message a property of the derp.Error.
-	outer := New(CodeInternalError, "TestStandardError", "Encapsulating Error", err.Error())
+	outer := NewInternalError("TestStandardError", "Encapsulating Error", err.Error())
 
 	assert.Equal(t, "TestStandardError", outer.Location)
 	assert.Equal(t, "Encapsulating Error", outer.Message)
-	assert.Equal(t, CodeInternalError, outer.Code)
+	assert.Equal(t, 500, outer.Code)
 	assert.Equal(t, 1, len(outer.Details))
 	assert.Nil(t, outer.WrappedValue)
 }
@@ -137,18 +146,18 @@ func TestNotFound(t *testing.T) {
 	}
 
 	{
-		err := New(500, "", "")
+		err := new(500, "", "")
 		require.False(t, NotFound(err))
 	}
 
 	{
-		err := New(404, "", "")
+		err := new(404, "", "")
 		require.True(t, NotFound(err))
 	}
 
 	{
-		e := New(CodeNotFoundError, "Location", "Message")
-		assert.Equal(t, CodeNotFoundError, ErrorCode(e))
+		e := NewNotFoundError("Location", "Message")
+		assert.Equal(t, 404, ErrorCode(e))
 	}
 }
 
@@ -173,7 +182,7 @@ func TestIsNil(t *testing.T) {
 	}
 
 	{
-		derpError := New(404, "Code Location", "Error Message")
+		derpError := new(404, "Code Location", "Error Message")
 		require.False(t, isNil(derpError))
 	}
 }
@@ -188,12 +197,12 @@ func TestNilOrNotFound(t *testing.T) {
 	}
 
 	{
-		err := New(500, "", "")
+		err := new(500, "", "")
 		require.False(t, NilOrNotFound(err))
 	}
 
 	{
-		err := New(404, "", "")
+		err := new(404, "", "")
 		require.True(t, NilOrNotFound(err))
 	}
 }
@@ -222,102 +231,102 @@ func TestReportAndReturn(t *testing.T) {
 	}
 
 	{
-		err := New(404, "Location", "Message")
+		err := new(404, "Location", "Message")
 		require.Equal(t, err, ReportAndReturn(err))
 	}
 }
 
 func TestIsInformational(t *testing.T) {
 	{
-		e := New(99, "location", "message")
+		e := new(99, "location", "message")
 		require.False(t, IsInformational(e))
 	}
 	{
-		e := New(100, "Location", "Message")
+		e := new(100, "Location", "Message")
 		require.True(t, IsInformational(e))
 	}
 	{
-		e := New(199, "Location", "Message")
+		e := new(199, "Location", "Message")
 		require.True(t, IsInformational(e))
 	}
 	{
-		e := New(200, "Location", "Message")
+		e := new(200, "Location", "Message")
 		require.False(t, IsInformational(e))
 	}
 }
 
 func TestIsSuccess(t *testing.T) {
 	{
-		e := New(199, "location", "message")
+		e := new(199, "location", "message")
 		require.False(t, IsSuccess(e))
 	}
 	{
-		e := New(200, "Location", "Message")
+		e := new(200, "Location", "Message")
 		require.True(t, IsSuccess(e))
 	}
 	{
-		e := New(299, "Location", "Message")
+		e := new(299, "Location", "Message")
 		require.True(t, IsSuccess(e))
 	}
 	{
-		e := New(300, "Location", "Message")
+		e := new(300, "Location", "Message")
 		require.False(t, IsSuccess(e))
 	}
 }
 
 func TestIsRedirection(t *testing.T) {
 	{
-		e := New(299, "location", "message")
+		e := new(299, "location", "message")
 		require.False(t, IsRedirection(e))
 	}
 	{
-		e := New(300, "Location", "Message")
+		e := new(300, "Location", "Message")
 		require.True(t, IsRedirection(e))
 	}
 	{
-		e := New(399, "Location", "Message")
+		e := new(399, "Location", "Message")
 		require.True(t, IsRedirection(e))
 	}
 	{
-		e := New(400, "Location", "Message")
+		e := new(400, "Location", "Message")
 		require.False(t, IsRedirection(e))
 	}
 }
 
 func TestIsClientError(t *testing.T) {
 	{
-		e := New(399, "location", "message")
+		e := new(399, "location", "message")
 		require.False(t, IsClientError(e))
 	}
 	{
-		e := New(400, "Location", "Message")
+		e := new(400, "Location", "Message")
 		require.True(t, IsClientError(e))
 	}
 	{
-		e := New(499, "Location", "Message")
+		e := new(499, "Location", "Message")
 		require.True(t, IsClientError(e))
 	}
 	{
-		e := New(500, "Location", "Message")
+		e := new(500, "Location", "Message")
 		require.False(t, IsClientError(e))
 	}
 }
 
 func TestIsServerError(t *testing.T) {
 	{
-		e := New(499, "location", "message")
+		e := new(499, "location", "message")
 		require.False(t, IsServerError(e))
 	}
 	{
-		e := New(500, "Location", "Message")
+		e := new(500, "Location", "Message")
 		require.True(t, IsServerError(e))
 	}
 	{
-		e := New(599, "Location", "Message")
+		e := new(599, "Location", "Message")
 		require.True(t, IsServerError(e))
 	}
 	{
-		e := New(600, "Location", "Message")
+		e := new(600, "Location", "Message")
 		require.False(t, IsServerError(e))
 	}
 }

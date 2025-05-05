@@ -7,7 +7,7 @@ import (
 
 func TestReport(t *testing.T) {
 
-	err := New(42, "OMG", "Really Bad")
+	err := new(codeNotFoundError, "OMG", "Really Bad")
 	Report(err)
 }
 
@@ -23,7 +23,7 @@ func TestReportNil(t *testing.T) {
 
 func TestReportWrapped(t *testing.T) {
 
-	inner := New(500, "ouch", "omg")
+	inner := new(codeInternalError, "ouch", "omg")
 	middle := Wrap(inner, "whoa", "dude")
 	outer := Wrap(middle, "srsly", "bro")
 

@@ -8,7 +8,7 @@ func NotFound(err error) bool {
 	}
 
 	if coder, ok := err.(ErrorCodeGetter); ok {
-		return coder.GetErrorCode() == CodeNotFoundError
+		return coder.GetErrorCode() == codeNotFoundError
 	}
 
 	return err.Error() == "not found"

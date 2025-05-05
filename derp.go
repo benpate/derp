@@ -9,47 +9,72 @@ import (
  ******************************************/
 
 // NewBadRequestError returns a (400) Bad Request error
+// which indicates that the request is not properly formatted.
+// https://www.rfc-editor.org/rfc/rfc9110.html#name-400-bad-request
 func NewBadRequestError(location string, message string, details ...any) Error {
-	return New(CodeBadRequestError, location, message, details...)
+	return new(codeBadRequestError, location, message, details...)
 }
 
 // NewUnauthorizedError returns a (401) Unauthorized error
+// which indicates that the request requires user authentication.
+// https://www.rfc-editor.org/rfc/rfc9110.html#name-401-unauthorized
 func NewUnauthorizedError(location string, message string, details ...any) Error {
-	return New(CodeUnauthorizedError, location, message, details...)
+	return new(codeUnauthorizedError, location, message, details...)
 }
 
 // NewForbiddenError returns a (403) Forbidden error
+// which indicates that the current user does not have permissions to access the requested resource.
+// https://www.rfc-editor.org/rfc/rfc9110.html#name-403-forbidden
 func NewForbiddenError(location string, message string, details ...any) Error {
-	return New(CodeForbiddenError, location, message, details...)
+	return new(codeForbiddenError, location, message, details...)
 }
 
 // NewNotFoundError returns a (404) Not Found error
+// which indicates that the requested resource does not exist,
+// such as when database query returns "not found"
+// https://www.rfc-editor.org/rfc/rfc9110.html#name-404-not-found
 func NewNotFoundError(location string, message string, details ...any) Error {
-	return New(CodeNotFoundError, location, message, details...)
+	return new(codeNotFoundError, location, message, details...)
 }
 
 // NewTeapotError returns a (418) I'm a Teapot error
+// which indicates that the server is a teapot that cannot serve HTTP requests.
+// https://www.rfc-editor.org/rfc/rfc7168.html#name-418-im-a-teapot
+// https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#418
 func NewTeapotError(location string, message string, details ...any) Error {
-	return New(CodeTeapotError, location, message, details...)
+	return new(codeTeapotError, location, message, details...)
 }
 
 // NewMisdirectedRequestError returns a (421) Misdirected Request error.
+// which indicates that the request was made to the wrong server; that server is not able to produce a response.
+// https://www.rfc-editor.org/rfc/rfc9110.html#name-421-misdirected-request
 func NewMisdirectedRequestError(location string, message string, details ...any) Error {
-	return New(CodeMisdirectedRequestError, location, message, details...)
+	return new(codeMisdirectedRequestError, location, message, details...)
 }
 
 // NewValidationError returns a (422) Validation error
+// which indicates that the request contains invalid data.
+// https://www.rfc-editor.org/rfc/rfc9110.html#name-422-unprocessable-content
 func NewValidationError(message string, details ...any) Error {
-	return New(CodeValidationError, "", message, details...)
+	return new(codeValidationError, "", message, details...)
 }
 
 // NewInternalError returns a (500) Internal Server Error
+// which represents a generic error message, given when an unexpected condition was encountered and no more specific message is suitable.
+// https://www.rfc-editor.org/rfc/rfc9110.html#name-500-internal-server-error
 func NewInternalError(location string, message string, details ...any) Error {
-	return New(CodeInternalError, location, message, details...)
+	return new(codeInternalError, location, message, details...)
+}
+
+// NewNotImplementedError returns a (501) Not Implemented error
+// which indicates that the server does not support the functionality required to fulfill the request.
+// https://www.rfc-editor.org/rfc/rfc9110.html#name-501-not-implemented
+func NewNotImplementedError(location string, message string, details ...any) Error {
+	return new(codeNotImplementedError, location, message, details...)
 }
 
 // New returns a new Error object
-func New(code int, location string, message string, details ...any) Error {
+func new(code int, location string, message string, details ...any) Error {
 
 	result := Error{
 		Location:  location,
@@ -101,7 +126,7 @@ func ErrorCode(err error) int {
 		return getter.GetErrorCode()
 	}
 
-	return CodeInternalError
+	return codeInternalError
 }
 
 /******************************************

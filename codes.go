@@ -5,36 +5,40 @@ package derp
 
 const (
 
-	// CodeBadRequestError indicates that the request is not properly formatted.
+	// codeBadRequestError indicates that the request is not properly formatted.
 	// https://www.rfc-editor.org/rfc/rfc9110.html#name-400-bad-request
-	CodeBadRequestError = 400
+	codeBadRequestError = 400
 
-	// CodeUnauthorizedError indicates that the request requires user authentication.
+	// codeUnauthorizedError indicates that the request requires user authentication.
 	// https://www.rfc-editor.org/rfc/rfc9110.html#name-401-unauthorized
-	CodeUnauthorizedError = 401
+	codeUnauthorizedError = 401
 
-	// CodeForbiddenError means that the current user does not have the required permissions to access the requested resource.
+	// codeForbiddenError means that the current user does not have the required permissions to access the requested resource.
 	// https://www.rfc-editor.org/rfc/rfc9110.html#name-403-forbidden
-	CodeForbiddenError = 403
+	codeForbiddenError = 403
 
-	// CodeNotFoundError represents a request for a resource that does not exist, such as a database query that returns "not found"
+	// codeNotFoundError represents a request for a resource that does not exist, such as a database query that returns "not found"
 	// https://www.rfc-editor.org/rfc/rfc9110.html#name-404-not-found
-	CodeNotFoundError = 404
+	codeNotFoundError = 404
 
-	// CodeTeapotError indicates that the server is a teapot and cannot serve HTTP requests.
+	// codeTeapotError indicates that the server is a teapot and cannot serve HTTP requests.
 	// https://www.rfc-editor.org/rfc/rfc7168.html#name-418-im-a-teapot
 	// https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#418
-	CodeTeapotError = 418
+	codeTeapotError = 418
 
-	// CodeMisdirectedRequestError indicates that the request was directed to a server that is not able to produce a response.
+	// codeMisdirectedRequestError indicates that the request was directed to a server that is not able to produce a response.
 	// https://www.rfc-editor.org/rfc/rfc9110.html#name-421-misdirected-request
-	CodeMisdirectedRequestError = 421
+	codeMisdirectedRequestError = 421
 
-	// CodeValidationError represents a request that contains invalid data.
+	// codeValidationError represents a request that contains invalid data.
 	// https://www.rfc-editor.org/rfc/rfc9110.html#name-422-unprocessable-content
-	CodeValidationError = 422
+	codeValidationError = 422
 
-	// CodeInternalError represents a generic error message, given when an unexpected condition was encountered and no more specific message is suitable.
+	// codeInternalError represents a generic error message, given when an unexpected condition was encountered and no more specific message is suitable.
 	// https://www.rfc-editor.org/rfc/rfc9110.html#name-500-internal-server-error
-	CodeInternalError = 500
+	codeInternalError = 500
+
+	// codeNotImplementedError indicates that the server does not support the functionality required to fulfill the request.
+	// https://www.rfc-editor.org/rfc/rfc9110.html#name-501-not-implemented
+	codeNotImplementedError = 501
 )

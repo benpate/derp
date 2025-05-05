@@ -11,22 +11,22 @@ func WithCode(code int) Option {
 
 // WithBadRequest returns an option that sets the derp.Error code to 400 (Bad Request)
 func WithBadRequest() Option {
-	return WithCode(CodeBadRequestError)
+	return WithCode(codeBadRequestError)
 }
 
 // WithForbidden returns an option that sets the derp.Error code to 403 (Forbidden)
 func WithForbidden() Option {
-	return WithCode(CodeForbiddenError)
+	return WithCode(codeForbiddenError)
 }
 
 // WithNotFound returns an option that sets the derp.Error code to 404 (Not Found)
 func WithNotFound() Option {
-	return WithCode(CodeNotFoundError)
+	return WithCode(codeNotFoundError)
 }
 
 // WithInternalError returns an option that sets the derp.Error code to 500 (Internal Server Error)
 func WithInternalError() Option {
-	return WithCode(CodeInternalError)
+	return WithCode(codeInternalError)
 }
 
 // WithWrappedValue returns an option that sets the derp.Error wrapped value

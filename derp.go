@@ -5,75 +5,126 @@ import (
 )
 
 /******************************************
- * Constructor Functions
+ * New Derp
  ******************************************/
 
-// NewBadRequestError returns a (400) Bad Request error
+// BadRequestError returns a (400) Bad Request error
 // which indicates that the request is not properly formatted.
 // https://www.rfc-editor.org/rfc/rfc9110.html#name-400-bad-request
+func BadRequestError(location string, message string, details ...any) Error {
+	return new(codeBadRequestError, location, message, details...)
+}
+
+// UnauthorizedError returns a (401) Unauthorized error
+// which indicates that the request requires user authentication.
+// https://www.rfc-editor.org/rfc/rfc9110.html#name-401-unauthorized
+func UnauthorizedError(location string, message string, details ...any) Error {
+	return new(codeUnauthorizedError, location, message, details...)
+}
+
+// ForbiddenError returns a (403) Forbidden error
+// which indicates that the current user does not have permissions to access the requested resource.
+// https://www.rfc-editor.org/rfc/rfc9110.html#name-403-forbidden
+func ForbiddenError(location string, message string, details ...any) Error {
+	return new(codeForbiddenError, location, message, details...)
+}
+
+// NotFoundError returns a (404) Not Found error
+// which indicates that the requested resource does not exist,
+// such as when database query returns "not found"
+// https://www.rfc-editor.org/rfc/rfc9110.html#name-404-not-found
+func NotFoundError(location string, message string, details ...any) Error {
+	return new(codeNotFoundError, location, message, details...)
+}
+
+// TeapotError returns a (418) I'm a Teapot error
+// which indicates that the server is a teapot that cannot serve HTTP requests.
+// https://www.rfc-editor.org/rfc/rfc7168.html#name-418-im-a-teapot
+// https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#418
+func TeapotError(location string, message string, details ...any) Error {
+	return new(codeTeapotError, location, message, details...)
+}
+
+// MisdirectedRequestError returns a (421) Misdirected Request error.
+// which indicates that the request was made to the wrong server; that server is not able to produce a response.
+// https://www.rfc-editor.org/rfc/rfc9110.html#name-421-misdirected-request
+func MisdirectedRequestError(location string, message string, details ...any) Error {
+	return new(codeMisdirectedRequestError, location, message, details...)
+}
+
+// ValidationError returns a (422) Validation error
+// which indicates that the request contains invalid data.
+// https://www.rfc-editor.org/rfc/rfc9110.html#name-422-unprocessable-content
+func ValidationError(message string, details ...any) Error {
+	return new(codeValidationError, "", message, details...)
+}
+
+// InternalError returns a (500) Internal Server Error
+// which represents a generic error message, given when an unexpected condition was encountered and no more specific message is suitable.
+// https://www.rfc-editor.org/rfc/rfc9110.html#name-500-internal-server-error
+func InternalError(location string, message string, details ...any) Error {
+	return new(codeInternalError, location, message, details...)
+}
+
+// NotImplementedError returns a (501) Not Implemented error
+// which indicates that the server does not support the functionality required to fulfill the request.
+// https://www.rfc-editor.org/rfc/rfc9110.html#name-501-not-implemented
+func NotImplementedError(location string, details ...any) Error {
+	return new(codeNotImplementedError, location, "Not Implemented", details...)
+}
+
+/******************************************
+ * Derp Classic
+ ******************************************/
+
+// Deprecated: Please use BadRequestError instead
 func NewBadRequestError(location string, message string, details ...any) Error {
 	return new(codeBadRequestError, location, message, details...)
 }
 
-// NewUnauthorizedError returns a (401) Unauthorized error
+// Deprecated: Please use UnauthorizedError instead
 // which indicates that the request requires user authentication.
 // https://www.rfc-editor.org/rfc/rfc9110.html#name-401-unauthorized
 func NewUnauthorizedError(location string, message string, details ...any) Error {
 	return new(codeUnauthorizedError, location, message, details...)
 }
 
-// NewForbiddenError returns a (403) Forbidden error
-// which indicates that the current user does not have permissions to access the requested resource.
-// https://www.rfc-editor.org/rfc/rfc9110.html#name-403-forbidden
+// Deprecated: Please use ForbiddenError instead
 func NewForbiddenError(location string, message string, details ...any) Error {
 	return new(codeForbiddenError, location, message, details...)
 }
 
-// NewNotFoundError returns a (404) Not Found error
-// which indicates that the requested resource does not exist,
-// such as when database query returns "not found"
-// https://www.rfc-editor.org/rfc/rfc9110.html#name-404-not-found
+// Deprecated: Please use NotFoundError instead
 func NewNotFoundError(location string, message string, details ...any) Error {
 	return new(codeNotFoundError, location, message, details...)
 }
 
-// NewTeapotError returns a (418) I'm a Teapot error
-// which indicates that the server is a teapot that cannot serve HTTP requests.
-// https://www.rfc-editor.org/rfc/rfc7168.html#name-418-im-a-teapot
-// https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#418
+// Deprecated: Please use TeapotError instead
 func NewTeapotError(location string, message string, details ...any) Error {
 	return new(codeTeapotError, location, message, details...)
 }
 
-// NewMisdirectedRequestError returns a (421) Misdirected Request error.
-// which indicates that the request was made to the wrong server; that server is not able to produce a response.
-// https://www.rfc-editor.org/rfc/rfc9110.html#name-421-misdirected-request
+// Deprecated: Please use MisdirectedRequestError instead
 func NewMisdirectedRequestError(location string, message string, details ...any) Error {
 	return new(codeMisdirectedRequestError, location, message, details...)
 }
 
-// NewValidationError returns a (422) Validation error
-// which indicates that the request contains invalid data.
-// https://www.rfc-editor.org/rfc/rfc9110.html#name-422-unprocessable-content
+// Deprecated: Please use ValidationError instead
 func NewValidationError(message string, details ...any) Error {
 	return new(codeValidationError, "", message, details...)
 }
 
-// NewInternalError returns a (500) Internal Server Error
-// which represents a generic error message, given when an unexpected condition was encountered and no more specific message is suitable.
-// https://www.rfc-editor.org/rfc/rfc9110.html#name-500-internal-server-error
+// Deprecated: Please use InternalError instead
 func NewInternalError(location string, message string, details ...any) Error {
 	return new(codeInternalError, location, message, details...)
 }
 
-// NewNotImplementedError returns a (501) Not Implemented error
-// which indicates that the server does not support the functionality required to fulfill the request.
-// https://www.rfc-editor.org/rfc/rfc9110.html#name-501-not-implemented
+// Deprecated: Please use NotImplementedError instead.
 func NewNotImplementedError(location string, message string, details ...any) Error {
 	return new(codeNotImplementedError, location, message, details...)
 }
 
-// New returns a new Error object
+// new returns a new Error object
 func new(code int, location string, message string, details ...any) Error {
 
 	result := Error{

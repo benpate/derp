@@ -36,7 +36,37 @@ func TestDerp(t *testing.T) {
 	assert.Equal(t, "WrappedValue", RootCause(outerError).(Error).Location)
 }
 
-func TestConvenienceFns(t *testing.T) {
+func TestNewConvenienceFns(t *testing.T) {
+
+	badRequest := BadRequestError("location", "description")
+	require.Equal(t, codeBadRequestError, ErrorCode(badRequest))
+
+	forbidden := ForbiddenError("location", "description")
+	require.Equal(t, codeForbiddenError, ErrorCode(forbidden))
+
+	internal := InternalError("location", "description")
+	require.Equal(t, codeInternalError, ErrorCode(internal))
+
+	notFound := NotFoundError("location", "description")
+	require.Equal(t, codeNotFoundError, ErrorCode(notFound))
+
+	unauthorized := UnauthorizedError("location", "description")
+	require.Equal(t, codeUnauthorizedError, ErrorCode(unauthorized))
+
+	invalid := ValidationError("location", "description")
+	require.Equal(t, codeValidationError, ErrorCode(invalid))
+
+	teapot := TeapotError("location", "description")
+	require.Equal(t, codeTeapotError, ErrorCode(teapot))
+
+	misdirected := MisdirectedRequestError("location", "description")
+	require.Equal(t, codeMisdirectedRequestError, ErrorCode(misdirected))
+
+	notImplemented := NotImplementedError("location", "description")
+	require.Equal(t, codeNotImplementedError, ErrorCode(notImplemented))
+}
+
+func TestDeprecatedConvenienceFns(t *testing.T) {
 
 	badRequest := NewBadRequestError("location", "description")
 	require.Equal(t, codeBadRequestError, ErrorCode(badRequest))

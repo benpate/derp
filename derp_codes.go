@@ -1,7 +1,7 @@
 package derp
 
-// NotFound returns TRUE if the error `Code` is a 404 / Not Found error.
-func NotFound(err error) bool {
+// IsNotFound returns TRUE if the error `Code` is a 404 / Not Found error.
+func IsNotFound(err error) bool {
 
 	if isNil(err) {
 		return false
@@ -16,7 +16,7 @@ func NotFound(err error) bool {
 
 // NilOrNotFound returns TRUE if the error is nil or a 404 / Not Found error.
 // All other errors return FALSE
-func NilOrNotFound(err error) bool {
+func IsNilOrNotFound(err error) bool {
 
 	if isNil(err) {
 		return true
@@ -62,4 +62,14 @@ func IsClientError(err error) bool {
 func IsServerError(err error) bool {
 	code := ErrorCode(err)
 	return code >= 500 && code < 600
+}
+
+// Deprecated: NotFound has been deprecated. Please use IsNotFound instead.
+func NotFound(err error) bool {
+	return IsNotFound(err)
+}
+
+// Deprecated: NilOrNotFound has been deprecated.  Please use IsNilOrNotFound instead.
+func NilOrNotFound(err error) bool {
+	return IsNilOrNotFound(err)
 }

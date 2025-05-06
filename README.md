@@ -26,20 +26,22 @@ func InnerFunc(arg1 string) error {
 
     if err := doTheThing(); err != nil {
         // Derp create errors with more troubleshooting info than standard errors.
-        return derp.NewNotFoundError("App.InnerFunc", "Error doing the thing", err.Error(), arg1)
+        return derp.NotFoundError("App.InnerFunc", "Error doing the thing", err.Error(), arg1)
     }
 
     return nil
 }
 
-func OuterFunc(arg1 string, arg2 string) {
+func OuterFunc(arg1 string, arg2 string) error {
 
     // Call InnerFunc with required arguments.
     if err := InnerFunction(arg1); err != nil {
 
-        // Wraps errors with additional details and nested stack trace, then report to Ops.
-        derp.Wrap(err, "App.OuterFunc", "Error calling InnerFunction", arg1, arg2).Report()
+        // Wraps errors with additional details and nested stack trace.
+        return derp.Wrap(err, "App.OuterFunc", "Error calling InnerFunction", arg1, arg2)
     }
+
+	return nil
 }
 
 ```
@@ -50,9 +52,7 @@ Derp lets you include information about your entire call stack, so that you can 
 
 ### Error Codes
 
-Every error in derp includes a numeric error code.  We suggest using standard **HTTP status codes**, but you can return any number that works for you.  To help you dig to the original cause of the error, nested error codes will "bubble up" from the original root cause, unless you specifically override them.
-
-To set an error code, just pass a **non-zero** `code` number to the `derp.New` function.  To let underlying codes bubble up, just pass a **zero**.
+Every derp erro is defined with a specific error code, corresponding to the standard [HTTP status codes](https://www.rfc-editor.org/rfc/rfc9110.html#name-status-codes).  These are created with helper functions such as `InternalError` and `NotFoundError`.To help you dig to the original cause of the error, nested error codes will "bubble up" from the original root cause, unless you specifically override them.
 
 ## 3. Reporting Plug-Ins
 
@@ -75,7 +75,7 @@ func init() {
 func SomewhereInYourCode() {
     // Report passes the error to each of the configured
     // plugins, to deliver the error to its destination.
-    derp.NewInternalError("location", "description", 0, nil).Report()
+    derp.InternalError("location", "description", 0, nil).Report()
 }
 ```
 

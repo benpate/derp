@@ -196,25 +196,32 @@ func TestIsNil(t *testing.T) {
 	// IsNil has some strange edge cases, so make sure that nobody
 	// makes derp panic because they define a strange error type
 
-	{
-		var nilPointer *Error
-		require.True(t, isNil(nilPointer))
-	}
+	var nilPointer *Error
+	require.True(t, IsNil(nilPointer))
 
-	{
-		var nilInterface error
-		require.True(t, isNil(nilInterface))
-	}
+	var nilInterface error
+	require.True(t, IsNil(nilInterface))
 
-	{
-		actualError := errors.New("this should not be nil")
-		require.False(t, isNil(actualError))
-	}
+	actualError := errors.New("this should not be nil")
+	require.False(t, IsNil(actualError))
 
-	{
-		derpError := new(404, "Code Location", "Error Message")
-		require.False(t, isNil(derpError))
-	}
+	derpError := new(404, "Code Location", "Error Message")
+	require.False(t, IsNil(derpError))
+}
+
+func TestNotNil(t *testing.T) {
+
+	var nilPointer *Error
+	require.False(t, NotNil(nilPointer))
+
+	var nilInterface error
+	require.False(t, NotNil(nilInterface))
+
+	actualError := errors.New("this should not be nil")
+	require.True(t, NotNil(actualError))
+
+	derpError := new(0, "Code Location", "Error Message")
+	require.True(t, NotNil(derpError))
 }
 
 func TestNilOrNotFound(t *testing.T) {
@@ -245,7 +252,7 @@ func (w weirdErrorType) Error() string {
 
 func TestIsNil_WeirdErrorTypes(t *testing.T) {
 	{
-		require.False(t, isNil(weirdErrorType("")))
+		require.False(t, IsNil(weirdErrorType("")))
 	}
 }
 
@@ -359,4 +366,80 @@ func TestIsServerError(t *testing.T) {
 		e := new(600, "Location", "Message")
 		require.False(t, IsServerError(e))
 	}
+}
+
+func TestIsBadRequest(t *testing.T) {
+
+	otherError := new(0, "location", "message")
+	require.False(t, IsBadRequest(otherError))
+
+	badRequest := new(400, "Location", "Message")
+	require.True(t, IsBadRequest(badRequest))
+}
+
+func TestIsUnauthorized(t *testing.T) {
+	otherError := new(0, "location", "message")
+	require.False(t, IsUnauthorized(otherError))
+
+	unauthorized := new(401, "Location", "Message")
+	require.True(t, IsUnauthorized(unauthorized))
+}
+
+func TestIsForbidden(t *testing.T) {
+	otherError := new(0, "location", "message")
+	require.False(t, IsForbidden(otherError))
+
+	forbidden := new(403, "Location", "Message")
+	require.True(t, IsForbidden(forbidden))
+}
+
+func TestIsNotFound(t *testing.T) {
+	otherError := new(0, "location", "message")
+	require.False(t, IsNotFound(otherError))
+
+	notFoundCode := new(404, "Location", "Message")
+	require.True(t, IsNotFound(notFoundCode))
+
+	notFoundText := errors.New("not found")
+	require.True(t, IsNotFound(notFoundText))
+}
+
+func TestIsTeapot(t *testing.T) {
+	otherError := new(0, "location", "message")
+	require.False(t, IsTeapot(otherError))
+
+	teapot := new(418, "Location", "Message")
+	require.True(t, IsTeapot(teapot))
+}
+
+func TestIsMisdirectedRequest(t *testing.T) {
+	otherError := new(0, "location", "message")
+	require.False(t, IsMisdirectedRequest(otherError))
+
+	misdirected := new(421, "Location", "Message")
+	require.True(t, IsMisdirectedRequest(misdirected))
+}
+
+func TestIsValidationError(t *testing.T) {
+	otherError := new(0, "location", "message")
+	require.False(t, IsValidationError(otherError))
+
+	validation := new(422, "Location", "Message")
+	require.True(t, IsValidationError(validation))
+}
+
+func TestIsInternalServerError(t *testing.T) {
+	otherError := new(0, "location", "message")
+	require.False(t, IsInternalServerError(otherError))
+
+	internal := new(500, "Location", "Message")
+	require.True(t, IsInternalServerError(internal))
+}
+
+func TestIsNotImplemented(t *testing.T) {
+	otherError := new(0, "location", "message")
+	require.False(t, IsNotImplemented(otherError))
+
+	notImplemented := new(501, "Location", "Message")
+	require.True(t, IsNotImplemented(notImplemented))
 }

@@ -5,7 +5,7 @@ package derp
 func Report(err error) {
 
 	// If the error is NOT nil, then send "Report" to each installed plugin.
-	if !isNil(err) {
+	if NotNil(err) {
 		for _, plugin := range Plugins {
 			plugin.Report(err)
 		}

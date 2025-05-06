@@ -83,8 +83,6 @@ func NewBadRequestError(location string, message string, details ...any) Error {
 }
 
 // Deprecated: Please use UnauthorizedError instead
-// which indicates that the request requires user authentication.
-// https://www.rfc-editor.org/rfc/rfc9110.html#name-401-unauthorized
 func NewUnauthorizedError(location string, message string, details ...any) Error {
 	return new(codeUnauthorizedError, location, message, details...)
 }
@@ -153,7 +151,7 @@ func new(code int, location string, message string, details ...any) Error {
 // Message retrieves the best-fit error message for any type of error
 func Message(err error) string {
 
-	if isNil(err) {
+	if IsNil(err) {
 		return ""
 	}
 
@@ -169,7 +167,7 @@ func Message(err error) string {
 // match this interface, then it assigns a generic "Internal Server Error" code 500.
 func ErrorCode(err error) int {
 
-	if isNil(err) {
+	if IsNil(err) {
 		return 0
 	}
 
@@ -188,7 +186,7 @@ func ErrorCode(err error) int {
 func Wrap(inner error, location string, message string, details ...any) error {
 
 	// If the inner error is nil, then the wrapped error is nil, too.
-	if isNil(inner) {
+	if IsNil(inner) {
 		return nil
 	}
 

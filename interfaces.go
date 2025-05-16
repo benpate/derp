@@ -15,6 +15,16 @@ type MessageGetter interface {
 	GetMessage() string
 }
 
+type LocationGetter interface {
+	// Location returns the location of the error in the source code.
+	GetLocation() string
+}
+
+type DetailsGetter interface {
+	// Details returns a list of details about the error.
+	GetDetails() []any
+}
+
 // Unwrapper interface describes any error that can be "unwrapped".  It supports
 // the Unwrap method added in Go 1.13+
 type Unwrapper interface {

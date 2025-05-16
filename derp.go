@@ -178,6 +178,30 @@ func ErrorCode(err error) int {
 	return codeInternalError
 }
 
+func Location(err error) string {
+	if IsNil(err) {
+		return ""
+	}
+
+	if getter, ok := err.(LocationGetter); ok {
+		return getter.GetLocation()
+	}
+
+	return ""
+}
+
+func Details(err error) []any {
+	if IsNil(err) {
+		return nil
+	}
+
+	if getter, ok := err.(DetailsGetter); ok {
+		return getter.GetDetails()
+	}
+
+	return nil
+}
+
 /******************************************
  * Other Manipulations
  ******************************************/

@@ -190,6 +190,18 @@ func Location(err error) string {
 	return ""
 }
 
+func URL(err error) string {
+	if IsNil(err) {
+		return ""
+	}
+
+	if getter, ok := err.(URLGetter); ok {
+		return getter.GetURL()
+	}
+
+	return ""
+}
+
 func Details(err error) []any {
 	if IsNil(err) {
 		return nil

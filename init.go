@@ -8,5 +8,5 @@ var Plugins PluginList
 func init() {
 
 	// Start with the ConsolePlugin as the only item in the list of plugins.
-	Plugins.Add(plugins.Console{})
+	Plugins.Add(plugins.JSON{})
 }

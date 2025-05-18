@@ -17,9 +17,9 @@ func TestPlugins(t *testing.T) {
 	assert.Equal(t, 0, len(Plugins))
 
 	// Test adding items to the list
-	Plugins.Add(plugins.Console{})
-	Plugins.Add(plugins.Console{})
-	Plugins.Add(plugins.Console{})
+	Plugins.Add(plugins.JSON{})
+	Plugins.Add(plugins.JSON{})
+	Plugins.Add(plugins.JSON{})
 	assert.Equal(t, 3, len(Plugins))
 
 }

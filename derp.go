@@ -29,6 +29,13 @@ func ForbiddenError(location string, message string, details ...any) Error {
 	return new(codeForbiddenError, location, message, details...)
 }
 
+// MisdirectedRequestError returns a (421) Misdirected Request error.
+// which indicates that the request was made to the wrong server; that server is not able to produce a response.
+// https://www.rfc-editor.org/rfc/rfc9110.html#name-421-misdirected-request
+func MisdirectedRequestError(location string, message string, details ...any) Error {
+	return new(codeMisdirectedRequestError, location, message, details...)
+}
+
 // NotFoundError returns a (404) Not Found error
 // which indicates that the requested resource does not exist,
 // such as when database query returns "not found"
@@ -45,11 +52,11 @@ func TeapotError(location string, message string, details ...any) Error {
 	return new(codeTeapotError, location, message, details...)
 }
 
-// MisdirectedRequestError returns a (421) Misdirected Request error.
-// which indicates that the request was made to the wrong server; that server is not able to produce a response.
-// https://www.rfc-editor.org/rfc/rfc9110.html#name-421-misdirected-request
-func MisdirectedRequestError(location string, message string, details ...any) Error {
-	return new(codeMisdirectedRequestError, location, message, details...)
+// TimeoutError returns a (524) Timeout error
+// which indicates that the request took longer than an internal timeout threshold
+// https://http.dev/524
+func TimeoutError(location string, message string, details ...any) Error {
+	return new(codeTimeout, location, message, details...)
 }
 
 // ValidationError returns a (422) Validation error

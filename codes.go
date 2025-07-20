@@ -41,4 +41,8 @@ const (
 	// codeNotImplementedError indicates that the server does not support the functionality required to fulfill the request.
 	// https://www.rfc-editor.org/rfc/rfc9110.html#name-501-not-implemented
 	codeNotImplementedError = 501
+
+	// codeTimout is an unofficial server error, used by derp to indicate an internal timeout.
+	// https://http.dev/524
+	codeTimeout = 524
 )

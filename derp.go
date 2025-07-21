@@ -222,6 +222,50 @@ func Details(err error) []any {
 }
 
 /******************************************
+ * Root Values find the deeped properties available
+ ******************************************/
+
+// RootMessage returns the deepest message
+// available within a chain of wrapped errors.
+func RootMessage(err error) string {
+
+	if IsNil(err) {
+		return ""
+	}
+
+	if unwrapper, isUnwrapper := err.(Unwrapper); isUnwrapper {
+		wrappedError := unwrapper.Unwrap()
+		wrappedMessage := Message(wrappedError)
+
+		if wrappedMessage != "" {
+			return wrappedMessage
+		}
+	}
+
+	return Message(err)
+}
+
+// RootLocation returns the deepest location
+// defined within a chain of wrapped errors.
+func RootLocation(err error) string {
+
+	if IsNil(err) {
+		return ""
+	}
+
+	if unwrapper, isUnwrapper := err.(Unwrapper); isUnwrapper {
+		wrappedError := unwrapper.Unwrap()
+		wrappedLocation := Location(wrappedError)
+
+		if wrappedLocation != "" {
+			return wrappedLocation
+		}
+	}
+
+	return Location(err)
+}
+
+/******************************************
  * Other Manipulations
  ******************************************/
 

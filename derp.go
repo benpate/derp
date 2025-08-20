@@ -1,6 +1,7 @@
 package derp
 
 import (
+	"encoding/json"
 	"time"
 )
 
@@ -219,6 +220,17 @@ func Details(err error) []any {
 	}
 
 	return nil
+}
+
+func Serialize(err error) string {
+
+	if NotNil(err) {
+		if bytes, err := json.Marshal(err); err == nil {
+			return string(bytes)
+		}
+	}
+
+	return ""
 }
 
 /******************************************

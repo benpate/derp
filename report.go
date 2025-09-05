@@ -11,3 +11,10 @@ func Report(err error) {
 		}
 	}
 }
+
+// ReportFunc executes the provided function and reports any error that occurs.
+// This is useful with `defer` statements, preventing the underlying function
+// from being executed before the deferred call.
+func ReportFunc(fn func() error) {
+	Report(fn())
+}

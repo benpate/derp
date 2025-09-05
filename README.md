@@ -79,6 +79,15 @@ func SomewhereInYourCode() {
 }
 ```
 
+## 4. Error Classification
+
+Derp uses HTTP status codes to classify error states, and includes several functions to determine "categories" of errors:
+
+```go
+derp.IsBadRequest(err)
+derp.IsClientError(err)
+```
+
 ### Plug-Ins
 
 The package includes a default reporter, and you can add to this list easily using `derp.Plugins.Add()` to add any object that implements the `Plugin` interface at startup.

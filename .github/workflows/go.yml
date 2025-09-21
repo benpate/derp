@@ -41,5 +41,5 @@ jobs:
     - name: Nilaway
       uses: qbaware/nilaway-action@v0
       with:
-        package-to-scan: ./...		
+        package-to-scan: .		
 

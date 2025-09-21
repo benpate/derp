@@ -18,3 +18,10 @@ func Report(err error) {
 func ReportFunc(fn func() error) {
 	Report(fn())
 }
+
+// ReportAndReturn reports an error to the logger
+// and also returns it to the caller.
+func ReportAndReturn(err error) error {
+	Report(err)
+	return err
+}

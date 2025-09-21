@@ -281,13 +281,9 @@ func RootLocation(err error) string {
  * Other Manipulations
  ******************************************/
 
-// Wrap encapsulates an existing derp.Error
+// Wrap encapsulates an existing derp.Error, and is guaranteed to return a "Not Nil" value.
+// This function ALWAYS returns a non-nil error value.
 func Wrap(inner error, location string, message string, details ...any) error {
-
-	// If the inner error is nil, then the wrapped error is nil, too.
-	if IsNil(inner) {
-		return nil
-	}
 
 	// If the inner error is not of a known type, then serialize it into the details.
 	switch inner.(type) {
@@ -316,9 +312,14 @@ func Wrap(inner error, location string, message string, details ...any) error {
 	return result
 }
 
-// ReportAndReturn reports an error to the logger
-// and also returns it to the caller.
-func ReportAndReturn(err error) error {
-	Report(err)
-	return err
+// WrapIF returns a wrapped error if the inner error is not nil.
+// If the inner error is nil, then this function returns nil.
+func WrapIF(inner error, location string, message string, details ...any) error {
+
+	// If the inner error is nil, then the wrapped error is nil, too.
+	if IsNil(inner) {
+		return nil
+	}
+
+	return Wrap(inner, location, message, details...)
 }

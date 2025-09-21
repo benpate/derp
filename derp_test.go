@@ -147,16 +147,30 @@ func TestWrapGenericError(t *testing.T) {
 	Report(err)
 }
 
-func TestEmptyWrappedValue(t *testing.T) {
+func TestWrap_EmptyValue(t *testing.T) {
 
 	{
-		err := Wrap(nil, "TestEmptyWrappedValue", "Don't Do This")
+		err := Wrap(nil, "TestEmptyWrappedValue", "This will still return an error")
+		assert.Error(t, err)
+	}
+
+	{
+		var innerError error
+		outer := Wrap(innerError, "Should Still Return an error value", "really")
+		assert.Error(t, outer)
+	}
+}
+
+func TestWrapIF_EmptyValue(t *testing.T) {
+
+	{
+		err := WrapIF(nil, "TestEmptyWrappedValue", "This should return nil")
 		assert.Nil(t, err)
 	}
 
 	{
 		var innerError error
-		outer := Wrap(innerError, "Should Still Be Empty", "Really")
+		outer := WrapIF(innerError, "Should Still Be Empty", "Really")
 		assert.Nil(t, outer)
 	}
 }

@@ -12,7 +12,7 @@ import (
 func TestDerp(t *testing.T) {
 
 	// Create an inner error
-	innerError := NewNotFoundError("WrappedValue", "Not Found", "detail1", "detail2", "detail3")
+	innerError := NotFound("WrappedValue", "Not Found", "detail1", "detail2", "detail3")
 
 	assert.Equal(t, innerError.Location, "WrappedValue")
 	assert.Equal(t, innerError.Message, "Not Found")
@@ -20,7 +20,7 @@ func TestDerp(t *testing.T) {
 	assert.Equal(t, innerError.Details[0], "detail1")
 	assert.Equal(t, innerError.Details[1], "detail2")
 	assert.Equal(t, innerError.Details[2], "detail3")
-	assert.Equal(t, NotFound(innerError), true)
+	assert.Equal(t, IsNotFound(innerError), true)
 
 	// Create an outer error
 	outerError := Wrap(innerError, "OuterError", "Inherited", "other details here").(Error)
@@ -30,7 +30,7 @@ func TestDerp(t *testing.T) {
 	assert.Equal(t, outerError.Code, 404) // This is still 404 because we've let the inner error code bubble up
 	assert.NotNil(t, outerError.WrappedValue)
 	assert.Equal(t, outerError.Details[0], "other details here")
-	assert.Equal(t, NotFound(outerError), true)
+	assert.Equal(t, IsNotFound(outerError), true)
 
 	// Test the RootCause() function
 	assert.Equal(t, "WrappedValue", RootCause(outerError).(Error).Location)
@@ -68,31 +68,31 @@ func TestNewConvenienceFns(t *testing.T) {
 
 func TestDeprecatedConvenienceFns(t *testing.T) {
 
-	badRequest := NewBadRequestError("location", "description")
+	badRequest := BadRequest("location", "description")
 	require.Equal(t, codeBadRequestError, ErrorCode(badRequest))
 
-	forbidden := NewForbiddenError("location", "description")
+	forbidden := Forbidden("location", "description")
 	require.Equal(t, codeForbiddenError, ErrorCode(forbidden))
 
-	internal := NewInternalError("location", "description")
+	internal := Internal("location", "description")
 	require.Equal(t, codeInternalError, ErrorCode(internal))
 
-	notFound := NewNotFoundError("location", "description")
+	notFound := NotFound("location", "description")
 	require.Equal(t, codeNotFoundError, ErrorCode(notFound))
 
-	unauthorized := NewUnauthorizedError("location", "description")
+	unauthorized := Unauthorized("location", "description")
 	require.Equal(t, codeUnauthorizedError, ErrorCode(unauthorized))
 
-	invalid := NewValidationError("location", "description")
+	invalid := Validation("location", "description")
 	require.Equal(t, codeValidationError, ErrorCode(invalid))
 
-	teapot := NewTeapotError("location", "description")
+	teapot := Teapot("location", "description")
 	require.Equal(t, codeTeapotError, ErrorCode(teapot))
 
-	misdirected := NewMisdirectedRequestError("location", "description")
+	misdirected := MisdirectedRequest("location", "description")
 	require.Equal(t, codeMisdirectedRequestError, ErrorCode(misdirected))
 
-	notImplemented := NewNotImplementedError("location", "description")
+	notImplemented := NotImplemented("location", "description")
 	require.Equal(t, codeNotImplementedError, ErrorCode(notImplemented))
 }
 
@@ -100,7 +100,7 @@ func TestMessage(t *testing.T) {
 
 	require.Equal(t, "", Message(nil))
 
-	derp := NewNotFoundError("location", "description")
+	derp := NotFound("location", "description")
 	require.Equal(t, "description", Message(derp))
 
 	standard := errors.New("this is a standard error")
@@ -110,7 +110,7 @@ func TestMessage(t *testing.T) {
 func TestErrorInterface(t *testing.T) {
 
 	// Create an error
-	innerError := NewNotFoundError("Location Name", "Error Description", "details")
+	innerError := NotFound("Location Name", "Error Description", "details")
 
 	// Verify that the error interface is outputting what we expect.
 	assert.Equal(t, innerError.Error(), "Location Name: Error Description")
@@ -122,7 +122,7 @@ func TestStandardError(t *testing.T) {
 	err := errors.New("This is a standard error")
 
 	// Wrap it the stdlib error in a derp.  This means: 1) assigning an error code, and 2) making the original error message a property of the derp.Error.
-	outer := NewInternalError("TestStandardError", "Encapsulating Error", err.Error())
+	outer := Internal("TestStandardError", "Encapsulating Error", err.Error())
 
 	assert.Equal(t, "TestStandardError", outer.Location)
 	assert.Equal(t, "Encapsulating Error", outer.Message)
@@ -177,30 +177,30 @@ func TestWrapIF_EmptyValue(t *testing.T) {
 
 func TestNotFound(t *testing.T) {
 
-	require.False(t, NotFound(nil))
+	require.False(t, IsNotFound(nil))
 
 	{
 		err := errors.New("regular error")
-		require.False(t, NotFound(err))
+		require.False(t, IsNotFound(err))
 	}
 
 	{
 		err := errors.New("not found")
-		require.True(t, NotFound(err))
+		require.True(t, IsNotFound(err))
 	}
 
 	{
 		err := new(500, "", "")
-		require.False(t, NotFound(err))
+		require.False(t, IsNotFound(err))
 	}
 
 	{
 		err := new(404, "", "")
-		require.True(t, NotFound(err))
+		require.True(t, IsNotFound(err))
 	}
 
 	{
-		e := NewNotFoundError("Location", "Message")
+		e := NotFound("Location", "Message")
 		assert.Equal(t, 404, ErrorCode(e))
 	}
 }
@@ -240,21 +240,21 @@ func TestNotNil(t *testing.T) {
 
 func TestNilOrNotFound(t *testing.T) {
 
-	require.True(t, NilOrNotFound(nil))
+	require.True(t, IsNilOrNotFound(nil))
 
 	{
 		err := errors.New("not found")
-		require.True(t, NilOrNotFound(err))
+		require.True(t, IsNilOrNotFound(err))
 	}
 
 	{
 		err := new(500, "", "")
-		require.False(t, NilOrNotFound(err))
+		require.False(t, IsNilOrNotFound(err))
 	}
 
 	{
 		err := new(404, "", "")
-		require.True(t, NilOrNotFound(err))
+		require.True(t, IsNilOrNotFound(err))
 	}
 }
 

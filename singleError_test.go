@@ -15,7 +15,7 @@ func TestError(t *testing.T) {
 	WithNotFound()(&e)
 	require.Equal(t, 404, e.GetErrorCode())
 	require.Equal(t, 404, ErrorCode(e))
-	require.True(t, NotFound(e))
+	require.True(t, IsNotFound(e))
 }
 
 func TestError_WrapSingle(t *testing.T) {
@@ -47,6 +47,6 @@ func TestError_WrapGeneric(t *testing.T) {
 }
 
 func TestErrorCodeSetter(t *testing.T) {
-	err := NewInternalError("test", "test", WithNotFound())
+	err := Internal("test", "test", WithNotFound())
 	require.Equal(t, 404, ErrorCode(err))
 }

@@ -25,7 +25,7 @@ func IsForbidden(err error) bool {
 // IsNotFound returns TRUE if this is a 404 / Not Found error.
 func IsNotFound(err error) bool {
 
-	if IsNil(err) {
+	if IsNil(err) || err == nil {
 		return false
 	}
 
@@ -63,9 +63,10 @@ func IsNotImplemented(err error) bool {
 
 // NilOrNotFound returns TRUE if the error is nil or a 404 / Not Found error.
 // All other errors return FALSE
+// deprecated: This was a nice experiment, but code flows better by NOT using this function.
 func IsNilOrNotFound(err error) bool {
 
-	if IsNil(err) {
+	if IsNil(err) || err == nil {
 		return true
 	}
 
@@ -123,38 +124,21 @@ func IsServerError(err error) bool {
 
 // IsNil performs a robust nil check on an error interface
 // Shout out to: https://medium.com/@mangatmodi/go-check-nil-interface-the-right-way-d142776edef1
-func IsNil(i error) bool {
+func IsNil(err error) bool {
 
-	if i == nil {
+	if err == nil {
 		return true
 	}
 
-	switch reflect.TypeOf(i).Kind() {
+	switch reflect.TypeOf(err).Kind() {
 	case reflect.Ptr, reflect.Array, reflect.Slice, reflect.Chan, reflect.Map:
-		return reflect.ValueOf(i).IsNil()
+		return reflect.ValueOf(err).IsNil()
 	}
+
 	return false
 }
 
 // NotNil returns TRUE if the error is NOT nil.
 func NotNil(err error) bool {
 	return !IsNil(err)
-}
-
-/******************************************
- * Deprecated Functions
- *****************************************/
-
-// NotFound is a wrapper for IsNotFound.
-//
-// Deprecated: NotFound has been deprecated. Please use IsNotFound instead.
-func NotFound(err error) bool {
-	return IsNotFound(err)
-}
-
-// NilOrNotFound is a wrapper for IsNilOrNotFound.
-//
-// Deprecated: NilOrNotFound has been deprecated.  Please use IsNilOrNotFound instead.
-func NilOrNotFound(err error) bool {
-	return IsNilOrNotFound(err)
 }

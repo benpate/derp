@@ -3,7 +3,7 @@ package derp
 import "github.com/benpate/derp/plugins"
 
 // Plugins is the array of objects that are able to report a derp when err.Report() is called.
-var Plugins PluginList
+var Plugins PluginList = make([]Plugin, 0)
 
 func init() {
 

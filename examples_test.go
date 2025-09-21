@@ -9,7 +9,7 @@ func ExampleNew() {
 	// Derp errors work anywhere that you use normal errors.
 	// They just contain more information about what actually happened.
 	// Here's how to create a new error to report back to a caller
-	err := NewNotFoundError("Code Location", "Error Message", "additional details here", 12345, map[string]any{})
+	err := NotFound("Code Location", "Error Message", "additional details here", 12345, map[string]any{})
 
 	// Pluggable error reporting interface can dump errors to the console
 	// or anywhere else that you want to send them.
@@ -22,7 +22,7 @@ func ExampleWrap() {
 	// about the entire call stack, with specifics about what went
 	// wrong at every level
 
-	innerErr := NewNotFoundError("Inner Function", "Original Error")
+	innerErr := NotFound("Inner Function", "Original Error")
 
 	middleErr := Wrap(innerErr, "Middleware Function", "Error calling 'innerErr'", "parameter", "list", "here")
 

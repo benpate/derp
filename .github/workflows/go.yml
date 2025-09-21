@@ -38,16 +38,17 @@ jobs:
         version: latest
         skip-cache: true
 
-# removing nilaway because I can't make it run cleanly. :(
-#  static-analysis:
-#    needs: build
-#
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v4
-#
-#      - name: Nil panic checks
-#        uses: qbaware/nilaway-action@v0
-#        with:
-#          package-to-scan: ./...
+  static-analysis:
+    needs: build
+ 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+ 
+      - name: Nil panic checks
+        uses: qbaware/nilaway-action@v0
+        with:
+          package-to-scan: ./...

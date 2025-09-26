@@ -1,80 +1,80 @@
 package derp
 
-import "reflect"
+import (
+	"reflect"
+	"strings"
+)
 
 /******************************************
  * Error Code Functions
  * These determine if an error matches a specific error code.
  *****************************************/
 
-// IsBadReqeust returns TRUE if this is a 400 / Bad Request error.
+// IsBadRequest returns TRUE if this is a 400 (Bad Request) error.
 func IsBadRequest(err error) bool {
 	return ErrorCode(err) == codeBadRequestError
 }
 
-// IsUnauthorized returns TRUE if this is a 401 / Unauthorized error.
+// IsUnauthorized returns TRUE if this is a 401 (Unauthorized) error.
 func IsUnauthorized(err error) bool {
 	return ErrorCode(err) == codeUnauthorizedError
 }
 
-// IsForbidden returns TRUE if this is a 403 / Forbidden error.
+// IsForbidden returns TRUE if this is a 403 (Forbidden) error.
 func IsForbidden(err error) bool {
 	return ErrorCode(err) == codeForbiddenError
 }
 
-// IsNotFound returns TRUE if this is a 404 / Not Found error.
+// IsNotFound returns TRUE if this is a 404 (Not Found) error.
 func IsNotFound(err error) bool {
-
-	if IsNil(err) || err == nil {
-		return false
-	}
-
 	if ErrorCode(err) == codeNotFoundError {
 		return true
 	}
 
-	return err.Error() == "not found"
+	// Special case for "not found" string errors
+	return strings.ToLower(err.Error()) == "not found"
 }
 
-// IsTeapot returns TRUE if this is a 418 / I'm a Teapot error.
+// IsGone returns TRUE if this is a 410 (Gone) error.
+func IsGone(err error) bool {
+	return (ErrorCode(err) == codeGoneError)
+}
+
+// IsNotFoundOrGone returns TRUE if this is a 404 (Not Found) or 410 (Gone) error.
+func IsNotFoundOrGone(err error) bool {
+
+	switch ErrorCode(err) {
+	case codeNotFoundError:
+	case codeGoneError:
+		return true
+	}
+
+	return (err.Error() == "not found")
+}
+
+// IsTeapot returns TRUE if this is a 418 (I'm a Teapot) error.
 func IsTeapot(err error) bool {
 	return ErrorCode(err) == codeTeapotError
 }
 
-// IsMisdirectedRequest returns TRUE if this is a 421 / Misdirected Request error.
+// IsMisdirectedRequest returns TRUE if this is a 421 (Misdirected Request) error.
 func IsMisdirectedRequest(err error) bool {
 	return ErrorCode(err) == codeMisdirectedRequestError
 }
 
-// IsValidationError returns TRUE if this is a 422 / Validation error.
+// IsValidationError returns TRUE if this is a 422 (Validation) error.
 func IsValidationError(err error) bool {
 	return ErrorCode(err) == codeValidationError
 }
 
-// IsInternalServerError returns TRUE if this is a 500 / Internal Server Error error.
+// IsInternalServerError returns TRUE if this is a 500 (Internal Server Error) error.
 func IsInternalServerError(err error) bool {
 	return ErrorCode(err) == codeInternalError
 }
 
-// IsNotImplemented returns TRUE if this is a 501 / Not Implemented error.
+// IsNotImplemented returns TRUE if this is a 501 (Not Implemented) error.
 func IsNotImplemented(err error) bool {
 	return ErrorCode(err) == codeNotImplementedError
-}
-
-// NilOrNotFound returns TRUE if the error is nil or a 404 / Not Found error.
-// All other errors return FALSE
-// deprecated: This was a nice experiment, but code flows better by NOT using this function.
-func IsNilOrNotFound(err error) bool {
-
-	if IsNil(err) || err == nil {
-		return true
-	}
-
-	if IsNotFound(err) {
-		return true
-	}
-
-	return false
 }
 
 /******************************************

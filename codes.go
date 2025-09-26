@@ -17,6 +17,10 @@ const (
 	// https://www.rfc-editor.org/rfc/rfc9110.html#name-403-forbidden
 	codeForbiddenError = 403
 
+	// codeGoneError indicates that the resource requested is no longer available and will not be available again.
+	// https://www.rfc-editor.org/rfc/rfc9110.html#name-410-gone
+	codeGoneError = 410
+
 	// codeNotFoundError represents a request for a resource that does not exist, such as a database query that returns "not found"
 	// https://www.rfc-editor.org/rfc/rfc9110.html#name-404-not-found
 	codeNotFoundError = 404

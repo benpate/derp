@@ -238,23 +238,32 @@ func TestNotNil(t *testing.T) {
 	require.True(t, NotNil(derpError))
 }
 
-func TestNilOrNotFound(t *testing.T) {
-
-	require.True(t, IsNilOrNotFound(nil))
+func TestNotFoundOrGone(t *testing.T) {
 
 	{
-		err := errors.New("not found")
-		require.True(t, IsNilOrNotFound(err))
+		require.False(t, IsNotFoundOrGone(nil))
 	}
 
 	{
 		err := new(500, "", "")
-		require.False(t, IsNilOrNotFound(err))
+		require.False(t, IsNotFoundOrGone(err))
 	}
 
 	{
 		err := new(404, "", "")
-		require.True(t, IsNilOrNotFound(err))
+		require.Equal(t, codeNotFoundError, ErrorCode(err))
+		require.True(t, IsNotFoundOrGone(err))
+	}
+
+	{
+		err := new(410, "", "")
+		require.Equal(t, codeGoneError, ErrorCode(err))
+		require.True(t, IsNotFoundOrGone(err))
+	}
+
+	{
+		err := errors.New("not found")
+		require.True(t, IsNotFoundOrGone(err))
 	}
 }
 

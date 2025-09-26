@@ -27,12 +27,12 @@ func IsForbidden(err error) bool {
 
 // IsNotFound returns TRUE if this is a 404 (Not Found) error.
 func IsNotFound(err error) bool {
+
 	if ErrorCode(err) == codeNotFoundError {
 		return true
 	}
 
-	// Special case for "not found" string errors
-	return strings.ToLower(err.Error()) == "not found"
+	return strings.ToLower(Message(err)) == "not found"
 }
 
 // IsGone returns TRUE if this is a 410 (Gone) error.
@@ -44,12 +44,11 @@ func IsGone(err error) bool {
 func IsNotFoundOrGone(err error) bool {
 
 	switch ErrorCode(err) {
-	case codeNotFoundError:
-	case codeGoneError:
+	case codeNotFoundError, codeGoneError:
 		return true
 	}
 
-	return (err.Error() == "not found")
+	return (strings.ToLower(Message(err)) == "not found")
 }
 
 // IsTeapot returns TRUE if this is a 418 (I'm a Teapot) error.

@@ -29,6 +29,11 @@ func WithInternalError() Option {
 	return WithCode(codeInternalError)
 }
 
+// WithUnauthorized returns an option that sets the derp.Error code to 401 (Unauthorized)
+func WithUnauthorized() Option {
+	return WithCode(codeUnauthorizedError)
+}
+
 // WithWrappedValue returns an option that sets the derp.Error wrapped value
 func WithWrappedValue(inner error) Option {
 	return func(e *Error) {

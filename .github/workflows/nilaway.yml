@@ -1,4 +1,4 @@
-name: Go
+name: Nilaway
 permissions:
   contents: read
 
@@ -9,7 +9,7 @@ on:
     branches: [ main, dev ]
 
 env:
-  GOVCS: false go build
+  GOVCS: false
 
 jobs:
 

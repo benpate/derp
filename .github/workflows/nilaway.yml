@@ -1,0 +1,32 @@
+name: Go
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+env:
+  GOVCS: false go build
+
+jobs:
+
+  nilaway:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+  
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.25'
+ 
+    - name: Nil panic checks
+      uses: qbaware/nilaway-action@v0
+      with:
+        package-to-scan: ./...

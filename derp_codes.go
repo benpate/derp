@@ -66,6 +66,11 @@ func IsValidationError(err error) bool {
 	return ErrorCode(err) == codeValidationError
 }
 
+// IsTooManyRequests returns TRUE if this is a 429 (Too Many Requests) error.
+func IsTooManyRequests(err error) bool {
+	return ErrorCode(err) == codeTooManyRequestsError
+}
+
 // IsInternalServerError returns TRUE if this is a 500 (Internal Server Error) error.
 func IsInternalServerError(err error) bool {
 	return ErrorCode(err) == codeInternalError

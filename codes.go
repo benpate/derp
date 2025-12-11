@@ -38,6 +38,10 @@ const (
 	// https://www.rfc-editor.org/rfc/rfc9110.html#name-422-unprocessable-content
 	codeValidationError = 422
 
+	// codeTooManyRequestsError indicates that the user has sent too many requests in a given amount of time.
+	// https://www.rfc-editor.org/rfc/rfc9110.html#name-429-too-many-requests
+	codeTooManyRequestsError = 429
+
 	// codeInternalError represents a generic error message, given when an unexpected condition was encountered and no more specific message is suitable.
 	// https://www.rfc-editor.org/rfc/rfc9110.html#name-500-internal-server-error
 	codeInternalError = 500

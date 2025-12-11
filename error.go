@@ -47,11 +47,6 @@ func (err Error) GetTimeStamp() int64 {
 	return err.TimeStamp
 }
 
-// GetWrappedValue returns the error WrappedValue embedded in this Error.
-func (err Error) GetWrappedValue() error {
-	return err.WrappedValue
-}
-
 // Unwrap supports Go 1.13+ error unwrapping
 func (err Error) Unwrap() error {
 	return err.WrappedValue

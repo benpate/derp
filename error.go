@@ -11,6 +11,35 @@ type Error struct {
 	WrappedValue error  `json:"innerError,omitempty"` // An underlying error object used to identify the root cause of this error.
 }
 
+// IsZero returns true if this Error is empty / uninitialized
+func (err Error) IsZero() bool {
+	if err.Code != 0 {
+		return false
+	}
+
+	if err.Location != "" {
+		return false
+	}
+
+	if err.Message != "" {
+		return false
+	}
+
+	if err.WrappedValue != nil {
+		return false
+	}
+
+	if err.URL != "" {
+		return false
+	}
+
+	if len(err.Details) > 0 {
+		return false
+	}
+
+	return true
+}
+
 // Error implements the Error interface, which allows derp.Error objects to be
 // used anywhere a standard error is used.
 func (err Error) Error() string {

@@ -262,9 +262,7 @@ func RootMessage(err error) string {
 
 	if unwrapper, isUnwrapper := err.(Unwrapper); isUnwrapper {
 		wrappedError := unwrapper.Unwrap()
-		wrappedMessage := Message(wrappedError)
-
-		if wrappedMessage != "" {
+		if wrappedMessage := Message(wrappedError); wrappedMessage != "" {
 			return wrappedMessage
 		}
 	}
@@ -282,9 +280,7 @@ func RootLocation(err error) string {
 
 	if unwrapper, isUnwrapper := err.(Unwrapper); isUnwrapper {
 		wrappedError := unwrapper.Unwrap()
-		wrappedLocation := Location(wrappedError)
-
-		if wrappedLocation != "" {
+		if wrappedLocation := Location(wrappedError); wrappedLocation != "" {
 			return wrappedLocation
 		}
 	}

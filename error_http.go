@@ -67,7 +67,7 @@ func (err HTTPError) Error() string {
 	return err.Response.Status
 }
 
-// ErrorCode returns the error Code embedded in this Error.
+// GetErrorCode returns the error Code embedded in this Error.
 func (err HTTPError) GetErrorCode() int {
 	return err.Response.StatusCode
 }

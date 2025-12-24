@@ -5,25 +5,25 @@ import (
 	"testing"
 )
 
-func TestReport(t *testing.T) {
+func TestReport(_ *testing.T) {
 
-	err := new(codeNotFoundError, "OMG", "Really Bad")
+	err := newError(codeNotFoundError, "OMG", "Really Bad")
 	Report(err)
 }
 
-func TestReportGeneric(t *testing.T) {
+func TestReportGeneric(_ *testing.T) {
 
 	err := errors.New("OMG Really Bad")
 	Report(err)
 }
 
-func TestReportNil(t *testing.T) {
+func TestReportNil(_ *testing.T) {
 	Report(nil)
 }
 
-func TestReportWrapped(t *testing.T) {
+func TestReportWrapped(_ *testing.T) {
 
-	inner := new(codeInternalError, "ouch", "omg")
+	inner := newError(codeInternalError, "ouch", "omg")
 	middle := Wrap(inner, "whoa", "dude")
 	outer := Wrap(middle, "srsly", "bro")
 

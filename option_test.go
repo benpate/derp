@@ -19,7 +19,7 @@ func TestOption(t *testing.T) {
 }
 
 func TestOption_New(t *testing.T) {
-	e := new(codeNotFoundError, "Location", "Message", WithCode(codeInternalError))
+	e := newError(codeNotFoundError, "Location", "Message", WithCode(codeInternalError))
 	assert.Equal(t, codeInternalError, ErrorCode(e))
 }
 
@@ -31,36 +31,36 @@ func TestOption_Wrap(t *testing.T) {
 }
 
 func TestOption_WithBadRequest(t *testing.T) {
-	e := new(codeNotFoundError, "Location", "Message", WithBadRequest())
+	e := newError(codeNotFoundError, "Location", "Message", WithBadRequest())
 	assert.Equal(t, codeBadRequestError, e.Code)
 }
 
 func TestOption_WithForbidden(t *testing.T) {
-	e := new(codeNotFoundError, "Location", "Message", WithForbidden())
+	e := newError(codeNotFoundError, "Location", "Message", WithForbidden())
 	assert.Equal(t, codeForbiddenError, e.Code)
 }
 
 func TestOption_WithInternalError(t *testing.T) {
-	e := new(codeNotFoundError, "Location", "Message", WithInternalError())
+	e := newError(codeNotFoundError, "Location", "Message", WithInternalError())
 	assert.Equal(t, codeInternalError, e.Code)
 }
 
 func TestOption_WithNotFound(t *testing.T) {
-	e := new(codeNotFoundError, "Location", "Message", WithNotFound())
+	e := newError(codeNotFoundError, "Location", "Message", WithNotFound())
 	assert.Equal(t, codeNotFoundError, e.Code)
 }
 
 func TestOption_WithLocation(t *testing.T) {
-	e := new(codeNotFoundError, "Location", "Message", WithLocation("New Location"))
+	e := newError(codeNotFoundError, "Location", "Message", WithLocation("New Location"))
 	assert.Equal(t, "New Location", e.Location)
 }
 
 func TestOption_WithMessage(t *testing.T) {
-	e := new(codeNotFoundError, "Location", "Message", WithMessage("New Message"))
+	e := newError(codeNotFoundError, "Location", "Message", WithMessage("New Message"))
 	assert.Equal(t, "New Message", e.Message)
 }
 
 func TestOption_WithWrappedValue(t *testing.T) {
-	e := new(codeNotFoundError, "Location", "Message", WithWrappedValue(errors.New("wrapped error")))
+	e := newError(codeNotFoundError, "Location", "Message", WithWrappedValue(errors.New("wrapped error")))
 	assert.Equal(t, "wrapped error", e.WrappedValue.Error())
 }

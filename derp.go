@@ -1,3 +1,4 @@
+// Package derp provides a standardized way to create and manage errors in Go applications.
 package derp
 
 import (
@@ -13,21 +14,21 @@ import (
 // which indicates that the request is not properly formatted.
 // https://www.rfc-editor.org/rfc/rfc9110.html#name-400-bad-request
 func BadRequest(location string, message string, details ...any) Error {
-	return new(codeBadRequestError, location, message, details...)
+	return newError(codeBadRequestError, location, message, details...)
 }
 
 // Unauthorized returns a (401) Unauthorized error
 // which indicates that the request requires user authentication.
 // https://www.rfc-editor.org/rfc/rfc9110.html#name-401-unauthorized
 func Unauthorized(location string, message string, details ...any) Error {
-	return new(codeUnauthorizedError, location, message, details...)
+	return newError(codeUnauthorizedError, location, message, details...)
 }
 
 // Forbidden returns a (403) Forbidden error
 // which indicates that the current user does not have permissions to access the requested resource.
 // https://www.rfc-editor.org/rfc/rfc9110.html#name-403-forbidden
 func Forbidden(location string, message string, details ...any) Error {
-	return new(codeForbiddenError, location, message, details...)
+	return newError(codeForbiddenError, location, message, details...)
 }
 
 // NotFound returns a (404) Not Found error
@@ -35,14 +36,14 @@ func Forbidden(location string, message string, details ...any) Error {
 // such as when database query returns "not found"
 // https://www.rfc-editor.org/rfc/rfc9110.html#name-404-not-found
 func NotFound(location string, message string, details ...any) Error {
-	return new(codeNotFoundError, location, message, details...)
+	return newError(codeNotFoundError, location, message, details...)
 }
 
 // Gone returns a (410) Gone error
 // which indicates that the resource requested is no longer available and will not be available again.
 // https://www.rfc-editor.org/rfc/rfc9110.html#name-410-gone
 func Gone(location string, message string, details ...any) Error {
-	return new(codeGoneError, location, message, details...)
+	return newError(codeGoneError, location, message, details...)
 }
 
 // Teapot returns a (418) I'm a Teapot error
@@ -50,100 +51,46 @@ func Gone(location string, message string, details ...any) Error {
 // https://www.rfc-editor.org/rfc/rfc7168.html#name-418-im-a-teapot
 // https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#418
 func Teapot(location string, message string, details ...any) Error {
-	return new(codeTeapotError, location, message, details...)
+	return newError(codeTeapotError, location, message, details...)
 }
 
 // MisdirectedRequest returns a (421) Misdirected Request error.
 // which indicates that the request was made to the wrong server; that server is not able to produce a response.
 // https://www.rfc-editor.org/rfc/rfc9110.html#name-421-misdirected-request
 func MisdirectedRequest(location string, message string, details ...any) Error {
-	return new(codeMisdirectedRequestError, location, message, details...)
+	return newError(codeMisdirectedRequestError, location, message, details...)
 }
 
 // Validation returns a (422) Validation error
 // which indicates that the request contains invalid data.
 // https://www.rfc-editor.org/rfc/rfc9110.html#name-422-unprocessable-content
 func Validation(message string, details ...any) Error {
-	return new(codeValidationError, "", message, details...)
+	return newError(codeValidationError, "", message, details...)
 }
 
 // Internal returns a (500) Internal Server Error
 // which represents a generic error message, given when an unexpected condition was encountered and no more specific message is suitable.
 // https://www.rfc-editor.org/rfc/rfc9110.html#name-500-internal-server-error
 func Internal(location string, message string, details ...any) Error {
-	return new(codeInternalError, location, message, details...)
+	return newError(codeInternalError, location, message, details...)
 }
 
 // NotImplemented returns a (501) Not Implemented error
 // which indicates that the server does not support the functionality required to fulfill the request.
 // https://www.rfc-editor.org/rfc/rfc9110.html#name-501-not-implemented
 func NotImplemented(location string, details ...any) Error {
-	return new(codeNotImplementedError, location, "Not Implemented", details...)
+	return newError(codeNotImplementedError, location, "Not Implemented", details...)
 }
 
 // Timeout returns a (524) Timeout error
 // which indicates that the request took longer than an internal timeout threshold
 // https://http.dev/524
 func Timeout(location string, message string, details ...any) Error {
-	return new(codeTimeout, location, message, details...)
-}
-
-/******************************************
- * Deprecated Derp (for backward compatibility)
- ******************************************/
-
-// deprecated: use BadRequest() instead
-func BadRequestError(location string, message string, details ...any) Error {
-	return new(codeBadRequestError, location, message, details...)
-}
-
-// deprecated: use Unauthorized() instead
-func UnauthorizedError(location string, message string, details ...any) Error {
-	return new(codeUnauthorizedError, location, message, details...)
-}
-
-// deprecated: use Forbidden() instead
-func ForbiddenError(location string, message string, details ...any) Error {
-	return new(codeForbiddenError, location, message, details...)
-}
-
-// deprecated: use MisdirectedRequest() instead
-func MisdirectedRequestError(location string, message string, details ...any) Error {
-	return new(codeMisdirectedRequestError, location, message, details...)
-}
-
-// deprecated: use NotFound() instead
-func NotFoundError(location string, message string, details ...any) Error {
-	return new(codeNotFoundError, location, message, details...)
-}
-
-// deprecated: use Teapot() instead
-func TeapotError(location string, message string, details ...any) Error {
-	return new(codeTeapotError, location, message, details...)
-}
-
-// deprecated: use Timeout() instead
-func TimeoutError(location string, message string, details ...any) Error {
-	return new(codeTimeout, location, message, details...)
-}
-
-// deprecated: use Validation() instead
-func ValidationError(message string, details ...any) Error {
-	return new(codeValidationError, "", message, details...)
-}
-
-// deprecated: use Internal() instead
-func InternalError(location string, message string, details ...any) Error {
-	return new(codeInternalError, location, message, details...)
-}
-
-// deprecated: use NotImplemented() instead
-func NotImplementedError(location string, details ...any) Error {
-	return new(codeNotImplementedError, location, "Not Implemented", details...)
+	return newError(codeTimeout, location, message, details...)
 }
 
 // new returns a new Error object
-func new(code int, location string, message string, details ...any) Error {
+func newError(code int, location string, message string, details ...any) Error {
 
 	result := Error{
 		Location:  location,
@@ -198,6 +145,7 @@ func ErrorCode(err error) int {
 	return codeInternalError
 }
 
+// Location retrieves the best-fit error location for any type of error
 func Location(err error) string {
 
 	if IsNil(err) || err == nil {
@@ -211,6 +159,7 @@ func Location(err error) string {
 	return ""
 }
 
+// URL retrieves the best-fit error URL for any type of error
 func URL(err error) string {
 
 	if IsNil(err) || err == nil {
@@ -224,6 +173,7 @@ func URL(err error) string {
 	return ""
 }
 
+// Details retrieves the best-fit error details for any type of error
 func Details(err error) []any {
 
 	if IsNil(err) || err == nil {
@@ -237,6 +187,7 @@ func Details(err error) []any {
 	return nil
 }
 
+// Serialize converts any error into its JSON string representation.
 func Serialize(err error) string {
 
 	if NotNil(err) || err == nil {

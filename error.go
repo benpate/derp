@@ -46,7 +46,7 @@ func (err Error) Error() string {
 	return err.Location + ": " + err.Message
 }
 
-// ErrorCode returns the error Code embedded in this Error.
+// GetErrorCode returns the error Code embedded in this Error.
 func (err Error) GetErrorCode() int {
 	return err.Code
 }
@@ -71,7 +71,7 @@ func (err Error) GetDetails() []any {
 	return err.Details
 }
 
-// GetTimestamp returns the error TimeStamp embedded in this Error.
+// GetTimeStamp returns the error TimeStamp embedded in this Error.
 func (err Error) GetTimeStamp() int64 {
 	return err.TimeStamp
 }

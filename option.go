@@ -3,6 +3,7 @@ package derp
 // Option defines a function that modifies a derp.Error
 type Option func(*Error)
 
+// WithCode returns an option that sets the derp.Error code
 func WithCode(code int) Option {
 	return func(e *Error) {
 		e.Code = code

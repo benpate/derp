@@ -8,7 +8,7 @@ import (
 )
 
 func TestError(t *testing.T) {
-	e := new(codeInternalError, "Location", "Message")
+	e := newError(codeInternalError, "Location", "Message")
 	require.Equal(t, "Location: Message", e.Error())
 	require.Equal(t, codeInternalError, ErrorCode(e))
 
@@ -20,7 +20,7 @@ func TestError(t *testing.T) {
 
 func TestError_WrapSingle(t *testing.T) {
 
-	inner := new(101, "A", "B", "C")
+	inner := newError(101, "A", "B", "C")
 	outer := Wrap(inner, "C", "D").(Error)
 
 	require.Equal(t, outer.Code, 101)

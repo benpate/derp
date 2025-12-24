@@ -8,7 +8,7 @@ import (
 )
 
 func TestRootCause_Shallow(t *testing.T) {
-	inner := new(codeForbiddenError, "Inner", "Message")
+	inner := newError(codeForbiddenError, "Inner", "Message")
 	outer := Wrap(inner, "Outer", "Message")
 
 	assert.Equal(t, "Inner: Message", RootCause(inner).Error())
@@ -22,7 +22,7 @@ func TestRootCause_Deep(t *testing.T) {
 		Wrap(
 			Wrap(
 				Wrap(
-					new(123, "Original Location", "Original Message"),
+					newError(123, "Original Location", "Original Message"),
 					"Second Location",
 					"Second Message",
 				),

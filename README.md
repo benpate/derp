@@ -26,7 +26,7 @@ func InnerFunc(arg1 string) error {
 
     if err := doTheThing(); err != nil {
         // Derp create errors with more troubleshooting info than standard errors.
-        return derp.NotFoundError("App.InnerFunc", "Error doing the thing", err.Error(), arg1)
+        return derp.NotFound("App.InnerFunc", "Error doing the thing", err.Error(), arg1)
     }
 
     return nil
@@ -75,7 +75,7 @@ func init() {
 func SomewhereInYourCode() {
     // Report passes the error to each of the configured
     // plugins, to deliver the error to its destination.
-    derp.InternalError("location", "description", 0, nil).Report()
+    derp.Internal("location", "description", 0, nil).Report()
 }
 ```
 

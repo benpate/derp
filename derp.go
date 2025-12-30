@@ -75,6 +75,13 @@ func Internal(location string, message string, details ...any) Error {
 	return newError(codeInternalError, location, message, details...)
 }
 
+// InternalError returns a (500) Internal Server Error
+// which represents a generic error message, given when an unexpected condition was encountered and no more specific message is suitable.
+// https://www.rfc-editor.org/rfc/rfc9110.html#name-500-internal-server-error
+func InternalError(location string, message string, details ...any) Error {
+	return newError(codeInternalError, location, message, details...)
+}
+
 // NotImplemented returns a (501) Not Implemented error
 // which indicates that the server does not support the functionality required to fulfill the request.
 // https://www.rfc-editor.org/rfc/rfc9110.html#name-501-not-implemented

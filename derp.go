@@ -75,13 +75,6 @@ func Internal(location string, message string, details ...any) Error {
 	return newError(codeInternalError, location, message, details...)
 }
 
-// InternalError returns a (500) Internal Server Error
-// which represents a generic error message, given when an unexpected condition was encountered and no more specific message is suitable.
-// https://www.rfc-editor.org/rfc/rfc9110.html#name-500-internal-server-error
-func InternalError(location string, message string, details ...any) Error {
-	return newError(codeInternalError, location, message, details...)
-}
-
 // NotImplemented returns a (501) Not Implemented error
 // which indicates that the server does not support the functionality required to fulfill the request.
 // https://www.rfc-editor.org/rfc/rfc9110.html#name-501-not-implemented
@@ -94,6 +87,60 @@ func NotImplemented(location string, details ...any) Error {
 // https://http.dev/524
 func Timeout(location string, message string, details ...any) Error {
 	return newError(codeTimeout, location, message, details...)
+}
+
+/******************************************
+ * Deprecated Derp (for backward compatibility)
+ ******************************************/
+
+// deprecated: use BadRequest() instead
+func BadRequestError(location string, message string, details ...any) Error {
+	return newError(codeBadRequestError, location, message, details...)
+}
+
+// deprecated: use Unauthorized() instead
+func UnauthorizedError(location string, message string, details ...any) Error {
+	return newError(codeUnauthorizedError, location, message, details...)
+}
+
+// deprecated: use Forbidden() instead
+func ForbiddenError(location string, message string, details ...any) Error {
+	return newError(codeForbiddenError, location, message, details...)
+}
+
+// deprecated: use MisdirectedRequest() instead
+func MisdirectedRequestError(location string, message string, details ...any) Error {
+	return newError(codeMisdirectedRequestError, location, message, details...)
+}
+
+// deprecated: use NotFound() instead
+func NotFoundError(location string, message string, details ...any) Error {
+	return newError(codeNotFoundError, location, message, details...)
+}
+
+// deprecated: use Teapot() instead
+func TeapotError(location string, message string, details ...any) Error {
+	return newError(codeTeapotError, location, message, details...)
+}
+
+// deprecated: use Timeout() instead
+func TimeoutError(location string, message string, details ...any) Error {
+	return newError(codeTimeout, location, message, details...)
+}
+
+// deprecated: use Validation() instead
+func ValidationError(message string, details ...any) Error {
+	return newError(codeValidationError, "", message, details...)
+}
+
+// deprecated: use Internal() instead
+func InternalError(location string, message string, details ...any) Error {
+	return newError(codeInternalError, location, message, details...)
+}
+
+// deprecated: use NotImplemented() instead
+func NotImplementedError(location string, details ...any) Error {
+	return newError(codeNotImplementedError, location, "Not Implemented", details...)
 }
 
 // new returns a new Error object

@@ -3,6 +3,7 @@ package derp
 import (
 	"net/http"
 	"strconv"
+	"time"
 )
 
 // HTTPError wraps a standard derp.Error, including additional data about a failed HTTP transaction
@@ -81,18 +82,49 @@ func (err HTTPError) Unwrap() error {
  * HTTP-Specific Helper Methods
  *****************************************/
 
-// RetryAfter returns the integer value of the `Retry-After` header,
-// which is the number of seconds that the server should wait before
-// retying a "Too Many Requests" response.
-// If the `Retry-After` header is a valid integer, then this method
-// returns the converted integer value. Otherwise, it returns zero.
+// RetryAfter returns the number of seconds to wait until retrying
+// the transaction.  It is derived from one of several possible headers
+// in the HTTP response, including `Retry-After`, `X-Ratelimit-Reset`,
+// and `X-Rate-Limit-Reset`.
+//
+// If no such header is found, this method returns a default of 3600 seconds (1 hour).
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/429
 func (err HTTPError) RetryAfter() int {
 
-	if retryAfter := err.Response.Header.Get("Retry-After"); retryAfter != "" {
-		if retryAfterInt, err := strconv.Atoi(retryAfter); err == nil {
-			return retryAfterInt
+	// List of headers that might contain retry-after information
+	headers := []string{
+		"Retry-After",       // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Retry-After
+		"X-Ratelimit-Reset", // https://www.ietf.org/archive/id/draft-polli-ratelimit-headers-02.html
+		"X-Rate-Limit-Reset",
+	}
+
+	// Try each header in the list
+	for _, header := range headers {
+
+		// Get the header value
+		value := err.Response.Header.Get(header)
+
+		// If the header is empty, then skip
+		if value == "" {
+			continue
+		}
+
+		// Integers represent the number of seconds to wait
+		if asInteger, err := strconv.Atoi(value); err == nil {
+			return asInteger
+		}
+
+		// RFC3339 timestamps represent the time when the rate limit resets
+		if asTimestamp, err := time.Parse(time.RFC3339, value); err == nil {
+			return int(time.Until(asTimestamp).Seconds())
+		}
+
+		// RFC1123 timestamps represent the time when the rate limit resets
+		if asTimestamp, err := time.Parse(time.RFC1123, value); err == nil {
+			return int(time.Until(asTimestamp).Seconds())
 		}
 	}
-	return 0
+
+	// If no value is found, wait 1 hour before retrying
+	return int(time.Duration(time.Hour).Seconds())
 }

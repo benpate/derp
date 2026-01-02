@@ -1,5 +1,7 @@
 package derp
 
+import "time"
+
 // Error represents a runtime error.  It includes
 type Error struct {
 	Code         int    `json:"code"`                 // Numeric error code (such as an HTTP status code) to report to the client.
@@ -59,6 +61,14 @@ func (err Error) GetLocation() string {
 // GetMessage returns the error Message embedded in this Error.
 func (err Error) GetMessage() string {
 	return err.Message
+}
+
+// GetRetryAfter returns the retry-after duration (in seconds)
+// provided by the WrappedValue.  If the WrappedValue is nil,
+// or does not implement the RetryAfterGetter interface,
+// this method returns 0
+func (err Error) GetRetryAfter() time.Duration {
+	return RetryAfter(err.WrappedValue)
 }
 
 // GetURL returns the help URL embedded in this Error.

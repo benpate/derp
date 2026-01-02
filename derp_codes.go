@@ -3,6 +3,7 @@ package derp
 import (
 	"reflect"
 	"strings"
+	"time"
 )
 
 /******************************************
@@ -67,8 +68,22 @@ func IsValidationError(err error) bool {
 }
 
 // IsTooManyRequests returns TRUE if this is a 429 (Too Many Requests) error.
-func IsTooManyRequests(err error) bool {
-	return ErrorCode(err) == codeTooManyRequestsError
+// If TRUE, it tries to find the recommended retry duration from the returned
+// error.  If no duration is found, then a default 1 hour retry duration is used.
+func IsTooManyRequests(err error) (bool, time.Duration) {
+
+	// Early return if NOT a 429 (Too Many Requests) error
+	if ErrorCode(err) != codeTooManyRequestsError {
+		return false, 0
+	}
+
+	// Try to use the recommended retry duration
+	if retryAfter := RetryAfter(err); retryAfter > 0 {
+		return true, retryAfter
+	}
+
+	// If not retry-after duration is given, use 1 hour as a default
+	return true, time.Hour
 }
 
 // IsInternalServerError returns TRUE if this is a 500 (Internal Server Error) error.

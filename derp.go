@@ -213,6 +213,20 @@ func Location(err error) string {
 	return ""
 }
 
+// RetryAfter retrieves the best-fit retry-after duration (in seconds) for any type of error
+func RetryAfter(err error) time.Duration {
+
+	if IsNil(err) || err == nil {
+		return 0
+	}
+
+	if getter, ok := err.(RetryAfterGetter); ok {
+		return getter.GetRetryAfter()
+	}
+
+	return 0
+}
+
 // URL retrieves the best-fit error URL for any type of error
 func URL(err error) string {
 

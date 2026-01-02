@@ -89,13 +89,13 @@ func (err HTTPError) Unwrap() error {
 //
 // If no such header is found, this method returns a default of 3600 seconds (1 hour).
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/429
-func (err HTTPError) RetryAfter() int {
+func (err HTTPError) GetRetryAfter() time.Duration {
 
 	// List of headers that might contain retry-after information
 	headers := []string{
-		"Retry-After",       // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Retry-After
-		"X-Ratelimit-Reset", // https://www.ietf.org/archive/id/draft-polli-ratelimit-headers-02.html
-		"X-Rate-Limit-Reset",
+		"Retry-After",        // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Retry-After
+		"X-Ratelimit-Reset",  // https://www.ietf.org/archive/id/draft-polli-ratelimit-headers-02.html
+		"X-Rate-Limit-Reset", // Some APIs use this variation
 	}
 
 	// Try each header in the list
@@ -110,21 +110,21 @@ func (err HTTPError) RetryAfter() int {
 		}
 
 		// Integers represent the number of seconds to wait
-		if asInteger, err := strconv.Atoi(value); err == nil {
-			return asInteger
+		if valueInt, err := strconv.Atoi(value); err == nil {
+			return time.Duration(valueInt) * time.Second
 		}
 
 		// RFC3339 timestamps represent the time when the rate limit resets
 		if asTimestamp, err := time.Parse(time.RFC3339, value); err == nil {
-			return int(time.Until(asTimestamp).Seconds())
+			return time.Until(asTimestamp)
 		}
 
 		// RFC1123 timestamps represent the time when the rate limit resets
 		if asTimestamp, err := time.Parse(time.RFC1123, value); err == nil {
-			return int(time.Until(asTimestamp).Seconds())
+			return time.Until(asTimestamp)
 		}
 	}
 
 	// If no value is found, wait 1 hour before retrying
-	return int(time.Duration(time.Hour).Seconds())
+	return time.Duration(time.Hour)
 }

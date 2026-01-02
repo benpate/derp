@@ -19,7 +19,7 @@ func TestHTTPRetry_RetryAfterSeconds(t *testing.T) {
 		},
 	}
 
-	require.Equal(t, 120, httpError.RetryAfter())
+	require.Equal(t, time.Duration(120)*time.Second, httpError.GetRetryAfter().Truncate(time.Second))
 }
 
 func TestHTTPRetry_RateLimitSeconds(t *testing.T) {
@@ -33,7 +33,7 @@ func TestHTTPRetry_RateLimitSeconds(t *testing.T) {
 		},
 	}
 
-	require.Equal(t, 120, httpError.RetryAfter())
+	require.Equal(t, time.Duration(120)*time.Second, httpError.GetRetryAfter().Truncate(time.Second))
 }
 func TestHTTPRetry_Rate_LimitSeconds(t *testing.T) {
 
@@ -46,7 +46,7 @@ func TestHTTPRetry_Rate_LimitSeconds(t *testing.T) {
 		},
 	}
 
-	require.Equal(t, 120, httpError.RetryAfter())
+	require.Equal(t, time.Duration(120)*time.Second, httpError.GetRetryAfter().Truncate(time.Second))
 }
 
 func TestHTTPRetry_RetryAfterTimestamp(t *testing.T) {
@@ -62,7 +62,7 @@ func TestHTTPRetry_RetryAfterTimestamp(t *testing.T) {
 		},
 	}
 
-	require.Equal(t, 120, httpError.RetryAfter())
+	require.Equal(t, time.Duration(120)*time.Second, httpError.GetRetryAfter().Truncate(time.Second))
 }
 
 func TestHTTPRetry_RateLimitTimestamp(t *testing.T) {
@@ -78,7 +78,7 @@ func TestHTTPRetry_RateLimitTimestamp(t *testing.T) {
 		},
 	}
 
-	require.Equal(t, 120, httpError.RetryAfter())
+	require.Equal(t, time.Duration(120)*time.Second, httpError.GetRetryAfter().Truncate(time.Second))
 }
 
 func TestHTTPRetry_Rate_LimitTimestamp(t *testing.T) {
@@ -94,5 +94,41 @@ func TestHTTPRetry_Rate_LimitTimestamp(t *testing.T) {
 		},
 	}
 
-	require.Equal(t, 120, httpError.RetryAfter())
+	require.Equal(t, time.Duration(120)*time.Second, httpError.GetRetryAfter().Truncate(time.Second))
+}
+
+func TestHTTPRetry_RetryAfterWrapped(t *testing.T) {
+
+	err := Error{
+		WrappedValue: HTTPError{
+			Response: HTTPResponseReport{
+				StatusCode: 429,
+				Header: http.Header{
+					"Retry-After": []string{"120"},
+				},
+			},
+		},
+	}
+
+	require.Equal(t, time.Duration(120)*time.Second, err.GetRetryAfter())
+}
+
+func TestHTTPRetry_RetryAfterWrappedGlobalFunc(t *testing.T) {
+
+	err := Error{
+		Code: 429,
+		WrappedValue: HTTPError{
+			Response: HTTPResponseReport{
+				StatusCode: 429,
+				Header: http.Header{
+					"Retry-After": []string{"120"},
+				},
+			},
+		},
+	}
+
+	ok, replyAfter := IsTooManyRequests(err)
+
+	require.True(t, ok)
+	require.Equal(t, time.Duration(120)*time.Second, replyAfter.Truncate(time.Second))
 }

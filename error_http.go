@@ -82,7 +82,7 @@ func (err HTTPError) Unwrap() error {
  * HTTP-Specific Helper Methods
  *****************************************/
 
-// RetryAfter returns the number of seconds to wait until retrying
+// GetRetryAfter returns the number of seconds to wait until retrying
 // the transaction.  It is derived from one of several possible headers
 // in the HTTP response, including `Retry-After`, `X-Ratelimit-Reset`,
 // and `X-Rate-Limit-Reset`.

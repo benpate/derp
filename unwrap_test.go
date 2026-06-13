@@ -1,6 +1,7 @@
 package derp
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -45,4 +46,41 @@ func TestRootCause_Deep(t *testing.T) {
 	require.Equal(t, 123, ErrorCode(rootCause))
 	require.Equal(t, "Original Location", rootCause.Location)
 	require.Equal(t, "Original Message", rootCause.Message)
+}
+
+func TestUnwrapHTTPError(t *testing.T) {
+
+	// a nil error returns nil
+	require.Nil(t, UnwrapHTTPError(nil))
+
+	// a direct HTTPError is returned as-is
+	{
+		httpError := HTTPError{Response: HTTPResponseReport{StatusCode: 404}}
+		result := UnwrapHTTPError(httpError)
+		require.NotNil(t, result)
+		require.Equal(t, 404, result.Response.StatusCode)
+	}
+
+	// a pointer to an HTTPError is returned as-is
+	{
+		httpError := &HTTPError{Response: HTTPResponseReport{StatusCode: 403}}
+		result := UnwrapHTTPError(httpError)
+		require.NotNil(t, result)
+		require.Equal(t, 403, result.Response.StatusCode)
+	}
+
+	// an HTTPError nested inside a derp.Error chain is found
+	{
+		httpError := HTTPError{Response: HTTPResponseReport{StatusCode: 500}}
+		wrapped := Wrap(httpError, "location", "message")
+		result := UnwrapHTTPError(wrapped)
+		require.NotNil(t, result)
+		require.Equal(t, 500, result.Response.StatusCode)
+	}
+
+	// a chain that contains no HTTPError returns nil
+	{
+		require.Nil(t, UnwrapHTTPError(errors.New("standard error")))
+		require.Nil(t, UnwrapHTTPError(newError(404, "location", "message")))
+	}
 }

@@ -3,6 +3,8 @@ package derp
 import (
 	"errors"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestReport(_ *testing.T) {
@@ -19,6 +21,29 @@ func TestReportGeneric(_ *testing.T) {
 
 func TestReportNil(_ *testing.T) {
 	Report(nil)
+}
+
+func TestReportFunc(t *testing.T) {
+
+	// Swap in a counting plugin, restoring the global list afterwards so
+	// other tests are not affected.
+	original := Plugins
+	defer func() { Plugins = original }()
+
+	counter := &countingPlugin{}
+	Plugins = PluginList{counter}
+
+	// ReportFunc should report the error returned by the function
+	ReportFunc(func() error {
+		return NotFound("location", "message")
+	})
+	require.Equal(t, 1, counter.count)
+
+	// ReportFunc should NOT report when the function returns nil
+	ReportFunc(func() error {
+		return nil
+	})
+	require.Equal(t, 1, counter.count)
 }
 
 func TestReportWrapped(_ *testing.T) {

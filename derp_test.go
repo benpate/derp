@@ -2,7 +2,9 @@ package derp
 
 import (
 	"errors"
+	"net/http"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -37,36 +39,6 @@ func TestDerp(t *testing.T) {
 }
 
 func TestNewConvenienceFns(t *testing.T) {
-
-	badRequest := BadRequest("location", "description")
-	require.Equal(t, codeBadRequestError, ErrorCode(badRequest))
-
-	forbidden := Forbidden("location", "description")
-	require.Equal(t, codeForbiddenError, ErrorCode(forbidden))
-
-	internal := Internal("location", "description")
-	require.Equal(t, codeInternalError, ErrorCode(internal))
-
-	notFound := NotFound("location", "description")
-	require.Equal(t, codeNotFoundError, ErrorCode(notFound))
-
-	unauthorized := Unauthorized("location", "description")
-	require.Equal(t, codeUnauthorizedError, ErrorCode(unauthorized))
-
-	invalid := Validation("location", "description")
-	require.Equal(t, codeValidationError, ErrorCode(invalid))
-
-	teapot := Teapot("location", "description")
-	require.Equal(t, codeTeapotError, ErrorCode(teapot))
-
-	misdirected := MisdirectedRequest("location", "description")
-	require.Equal(t, codeMisdirectedRequestError, ErrorCode(misdirected))
-
-	notImplemented := NotImplemented("location", "description")
-	require.Equal(t, codeNotImplementedError, ErrorCode(notImplemented))
-}
-
-func TestDeprecatedConvenienceFns(t *testing.T) {
 
 	badRequest := BadRequest("location", "description")
 	require.Equal(t, codeBadRequestError, ErrorCode(badRequest))
@@ -465,4 +437,184 @@ func TestIsNotImplemented(t *testing.T) {
 
 	notImplemented := newError(501, "Location", "Message")
 	require.True(t, IsNotImplemented(notImplemented))
+}
+
+func TestGone(t *testing.T) {
+	err := Gone("location", "message")
+	require.Equal(t, codeGoneError, ErrorCode(err))
+	require.True(t, IsGone(err))
+}
+
+func TestTimeout(t *testing.T) {
+	err := Timeout("location", "message")
+	require.Equal(t, codeTimeout, ErrorCode(err))
+}
+
+// TestDeprecatedErrorFns exercises the deprecated *Error() constructors,
+// confirming they still produce the same error codes as their replacements.
+func TestDeprecatedErrorFns(t *testing.T) {
+	require.Equal(t, codeBadRequestError, ErrorCode(BadRequestError("location", "message")))
+	require.Equal(t, codeUnauthorizedError, ErrorCode(UnauthorizedError("location", "message")))
+	require.Equal(t, codeForbiddenError, ErrorCode(ForbiddenError("location", "message")))
+	require.Equal(t, codeMisdirectedRequestError, ErrorCode(MisdirectedRequestError("location", "message")))
+	require.Equal(t, codeNotFoundError, ErrorCode(NotFoundError("location", "message")))
+	require.Equal(t, codeTeapotError, ErrorCode(TeapotError("location", "message")))
+	require.Equal(t, codeTimeout, ErrorCode(TimeoutError("location", "message")))
+	require.Equal(t, codeValidationError, ErrorCode(ValidationError("message")))
+	require.Equal(t, codeInternalError, ErrorCode(InternalError("location", "message")))
+	require.Equal(t, codeNotImplementedError, ErrorCode(NotImplementedError("location")))
+}
+
+func TestLocation(t *testing.T) {
+
+	// nil error has no location
+	require.Equal(t, "", Location(nil))
+
+	// standard errors do not implement LocationGetter
+	require.Equal(t, "", Location(errors.New("standard error")))
+
+	// derp errors return their location
+	require.Equal(t, "the location", Location(newError(500, "the location", "message")))
+}
+
+func TestURL(t *testing.T) {
+
+	// nil error has no URL
+	require.Equal(t, "", URL(nil))
+
+	// standard errors do not implement URLGetter
+	require.Equal(t, "", URL(errors.New("standard error")))
+
+	// derp errors return their URL
+	require.Equal(t, "https://example.com/help", URL(Error{URL: "https://example.com/help"}))
+}
+
+func TestDetails(t *testing.T) {
+
+	// nil error has no details
+	require.Nil(t, Details(nil))
+
+	// standard errors do not implement DetailsGetter
+	require.Nil(t, Details(errors.New("standard error")))
+
+	// derp errors return their details
+	require.Equal(t, []any{"a", "b"}, Details(newError(500, "location", "message", "a", "b")))
+}
+
+func TestRetryAfter(t *testing.T) {
+
+	// nil error has no retry-after
+	require.Equal(t, time.Duration(0), RetryAfter(nil))
+
+	// standard errors do not implement RetryAfterGetter
+	require.Equal(t, time.Duration(0), RetryAfter(errors.New("standard error")))
+
+	// HTTPError implements RetryAfterGetter
+	httpError := HTTPError{
+		Response: HTTPResponseReport{
+			Header: http.Header{"Retry-After": []string{"120"}},
+		},
+	}
+	require.Equal(t, 120*time.Second, RetryAfter(httpError).Truncate(time.Second))
+}
+
+func TestSerialize(t *testing.T) {
+
+	// nil error serializes to an empty string
+	require.Equal(t, "", Serialize(nil))
+
+	// a valid error serializes to JSON
+	require.Contains(t, Serialize(newError(404, "location", "message")), `"message":"message"`)
+
+	// an error that cannot be marshaled (a func in Details) serializes to an empty string
+	require.Equal(t, "", Serialize(Error{Details: []any{func() {}}}))
+}
+
+func TestRootMessage(t *testing.T) {
+
+	// nil error has no message
+	require.Equal(t, "", RootMessage(nil))
+
+	// standard (non-unwrappable) errors return their own message
+	require.Equal(t, "standard error", RootMessage(errors.New("standard error")))
+
+	// a lone derp error returns its own message
+	require.Equal(t, "only", RootMessage(newError(500, "location", "only")))
+
+	// a chain returns the deepest non-empty message
+	inner := newError(500, "InnerLocation", "InnerMessage")
+	middle := Wrap(inner, "MiddleLocation", "MiddleMessage")
+	outer := Wrap(middle, "OuterLocation", "OuterMessage")
+	require.Equal(t, "InnerMessage", RootMessage(outer))
+
+	// when deeper messages are empty, it falls back to the current message
+	emptyInner := newError(500, "InnerLocation", "")
+	wrapped := Wrap(emptyInner, "OuterLocation", "OuterMessage")
+	require.Equal(t, "OuterMessage", RootMessage(wrapped))
+}
+
+func TestRootLocation(t *testing.T) {
+
+	// nil error has no location
+	require.Equal(t, "", RootLocation(nil))
+
+	// standard (non-unwrappable) errors have no location
+	require.Equal(t, "", RootLocation(errors.New("standard error")))
+
+	// a lone derp error returns its own location
+	require.Equal(t, "only", RootLocation(newError(500, "only", "message")))
+
+	// a chain returns the deepest non-empty location
+	inner := newError(500, "InnerLocation", "InnerMessage")
+	middle := Wrap(inner, "MiddleLocation", "MiddleMessage")
+	outer := Wrap(middle, "OuterLocation", "OuterMessage")
+	require.Equal(t, "InnerLocation", RootLocation(outer))
+
+	// when deeper locations are empty, it falls back to the current location
+	emptyInner := newError(500, "", "InnerMessage")
+	wrapped := Wrap(emptyInner, "OuterLocation", "OuterMessage")
+	require.Equal(t, "OuterLocation", RootLocation(wrapped))
+}
+
+func TestIsGone(t *testing.T) {
+	require.False(t, IsGone(newError(500, "location", "message")))
+	require.True(t, IsGone(newError(codeGoneError, "location", "message")))
+}
+
+func TestIsTooManyRequests(t *testing.T) {
+
+	// a non-429 error is not "too many requests"
+	{
+		ok, retryAfter := IsTooManyRequests(newError(404, "location", "message"))
+		require.False(t, ok)
+		require.Equal(t, time.Duration(0), retryAfter)
+	}
+
+	// a 429 error with no retry-after header defaults to 1 hour
+	{
+		ok, retryAfter := IsTooManyRequests(newError(codeTooManyRequestsError, "location", "message"))
+		require.True(t, ok)
+		require.Equal(t, time.Hour, retryAfter)
+	}
+
+	// a 429 error with a retry-after header uses that duration
+	{
+		err := Error{
+			Code: codeTooManyRequestsError,
+			WrappedValue: HTTPError{
+				Response: HTTPResponseReport{
+					Header: http.Header{"Retry-After": []string{"120"}},
+				},
+			},
+		}
+		ok, retryAfter := IsTooManyRequests(err)
+		require.True(t, ok)
+		require.Equal(t, 120*time.Second, retryAfter.Truncate(time.Second))
+	}
+}
+
+func TestWrapIF_NotNil(t *testing.T) {
+	err := WrapIF(errors.New("inner"), "location", "message")
+	require.Error(t, err)
+	require.Equal(t, codeInternalError, ErrorCode(err))
 }

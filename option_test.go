@@ -5,17 +5,15 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestOption(t *testing.T) {
 
 	var f any = WithNotFound()
 
-	if _, ok := f.(Option); ok {
-		t.Log("f is an Option")
-	} else {
-		t.Error("f is not an Option")
-	}
+	_, ok := f.(Option)
+	require.True(t, ok, "f should be an Option")
 }
 
 func TestOption_New(t *testing.T) {
@@ -48,6 +46,11 @@ func TestOption_WithInternalError(t *testing.T) {
 func TestOption_WithNotFound(t *testing.T) {
 	e := newError(codeNotFoundError, "Location", "Message", WithNotFound())
 	assert.Equal(t, codeNotFoundError, e.Code)
+}
+
+func TestOption_WithUnauthorized(t *testing.T) {
+	e := newError(codeNotFoundError, "Location", "Message", WithUnauthorized())
+	assert.Equal(t, codeUnauthorizedError, e.Code)
 }
 
 func TestOption_WithLocation(t *testing.T) {

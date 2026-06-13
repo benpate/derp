@@ -10,20 +10,16 @@ type Plugin interface {
 // the Error.Report() function is called.
 type PluginList []Plugin
 
-// Add registers a new plugin to the system-wide configuration.  This lets the developer
+// Add appends a new plugin to this list.  This lets the developer
 // configure and append additional plugins during initialization.  It should be called
 // during system startup only.
-func (list PluginList) Add(plugin Plugin) PluginList {
-	Plugins = append(Plugins, plugin)
-
-	return list
+func (list *PluginList) Add(plugin Plugin) {
+	*list = append(*list, plugin)
 }
 
-// Clear removes all plugins from the system-wide configuration.  It is useful for
+// Clear removes all plugins from this list.  It is useful for
 // removing the library default Console() from the list of plugins, in the event that
 // you don't want to report errors to the console.
-func (list PluginList) Clear() PluginList {
-	Plugins = []Plugin{}
-
-	return list
+func (list *PluginList) Clear() {
+	*list = nil
 }

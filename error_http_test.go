@@ -224,3 +224,28 @@ func TestHTTPError_GetRetryAfter_RFC1123(t *testing.T) {
 	}
 	require.Equal(t, 120*time.Second, err.GetRetryAfter().Truncate(time.Second))
 }
+
+// FuzzGetRetryAfter feeds arbitrary, untrusted Retry-After header values to
+// the parser.  The contract under fuzzing is simply that parsing must never
+// panic, no matter how malformed the input.
+func FuzzGetRetryAfter(f *testing.F) {
+
+	// Seed the corpus with values that exercise each parsing branch.
+	f.Add("120")                           // integer seconds
+	f.Add(time.Now().Format(time.RFC3339)) // RFC3339 timestamp
+	f.Add(time.Now().Format(time.RFC1123)) // RFC1123 timestamp
+	f.Add("not-a-number")                  // unparseable
+	f.Add("")                              // empty
+	f.Add("-1")                            // negative integer
+
+	f.Fuzz(func(_ *testing.T, value string) {
+		httpError := HTTPError{
+			Response: HTTPResponseReport{
+				Header: http.Header{"Retry-After": []string{value}},
+			},
+		}
+
+		// A panic here fails the fuzz test automatically.
+		_ = httpError.GetRetryAfter()
+	})
+}

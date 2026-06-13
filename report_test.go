@@ -28,7 +28,7 @@ func TestReportFunc(t *testing.T) {
 	// Swap in a counting plugin, restoring the global list afterwards so
 	// other tests are not affected.
 	original := Plugins
-	defer func() { Plugins = original }()
+	t.Cleanup(func() { Plugins = original })
 
 	counter := &countingPlugin{}
 	Plugins = PluginList{counter}

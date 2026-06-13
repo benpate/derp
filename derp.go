@@ -192,6 +192,7 @@ func newError(code int, location string, message string, details ...any) Error {
 // Message retrieves the best-fit error message for any type of error
 func Message(err error) string {
 
+	// double nil check to make nilaway happy
 	if IsNil(err) || err == nil {
 		return ""
 	}
@@ -208,6 +209,7 @@ func Message(err error) string {
 // match this interface, then it assigns a generic "Internal Server Error" code 500.
 func ErrorCode(err error) int {
 
+	// double nil check to make nilaway happy
 	if IsNil(err) || err == nil {
 		return 0
 	}
@@ -222,6 +224,7 @@ func ErrorCode(err error) int {
 // Location retrieves the best-fit error location for any type of error
 func Location(err error) string {
 
+	// double nil check to make nilaway happy
 	if IsNil(err) || err == nil {
 		return ""
 	}
@@ -236,6 +239,7 @@ func Location(err error) string {
 // RetryAfter retrieves the best-fit retry-after duration (in seconds) for any type of error
 func RetryAfter(err error) time.Duration {
 
+	// double nil check to make nilaway happy
 	if IsNil(err) || err == nil {
 		return 0
 	}
@@ -250,6 +254,7 @@ func RetryAfter(err error) time.Duration {
 // URL retrieves the best-fit error URL for any type of error
 func URL(err error) string {
 
+	// double nil check to make nilaway happy
 	if IsNil(err) || err == nil {
 		return ""
 	}
@@ -264,6 +269,7 @@ func URL(err error) string {
 // Details retrieves the best-fit error details for any type of error
 func Details(err error) []any {
 
+	// double nil check to make nilaway happy
 	if IsNil(err) || err == nil {
 		return nil
 	}
@@ -278,10 +284,13 @@ func Details(err error) []any {
 // Serialize converts any error into its JSON string representation.
 func Serialize(err error) string {
 
-	if NotNil(err) || err == nil {
-		if bytes, err := json.Marshal(err); err == nil {
-			return string(bytes)
-		}
+	// double nil check to make nilaway happy
+	if IsNil(err) || err == nil {
+		return ""
+	}
+
+	if bytes, err := json.Marshal(err); err == nil {
+		return string(bytes)
 	}
 
 	return ""
@@ -295,6 +304,7 @@ func Serialize(err error) string {
 // available within a chain of wrapped errors.
 func RootMessage(err error) string {
 
+	// double nil check to make nilaway happy
 	if IsNil(err) || err == nil {
 		return ""
 	}
@@ -313,6 +323,7 @@ func RootMessage(err error) string {
 // defined within a chain of wrapped errors.
 func RootLocation(err error) string {
 
+	// double nil check to make nilaway happy
 	if IsNil(err) || err == nil {
 		return ""
 	}

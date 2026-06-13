@@ -27,20 +27,29 @@ func Unwrap(err error) error {
 // If no HTTPError is found, this function returns nil.
 func UnwrapHTTPError(err error) *HTTPError {
 
-	if httpError, isHTTPError := err.(HTTPError); isHTTPError {
-		return &httpError
+	// Handle nil cases immediately
+	if IsNil(err) || err == nil {
+		return nil
 	}
 
-	// If this error can be "unwrapped" then dig deeper into the chain
-	if unwrapper, ok := err.(Unwrapper); ok {
+	switch typed := err.(type) {
 
-		// Try to unwrap the error.  If it is a not-Nil result, then keep digging
-		if next := unwrapper.Unwrap(); NotNil(next) {
+	// HTTPErrors are returned immediately
+	case HTTPError:
+		return &typed
+
+	// Pointers to HTTPErrors are returned immediately
+	case *HTTPError:
+		return typed
+
+	// If possible, unwrap the error and keep digging.
+	case Unwrapper:
+		if next := typed.Unwrap(); NotNil(next) {
 			return UnwrapHTTPError(next)
 		}
+
 	}
 
-	// Fall through means that there is nothing left to unwrap.  Return the current error
+	// Fall through means that we can't find an HTTP error in this stack.
 	return nil
-
 }

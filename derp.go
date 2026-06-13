@@ -93,52 +93,72 @@ func Timeout(location string, message string, details ...any) Error {
  * Deprecated Derp (for backward compatibility)
  ******************************************/
 
-// deprecated: use BadRequest() instead
+// BadRequestError returns a (400) Bad Request error.
+//
+// Deprecated: use BadRequest() instead.
 func BadRequestError(location string, message string, details ...any) Error {
 	return newError(codeBadRequestError, location, message, details...)
 }
 
-// deprecated: use Unauthorized() instead
+// UnauthorizedError returns a (401) Unauthorized error.
+//
+// Deprecated: use Unauthorized() instead.
 func UnauthorizedError(location string, message string, details ...any) Error {
 	return newError(codeUnauthorizedError, location, message, details...)
 }
 
-// deprecated: use Forbidden() instead
+// ForbiddenError returns a (403) Forbidden error.
+//
+// Deprecated: use Forbidden() instead.
 func ForbiddenError(location string, message string, details ...any) Error {
 	return newError(codeForbiddenError, location, message, details...)
 }
 
-// deprecated: use MisdirectedRequest() instead
+// MisdirectedRequestError returns a (421) Misdirected Request error.
+//
+// Deprecated: use MisdirectedRequest() instead.
 func MisdirectedRequestError(location string, message string, details ...any) Error {
 	return newError(codeMisdirectedRequestError, location, message, details...)
 }
 
-// deprecated: use NotFound() instead
+// NotFoundError returns a (404) Not Found error.
+//
+// Deprecated: use NotFound() instead.
 func NotFoundError(location string, message string, details ...any) Error {
 	return newError(codeNotFoundError, location, message, details...)
 }
 
-// deprecated: use Teapot() instead
+// TeapotError returns a (418) I'm a Teapot error.
+//
+// Deprecated: use Teapot() instead.
 func TeapotError(location string, message string, details ...any) Error {
 	return newError(codeTeapotError, location, message, details...)
 }
 
-// deprecated: use Timeout() instead
+// TimeoutError returns a (524) Timeout error.
+//
+// Deprecated: use Timeout() instead.
 func TimeoutError(location string, message string, details ...any) Error {
 	return newError(codeTimeout, location, message, details...)
 }
 
-// deprecated: use Validation() instead
+// ValidationError returns a (422) Validation error.
+//
+// Deprecated: use Validation() instead.
 func ValidationError(message string, details ...any) Error {
 	return newError(codeValidationError, "", message, details...)
 }
 
-// deprecated: use Internal() instead
+// InternalError returns a (500) Internal Server Error.
+//
+// Deprecated: use Internal() instead.
 func InternalError(location string, message string, details ...any) Error {
 	return newError(codeInternalError, location, message, details...)
 }
 
-// deprecated: use NotImplemented() instead
+// NotImplementedError returns a (501) Not Implemented error.
+//
+// Deprecated: use NotImplemented() instead.
 func NotImplementedError(location string, details ...any) Error {
 	return newError(codeNotImplementedError, location, "Not Implemented", details...)
 }

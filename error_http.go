@@ -126,5 +126,5 @@ func (err HTTPError) GetRetryAfter() time.Duration {
 	}
 
 	// If no value is found, wait 1 hour before retrying
-	return time.Duration(time.Hour)
+	return time.Hour
 }

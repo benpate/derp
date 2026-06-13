@@ -33,6 +33,8 @@ func IsNotFound(err error) bool {
 		return true
 	}
 
+	// Deliberate fallback: many database drivers report a bare "not found"
+	// message with no error code, so match on the message text as well.
 	return strings.ToLower(Message(err)) == "not found"
 }
 
@@ -49,6 +51,8 @@ func IsNotFoundOrGone(err error) bool {
 		return true
 	}
 
+	// Deliberate fallback: many database drivers report a bare "not found"
+	// message with no error code, so match on the message text as well.
 	return (strings.ToLower(Message(err)) == "not found")
 }
 

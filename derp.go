@@ -188,7 +188,7 @@ func Message(err error) string {
 // match this interface, then it assigns a generic "Internal Server Error" code 500.
 func ErrorCode(err error) int {
 
-	if err == nil || IsNil(err) {
+	if IsNil(err) || err == nil {
 		return 0
 	}
 

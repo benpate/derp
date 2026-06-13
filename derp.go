@@ -299,10 +299,10 @@ func RootMessage(err error) string {
 		return ""
 	}
 
+	// Prefer the deepest non-empty message found further down the chain.
 	if unwrapper, isUnwrapper := err.(Unwrapper); isUnwrapper {
-		wrappedError := unwrapper.Unwrap()
-		if wrappedMessage := Message(wrappedError); wrappedMessage != "" {
-			return wrappedMessage
+		if rootMessage := RootMessage(unwrapper.Unwrap()); rootMessage != "" {
+			return rootMessage
 		}
 	}
 
@@ -317,10 +317,10 @@ func RootLocation(err error) string {
 		return ""
 	}
 
+	// Prefer the deepest non-empty location found further down the chain.
 	if unwrapper, isUnwrapper := err.(Unwrapper); isUnwrapper {
-		wrappedError := unwrapper.Unwrap()
-		if wrappedLocation := Location(wrappedError); wrappedLocation != "" {
-			return wrappedLocation
+		if rootLocation := RootLocation(unwrapper.Unwrap()); rootLocation != "" {
+			return rootLocation
 		}
 	}
 

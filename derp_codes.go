@@ -154,7 +154,7 @@ func IsNil(err error) bool {
 	}
 
 	switch reflect.TypeOf(err).Kind() {
-	case reflect.Ptr, reflect.Array, reflect.Slice, reflect.Chan, reflect.Map:
+	case reflect.Pointer, reflect.Array, reflect.Slice, reflect.Chan, reflect.Map:
 		return reflect.ValueOf(err).IsNil()
 	}
 

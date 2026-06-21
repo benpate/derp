@@ -5,12 +5,14 @@ import (
 	"fmt"
 )
 
-// JSON prints errors to the system console.
+// JSON prints errors to the system console as indented JSON.
 type JSON struct{}
 
 // Report implements the `derp.Plugin` interface, which allows the JSON
-// to be called by the derp.Report() method.
-func (console JSON) Report(err error) {
-	json, _ := json.MarshalIndent(err, "", "\t")
-	fmt.Print(string(json))
+// plugin to be called by the derp.Report() method.
+func (j JSON) Report(err error) {
+	// Per the Plugin contract, reporters swallow their own errors;
+	// a marshaling failure here simply prints an empty line.
+	bytes, _ := json.MarshalIndent(err, "", "\t")
+	fmt.Println(string(bytes))
 }

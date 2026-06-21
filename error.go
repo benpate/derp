@@ -2,7 +2,8 @@ package derp
 
 import "time"
 
-// Error represents a runtime error.  It includes
+// Error represents a runtime error, including a numeric code, the location
+// where it occurred, a human-readable message, and an optional wrapped error.
 type Error struct {
 	Code         int    `json:"code"`                 // Numeric error code (such as an HTTP status code) to report to the client.
 	Location     string `json:"location"`             // Function name (or other location description) of where the error occurred

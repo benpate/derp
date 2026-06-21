@@ -31,7 +31,7 @@ func TestReportFunc(t *testing.T) {
 	t.Cleanup(func() { Plugins = original })
 
 	counter := &countingPlugin{}
-	Plugins = PluginList{counter}
+	Plugins = ReporterList{counter}
 
 	// ReportFunc should report the error returned by the function
 	ReportFunc(func() error {

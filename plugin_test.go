@@ -33,13 +33,13 @@ func TestPlugins(t *testing.T) {
 	assert.Equal(t, 3, len(Plugins))
 }
 
-// TestPluginList_Local verifies that Add/Clear mutate the receiver itself,
+// TestReporterList_Local verifies that Add/Clear mutate the receiver itself,
 // not the package-global Plugins (the bug this method signature fixed).
-func TestPluginList_Local(t *testing.T) {
+func TestReporterList_Local(t *testing.T) {
 
 	globalLen := len(Plugins)
 
-	list := PluginList{}
+	list := ReporterList{}
 	assert.Equal(t, 0, len(list))
 
 	// Add must grow the local list
@@ -56,9 +56,9 @@ func TestPluginList_Local(t *testing.T) {
 	assert.Equal(t, globalLen, len(Plugins))
 }
 
-// TestPluginList_Report verifies that every registered plugin is invoked
+// TestReporterList_Report verifies that every registered reporter is invoked
 // once per call to Report, and that a nil error is never reported.
-func TestPluginList_Report(t *testing.T) {
+func TestReporterList_Report(t *testing.T) {
 
 	first := &countingPlugin{}
 	second := &countingPlugin{}

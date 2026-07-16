@@ -26,6 +26,12 @@ func IsForbidden(err error) bool {
 	return ErrorCode(err) == codeForbiddenError
 }
 
+// IsConflict returns TRUE if this is a 409 (Conflict) error, such as a write that violates a
+// unique constraint.
+func IsConflict(err error) bool {
+	return ErrorCode(err) == codeConflictError
+}
+
 // IsNotFound returns TRUE if this is a 404 (Not Found) error.
 func IsNotFound(err error) bool {
 

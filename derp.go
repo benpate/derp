@@ -61,6 +61,14 @@ func MisdirectedRequest(location string, message string, details ...any) Error {
 	return newError(codeMisdirectedRequestError, location, message, details...)
 }
 
+// Conflict returns a (409) Conflict error
+// which indicates that the request conflicts with the current state of the target resource,
+// such as a write that violates a unique constraint.
+// https://www.rfc-editor.org/rfc/rfc9110.html#name-409-conflict
+func Conflict(location string, message string, details ...any) Error {
+	return newError(codeConflictError, location, message, details...)
+}
+
 // Validation returns a (422) Validation error
 // which indicates that the request contains invalid data.
 // https://www.rfc-editor.org/rfc/rfc9110.html#name-422-unprocessable-content

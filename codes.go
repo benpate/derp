@@ -34,6 +34,11 @@ const (
 	// https://www.rfc-editor.org/rfc/rfc9110.html#name-421-misdirected-request
 	codeMisdirectedRequestError = 421
 
+	// codeConflictError indicates that the request conflicts with the current state of the target resource,
+	// such as a write that violates a unique constraint.
+	// https://www.rfc-editor.org/rfc/rfc9110.html#name-409-conflict
+	codeConflictError = 409
+
 	// codeValidationError represents a request that contains invalid data.
 	// https://www.rfc-editor.org/rfc/rfc9110.html#name-422-unprocessable-content
 	codeValidationError = 422

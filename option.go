@@ -20,6 +20,11 @@ func WithForbidden() Option {
 	return WithCode(codeForbiddenError)
 }
 
+// WithConflict returns an option that sets the derp.Error code to 409 (Conflict)
+func WithConflict() Option {
+	return WithCode(codeConflictError)
+}
+
 // WithNotFound returns an option that sets the derp.Error code to 404 (Not Found)
 func WithNotFound() Option {
 	return WithCode(codeNotFoundError)

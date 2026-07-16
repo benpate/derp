@@ -399,6 +399,20 @@ func TestIsNotFound(t *testing.T) {
 	require.True(t, IsNotFound(notFoundText))
 }
 
+func TestIsConflict(t *testing.T) {
+	otherError := newError(0, "location", "message")
+	require.False(t, IsConflict(otherError))
+
+	conflict := Conflict("Location", "Message")
+	require.True(t, IsConflict(conflict))
+
+	// The code must survive Wrap, so a data-layer conflict stays a conflict up the stack.
+	require.True(t, IsConflict(Wrap(conflict, "outer", "wrapped")))
+
+	// WithConflict sets the code on any constructor.
+	require.True(t, IsConflict(newError(0, "location", "message", WithConflict())))
+}
+
 func TestIsTeapot(t *testing.T) {
 	otherError := newError(0, "location", "message")
 	require.False(t, IsTeapot(otherError))

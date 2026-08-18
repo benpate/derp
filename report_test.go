@@ -54,3 +54,16 @@ func TestReportWrapped(_ *testing.T) {
 
 	Report(outer)
 }
+
+func TestReportAndReturn(t *testing.T) {
+
+	{
+		err := errors.New("regular error")
+		require.Equal(t, err, ReportAndReturn(err))
+	}
+
+	{
+		err := newError(404, "Location", "Message")
+		require.Equal(t, err, ReportAndReturn(err))
+	}
+}

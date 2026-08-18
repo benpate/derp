@@ -77,3 +77,13 @@ func TestOption_WithWrappedValue(t *testing.T) {
 	e := newError(codeNotFoundError, "Location", "Message", WithWrappedValue(errors.New("wrapped error")))
 	assert.Equal(t, "wrapped error", e.WrappedValue.Error())
 }
+
+func TestWithCode(t *testing.T) {
+	err := newError(123, "whatever", "dude", WithCode(404))
+	assert.Equal(t, 404, ErrorCode(err))
+}
+
+func TestWithMessage(t *testing.T) {
+	err := newError(123, "whatever", "dude", WithMessage("message"))
+	assert.Equal(t, "message", Message(err))
+}

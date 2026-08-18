@@ -20,10 +20,15 @@ func NewHTTPError(request *http.Request, response *http.Response) HTTPError {
 	result := HTTPError{}
 
 	if request != nil {
+
 		result.Request = HTTPRequestReport{
-			URL:    request.URL.String(),
 			Method: request.Method,
 			Header: request.Header,
+		}
+
+		// RULE: A Request is not guaranteed to have a URL, which cannot be stringified when nil.
+		if request.URL != nil {
+			result.Request.URL = request.URL.String()
 		}
 	}
 

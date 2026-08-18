@@ -228,6 +228,34 @@ func TestHTTPError_GetRetryAfter_RFC1123(t *testing.T) {
 // FuzzGetRetryAfter feeds arbitrary, untrusted Retry-After header values to
 // the parser.  The contract under fuzzing is simply that parsing must never
 // panic, no matter how malformed the input.
+// TestNewHTTPError_NoURL confirms that a Request with no URL is reported with
+// an empty URL string, rather than dereferencing the nil URL.
+func TestNewHTTPError_NoURL(t *testing.T) {
+
+	request := &http.Request{Method: http.MethodGet}
+
+	var result HTTPError
+	require.NotPanics(t, func() {
+		result = NewHTTPError(request, nil)
+	})
+
+	require.Equal(t, "", result.Request.URL)
+	require.Equal(t, http.MethodGet, result.Request.Method)
+}
+
+// TestNewHTTPError_NilBoth confirms that a nil request AND a nil response
+// produce an empty (but usable) HTTPError.
+func TestNewHTTPError_NilBoth(t *testing.T) {
+
+	result := NewHTTPError(nil, nil)
+
+	require.Equal(t, "", result.Request.URL)
+	require.Equal(t, "", result.Response.Status)
+	require.Equal(t, 0, result.GetErrorCode())
+	require.Equal(t, time.Hour, result.GetRetryAfter())
+	require.Nil(t, result.Unwrap())
+}
+
 func FuzzGetRetryAfter(f *testing.F) {
 
 	// Seed the corpus with values that exercise each parsing branch.

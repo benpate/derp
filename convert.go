@@ -15,6 +15,12 @@ func AsError(err error) Error {
 		return typed
 
 	case *Error:
+
+		// A typed-nil pointer carries no error information, and must not be dereferenced.
+		if typed == nil {
+			return Error{}
+		}
+
 		return *typed
 
 	default:

@@ -32,3 +32,26 @@ func TestAsError(t *testing.T) {
 		require.Equal(t, "standard error", result.WrappedValue.Error())
 	}
 }
+
+// TestAsError_TypedNilPointer confirms that a typed-nil *Error is not
+// dereferenced, and converts into an empty (zero) Error instead.
+func TestAsError_TypedNilPointer(t *testing.T) {
+
+	var err *Error
+
+	result := AsError(err)
+	require.True(t, result.IsZero())
+	require.Equal(t, 0, result.Code)
+	require.Equal(t, "", result.Message)
+}
+
+// TestAsError_Pointer confirms that a populated *Error is dereferenced into its value.
+func TestAsError_Pointer(t *testing.T) {
+
+	inner := newError(codeNotFoundError, "Location", "Message")
+
+	result := AsError(&inner)
+	require.Equal(t, codeNotFoundError, result.Code)
+	require.Equal(t, "Location", result.Location)
+	require.Equal(t, "Message", result.Message)
+}

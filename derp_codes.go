@@ -165,8 +165,10 @@ func IsNil(err error) bool {
 		return true
 	}
 
+	// RULE: Only these Kinds may be passed to reflect.Value.IsNil().
+	// Notably, Array is NOT nil-able -- asking would panic.
 	switch reflect.TypeOf(err).Kind() {
-	case reflect.Pointer, reflect.Array, reflect.Slice, reflect.Chan, reflect.Map:
+	case reflect.Pointer, reflect.UnsafePointer, reflect.Slice, reflect.Chan, reflect.Map, reflect.Func:
 		return reflect.ValueOf(err).IsNil()
 	}
 

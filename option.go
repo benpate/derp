@@ -10,6 +10,11 @@ func WithCode(code int) Option {
 	}
 }
 
+// WithBadGateway returns an option that sets the derp.Error code to 502 (Bad Gateway)
+func WithBadGateway() Option {
+	return WithCode(codeBadGatewayError)
+}
+
 // WithBadRequest returns an option that sets the derp.Error code to 400 (Bad Request)
 func WithBadRequest() Option {
 	return WithCode(codeBadRequestError)

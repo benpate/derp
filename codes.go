@@ -55,6 +55,11 @@ const (
 	// https://www.rfc-editor.org/rfc/rfc9110.html#name-501-not-implemented
 	codeNotImplementedError = 501
 
+	// codeBadGatewayError indicates that an upstream server returned an invalid response,
+	// such as a malformed body or a Content-Type that contradicts what was requested.
+	// https://www.rfc-editor.org/rfc/rfc9110.html#name-502-bad-gateway
+	codeBadGatewayError = 502
+
 	// codeTimeout is an unofficial server error, used by derp to indicate an internal timeout.
 	// https://http.dev/524
 	codeTimeout = 524

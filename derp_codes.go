@@ -106,6 +106,12 @@ func IsNotImplemented(err error) bool {
 	return ErrorCode(err) == codeNotImplementedError
 }
 
+// IsBadGateway returns TRUE if this is a 502 (Bad Gateway) error, such as an
+// upstream server returning a malformed or contradictory response.
+func IsBadGateway(err error) bool {
+	return ErrorCode(err) == codeBadGatewayError
+}
+
 /******************************************
  * Range Functions
  * These functions determine if an error is

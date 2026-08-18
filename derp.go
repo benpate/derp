@@ -90,6 +90,13 @@ func NotImplemented(location string, details ...any) Error {
 	return newError(codeNotImplementedError, location, "Not Implemented", details...)
 }
 
+// BadGateway returns a (502) Bad Gateway error
+// which indicates that an upstream server returned an invalid response.
+// https://www.rfc-editor.org/rfc/rfc9110.html#name-502-bad-gateway
+func BadGateway(location string, message string, details ...any) Error {
+	return newError(codeBadGatewayError, location, message, details...)
+}
+
 // Timeout returns a (524) Timeout error
 // which indicates that the request took longer than an internal timeout threshold
 // https://http.dev/524

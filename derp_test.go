@@ -66,6 +66,9 @@ func TestNewConvenienceFns(t *testing.T) {
 
 	notImplemented := NotImplemented("location", "description")
 	require.Equal(t, codeNotImplementedError, ErrorCode(notImplemented))
+
+	badGateway := BadGateway("location", "description")
+	require.Equal(t, codeBadGatewayError, ErrorCode(badGateway))
 }
 
 func TestMessage(t *testing.T) {
@@ -451,6 +454,24 @@ func TestIsNotImplemented(t *testing.T) {
 
 	notImplemented := newError(501, "Location", "Message")
 	require.True(t, IsNotImplemented(notImplemented))
+}
+
+func TestIsBadGateway(t *testing.T) {
+	otherError := newError(0, "location", "message")
+	require.False(t, IsBadGateway(otherError))
+
+	badGateway := newError(502, "Location", "Message")
+	require.True(t, IsBadGateway(badGateway))
+}
+
+// TestBadGateway confirms that a 502 is a server error, but is distinct from
+// a generic 500 -- the whole point of adding it.
+func TestBadGateway(t *testing.T) {
+	err := BadGateway("location", "message")
+	require.Equal(t, codeBadGatewayError, ErrorCode(err))
+	require.True(t, IsBadGateway(err))
+	require.True(t, IsServerError(err))
+	require.False(t, IsInternalServerError(err))
 }
 
 func TestGone(t *testing.T) {

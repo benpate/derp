@@ -6,7 +6,10 @@ import "time"
 // This function ALWAYS returns a non-nil error value.
 func Wrap(inner error, location string, message string, details ...any) error {
 
-	if NotNil(inner) {
+	// double nil check to make nilaway happy.  NotNil also catches typed-nil
+	// pointers, which would panic when Error() is called on them below.
+	if (inner != nil) && NotNil(inner) {
+
 		// If the inner error is not of a known type, then serialize it into the details.
 		switch inner.(type) {
 		case Error:

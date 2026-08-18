@@ -28,6 +28,11 @@ func TestOption_Wrap(t *testing.T) {
 	assert.Equal(t, codeInternalError, ErrorCode(wrapped))
 }
 
+func TestOption_WithBadGateway(t *testing.T) {
+	e := newError(codeNotFoundError, "Location", "Message", WithBadGateway())
+	assert.Equal(t, codeBadGatewayError, e.Code)
+}
+
 func TestOption_WithBadRequest(t *testing.T) {
 	e := newError(codeNotFoundError, "Location", "Message", WithBadRequest())
 	assert.Equal(t, codeBadRequestError, e.Code)
@@ -36,6 +41,11 @@ func TestOption_WithBadRequest(t *testing.T) {
 func TestOption_WithForbidden(t *testing.T) {
 	e := newError(codeNotFoundError, "Location", "Message", WithForbidden())
 	assert.Equal(t, codeForbiddenError, e.Code)
+}
+
+func TestOption_WithConflict(t *testing.T) {
+	e := newError(codeNotFoundError, "Location", "Message", WithConflict())
+	assert.Equal(t, codeConflictError, e.Code)
 }
 
 func TestOption_WithInternalError(t *testing.T) {

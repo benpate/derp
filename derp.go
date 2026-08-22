@@ -178,7 +178,7 @@ func NotImplementedError(location string, details ...any) Error {
 	return newError(codeNotImplementedError, location, "Not Implemented", details...)
 }
 
-// new returns a new Error object
+// newError returns a new Error object
 func newError(code int, location string, message string, details ...any) Error {
 
 	result := Error{
@@ -304,7 +304,8 @@ func Serialize(err error) string {
 		return ""
 	}
 
-	if bytes, err := json.Marshal(err); err == nil {
+	// Named `marshalError` so that it does not shadow the `err` parameter
+	if bytes, marshalError := json.Marshal(err); marshalError == nil {
 		return string(bytes)
 	}
 
@@ -312,7 +313,7 @@ func Serialize(err error) string {
 }
 
 /******************************************
- * Root Values find the deeped properties available
+ * Root Values find the deepest properties available
  ******************************************/
 
 // RootMessage returns the deepest message

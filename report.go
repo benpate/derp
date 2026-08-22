@@ -5,8 +5,9 @@ package derp
 func Report(err error) {
 
 	// If the error is NOT nil, then send "Report" to each installed reporter.
+	// The loaded list is immutable, so this range is safe against concurrent Set/Add/Clear.
 	if NotNil(err) {
-		for _, reporter := range Plugins {
+		for _, reporter := range Plugins.slice() {
 			reporter.Report(err)
 		}
 	}

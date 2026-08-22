@@ -58,18 +58,18 @@ Every derp error is defined with a specific error code, corresponding to the sta
 
 The derp package uses plugins to report errors to an external source. Plugins can send the error to the error console, to a database, an external service, or anywhere else you desire.
 
-Plugins should be configured once, on a system-wide basis, when your application starts up. If you don't set up any plugins, then the default setting is to report errors to the system console.
+Plugins are configured on a system-wide basis, usually when your application starts up. If you don't set up any plugins, then the default setting is to report errors to the system console.
+
+The registry is safe for concurrent use: readers are wait-free, and `derp.SetPlugins` replaces the whole list in one atomic swap — so an application may also reconfigure its reporters at runtime (say, when a server reloads its logging configuration) while other goroutines are reporting errors. Prefer `SetPlugins` for runtime replacement: a `Clear`-then-`Add` sequence is safe, but briefly leaves the list empty, and errors reported into that moment vanish.
 
 ```go
 import "github.com/benpate/derp/plugins/mongodb"
 
 func init() {
 
-    // By default, derp uses the ConsolePlugin{}.  You can remove
-    // this default behavior by calling derp.Plugins.Clear()
-
-    // Add a database plugin to insert error reports into your database.
-    derp.Plugins.Add(mongodb.New(connectionString, collectionName))
+    // Replace the default ConsolePlugin{} with a database plugin
+    // that inserts error reports into your database.
+    derp.SetPlugins(mongodb.New(connectionString, collectionName))
 }
 
 func SomewhereInYourCode() {

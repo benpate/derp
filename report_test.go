@@ -27,11 +27,11 @@ func TestReportFunc(t *testing.T) {
 
 	// Swap in a counting plugin, restoring the global list afterwards so
 	// other tests are not affected.
-	original := Plugins
-	t.Cleanup(func() { Plugins = original })
+	original := Plugins.slice()
+	t.Cleanup(func() { Plugins.Set(original...) })
 
 	counter := &countingPlugin{}
-	Plugins = ReporterList{counter}
+	Plugins.Set(counter)
 
 	// ReportFunc should report the error returned by the function
 	ReportFunc(func() error {

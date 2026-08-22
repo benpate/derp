@@ -10,11 +10,15 @@ func Wrap(inner error, location string, message string, details ...any) error {
 	// pointers, which would panic when Error() is called on them below.
 	if (inner != nil) && NotNil(inner) {
 
-		// If the inner error is not of a known type, then serialize it into the details.
+		// If the inner error is not a derp.Error, then serialize it into the details.
+		// derp.Errors are skipped because WrappedValue already preserves everything they carry.
 		switch inner.(type) {
-		case Error:
+		case Error, *Error:
 		default:
-			details = append(details, inner.Error())
+			// Clipped before appending: when the caller passes its own slice with `...`,
+			// `details` aliases that slice, and a bare append would write into the
+			// caller's spare capacity.
+			details = append(details[:len(details):len(details)], inner.Error())
 		}
 	}
 

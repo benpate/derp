@@ -225,9 +225,6 @@ func TestHTTPError_GetRetryAfter_RFC1123(t *testing.T) {
 	require.Equal(t, 120*time.Second, err.GetRetryAfter().Truncate(time.Second))
 }
 
-// FuzzGetRetryAfter feeds arbitrary, untrusted Retry-After header values to
-// the parser.  The contract under fuzzing is simply that parsing must never
-// panic, no matter how malformed the input.
 // TestNewHTTPError_NoURL confirms that a Request with no URL is reported with
 // an empty URL string, rather than dereferencing the nil URL.
 func TestNewHTTPError_NoURL(t *testing.T) {
@@ -256,6 +253,9 @@ func TestNewHTTPError_NilBoth(t *testing.T) {
 	require.Nil(t, result.Unwrap())
 }
 
+// FuzzGetRetryAfter feeds arbitrary, untrusted Retry-After header values to the parser.
+// The contract under fuzzing is that parsing must never panic, and must never report a
+// negative wait, no matter how malformed the input.
 func FuzzGetRetryAfter(f *testing.F) {
 
 	// Seed the corpus with values that exercise each parsing branch.
@@ -266,14 +266,75 @@ func FuzzGetRetryAfter(f *testing.F) {
 	f.Add("")                              // empty
 	f.Add("-1")                            // negative integer
 
-	f.Fuzz(func(_ *testing.T, value string) {
+	f.Fuzz(func(t *testing.T, value string) {
 		httpError := HTTPError{
 			Response: HTTPResponseReport{
 				Header: http.Header{"Retry-After": []string{value}},
 			},
 		}
 
-		// A panic here fails the fuzz test automatically.
-		_ = httpError.GetRetryAfter()
+		// RULE: A retry-after duration is a wait, and a wait is never negative.
+		// (a panic inside GetRetryAfter also fails the fuzz test automatically)
+		if result := httpError.GetRetryAfter(); result < 0 {
+			t.Fatalf("negative retry-after %v from header value %q", result, value)
+		}
 	})
+}
+
+// TestHTTPError_GetRetryAfter_NegativeSeconds confirms that a negative delay-seconds
+// value is clamped to zero, instead of reporting a wait that runs backwards.
+func TestHTTPError_GetRetryAfter_NegativeSeconds(t *testing.T) {
+
+	err := HTTPError{
+		Response: HTTPResponseReport{
+			Header: http.Header{"Retry-After": []string{"-30"}},
+		},
+	}
+
+	require.Equal(t, time.Duration(0), err.GetRetryAfter())
+}
+
+// TestHTTPError_GetRetryAfter_ExpiredTimestamp confirms that a reset time in the past
+// is clamped to zero, because the rate limit has already reset.
+func TestHTTPError_GetRetryAfter_ExpiredTimestamp(t *testing.T) {
+
+	timestamp := time.Now().Add(-1 * time.Hour).Format(time.RFC3339)
+
+	err := HTTPError{
+		Response: HTTPResponseReport{
+			Header: http.Header{"Retry-After": []string{timestamp}},
+		},
+	}
+
+	require.Equal(t, time.Duration(0), err.GetRetryAfter())
+}
+
+// TestHTTPError_GetRetryAfter_RFC850 confirms that RFC850 dates -- one of the three
+// HTTP-date formats that RFC9110 requires recipients to accept -- are parsed.
+func TestHTTPError_GetRetryAfter_RFC850(t *testing.T) {
+
+	timestamp := time.Now().UTC().Add(121 * time.Second).Format(time.RFC850)
+
+	err := HTTPError{
+		Response: HTTPResponseReport{
+			Header: http.Header{"Retry-After": []string{timestamp}},
+		},
+	}
+
+	require.Equal(t, 120*time.Second, err.GetRetryAfter().Truncate(time.Second))
+}
+
+// TestHTTPError_GetRetryAfter_ANSIC confirms that asctime dates -- one of the three
+// HTTP-date formats that RFC9110 requires recipients to accept -- are parsed.
+func TestHTTPError_GetRetryAfter_ANSIC(t *testing.T) {
+
+	timestamp := time.Now().UTC().Add(121 * time.Second).Format(time.ANSIC)
+
+	err := HTTPError{
+		Response: HTTPResponseReport{
+			Header: http.Header{"Retry-After": []string{timestamp}},
+		},
+	}
+
+	require.Equal(t, 120*time.Second, err.GetRetryAfter().Truncate(time.Second))
 }

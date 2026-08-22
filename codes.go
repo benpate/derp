@@ -1,7 +1,12 @@
-package derp
+/******************************************
+ * Error Codes
+ *
+ * Derp recommends, but does not require, using HTTP status
+ * codes as error codes.  The values used by the derp
+ * constructor functions are enumerated here.
+ ******************************************/
 
-// Derp recommends, but does not require, using HTTP status codes as error messages.
-// The values used in derp functions are enumerated here.
+package derp
 
 const (
 

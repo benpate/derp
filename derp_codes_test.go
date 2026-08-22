@@ -77,7 +77,7 @@ func TestNotFoundOrGone(t *testing.T) {
 
 type weirdErrorType string
 
-func (w weirdErrorType) Error() string {
+func (weirdErrorType) Error() string {
 	return "sure, it's an error"
 }
 
@@ -94,32 +94,32 @@ func TestIsNil_WeirdErrorTypes(t *testing.T) {
 // arrayError has Kind "Array", which can NEVER be nil.
 type arrayError [2]byte
 
-func (a arrayError) Error() string { return "array error" }
+func (arrayError) Error() string { return "array error" }
 
 // funcError has Kind "Func", which CAN be nil.
 type funcError func()
 
-func (f funcError) Error() string { return "func error" }
+func (funcError) Error() string { return "func error" }
 
 // mapError has Kind "Map", which CAN be nil.
 type mapError map[string]string
 
-func (m mapError) Error() string { return "map error" }
+func (mapError) Error() string { return "map error" }
 
 // sliceError has Kind "Slice", which CAN be nil.
 type sliceError []string
 
-func (s sliceError) Error() string { return "slice error" }
+func (sliceError) Error() string { return "slice error" }
 
 // chanError has Kind "Chan", which CAN be nil.
 type chanError chan int
 
-func (c chanError) Error() string { return "chan error" }
+func (chanError) Error() string { return "chan error" }
 
 // structError has Kind "Struct", which can NEVER be nil.
 type structError struct{}
 
-func (s structError) Error() string { return "struct error" }
+func (structError) Error() string { return "struct error" }
 
 // TestIsNil_AllKinds confirms that IsNil handles every Kind of error that a
 // caller might define.  Kinds that cannot be nil (Array, Struct, string) must

@@ -8,8 +8,8 @@ import (
 
 // HTTPError wraps a standard derp.Error, including additional data about a failed HTTP transaction
 type HTTPError struct {
-	Request  HTTPRequestReport  `json:"request"`
-	Response HTTPResponseReport `json:"response"`
+	Request  HTTPRequestReport  `json:"request"`  // Details of the HTTP request that failed
+	Response HTTPResponseReport `json:"response"` // Details of the HTTP response that was returned
 
 	WrappedValue error `json:"innerError,omitempty"` // An underlying error object used to identify the root cause of this error.
 }
@@ -55,16 +55,16 @@ func WrapHTTPError(err error, request *http.Request, response *http.Response) HT
 
 // HTTPRequestReport includes details of a failed HTTP request
 type HTTPRequestReport struct {
-	URL    string      `json:"url"`
-	Method string      `json:"method"`
-	Header http.Header `json:"header"`
+	URL    string      `json:"url"`    // Fully qualified URL that was requested
+	Method string      `json:"method"` // HTTP method (GET, POST, etc) used to make the request
+	Header http.Header `json:"header"` // Headers sent with the request.  NOTE: these are shared with the original http.Request, and may include credentials.
 }
 
 // HTTPResponseReport includes response details of a failed HTTP request
 type HTTPResponseReport struct {
-	StatusCode int         `json:"statusCode"`
-	Status     string      `json:"status"`
-	Header     http.Header `json:"header"`
+	StatusCode int         `json:"statusCode"` // Numeric HTTP status code returned by the server
+	Status     string      `json:"status"`     // Human-readable status line returned by the server
+	Header     http.Header `json:"header"`     // Headers returned with the response.  NOTE: these are shared with the original http.Response.
 }
 
 // Error implements the Error interface, which allows derp.Error objects to be
@@ -115,21 +115,40 @@ func (err HTTPError) GetRetryAfter() time.Duration {
 		}
 
 		// Integers represent the number of seconds to wait
-		if valueInt, err := strconv.Atoi(value); err == nil {
-			return time.Duration(valueInt) * time.Second
+		// (named `atoiError` so that it does not shadow the `err` receiver)
+		if seconds, atoiError := strconv.Atoi(value); atoiError == nil {
+			return nonNegative(time.Duration(seconds) * time.Second)
 		}
 
 		// RFC3339 timestamps represent the time when the rate limit resets
-		if asTimestamp, err := time.Parse(time.RFC3339, value); err == nil {
-			return time.Until(asTimestamp)
+		if resetAt, parseError := time.Parse(time.RFC3339, value); parseError == nil {
+			return nonNegative(time.Until(resetAt))
 		}
 
 		// RFC1123 timestamps represent the time when the rate limit resets
-		if asTimestamp, err := time.Parse(time.RFC1123, value); err == nil {
-			return time.Until(asTimestamp)
+		if resetAt, parseError := time.Parse(time.RFC1123, value); parseError == nil {
+			return nonNegative(time.Until(resetAt))
+		}
+
+		// Last resort: the remaining legal HTTP-date formats (RFC850 and asctime), which
+		// RFC9110 requires recipients to accept.
+		// https://www.rfc-editor.org/rfc/rfc9110.html#name-date-time-formats
+		if resetAt, parseError := http.ParseTime(value); parseError == nil {
+			return nonNegative(time.Until(resetAt))
 		}
 	}
 
 	// If no value is found, wait 1 hour before retrying
 	return time.Hour
+}
+
+// nonNegative clamps a retry-after duration to zero.
+func nonNegative(duration time.Duration) time.Duration {
+
+	// A deadline that has already passed means the limit has reset, so wait no longer.
+	if duration < 0 {
+		return 0
+	}
+
+	return duration
 }

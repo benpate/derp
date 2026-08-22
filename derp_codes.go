@@ -39,9 +39,7 @@ func IsNotFound(err error) bool {
 		return true
 	}
 
-	// Deliberate fallback: many database drivers report a bare "not found"
-	// message with no error code, so match on the message text as well.
-	return strings.ToLower(Message(err)) == "not found"
+	return hasNotFoundMessage(err)
 }
 
 // IsGone returns TRUE if this is a 410 (Gone) error.
@@ -57,9 +55,15 @@ func IsNotFoundOrGone(err error) bool {
 		return true
 	}
 
+	return hasNotFoundMessage(err)
+}
+
+// hasNotFoundMessage returns TRUE if the error's message reads as a bare "not found".
+func hasNotFoundMessage(err error) bool {
+
 	// Deliberate fallback: many database drivers report a bare "not found"
 	// message with no error code, so match on the message text as well.
-	return (strings.ToLower(Message(err)) == "not found")
+	return strings.ToLower(Message(err)) == "not found"
 }
 
 // IsTeapot returns TRUE if this is a 418 (I'm a Teapot) error.

@@ -121,3 +121,28 @@ func FuzzWrapChain(f *testing.F) {
 		}
 	})
 }
+
+// TestWrap_DoesNotAliasCallerSlice confirms that Wrap never writes into the spare
+// capacity of a details slice that the caller passed with `...`.
+func TestWrap_DoesNotAliasCallerSlice(t *testing.T) {
+
+	// A slice with spare capacity, which the caller still owns
+	backing := make([]any, 1, 4)
+	backing[0] = "first"
+
+	_ = Wrap(errors.New("inner-message"), "location", "message", backing...)
+
+	// Re-slicing into the caller's spare capacity must NOT reveal derp's data
+	require.Nil(t, backing[:2][1])
+}
+
+// TestWrap_PointerToError confirms that a *derp.Error is recognized as a derp error,
+// and is not re-serialized into the Details of the wrapper.
+func TestWrap_PointerToError(t *testing.T) {
+
+	inner := NotFound("inner-location", "inner-message")
+	wrapped := Wrap(&inner, "outer-location", "outer-message")
+
+	require.Empty(t, AsError(wrapped).Details)
+	require.Equal(t, codeNotFoundError, ErrorCode(wrapped))
+}

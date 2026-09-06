@@ -2,6 +2,7 @@ package derp
 
 import (
 	"net/http"
+	"net/textproto"
 	"strconv"
 	"time"
 )
@@ -23,7 +24,7 @@ func NewHTTPError(request *http.Request, response *http.Response) HTTPError {
 
 		result.Request = HTTPRequestReport{
 			Method: request.Method,
-			Header: request.Header,
+			Header: redactHeader(request.Header),
 		}
 
 		// RULE: A Request is not guaranteed to have a URL, which cannot be stringified when nil.
@@ -36,7 +37,7 @@ func NewHTTPError(request *http.Request, response *http.Response) HTTPError {
 		result.Response = HTTPResponseReport{
 			StatusCode: response.StatusCode,
 			Status:     response.Status,
-			Header:     response.Header,
+			Header:     redactHeader(response.Header),
 		}
 	}
 
@@ -53,18 +54,58 @@ func WrapHTTPError(err error, request *http.Request, response *http.Response) HT
 	return result
 }
 
+// redactedValue replaces a header value that carries a credential
+const redactedValue = "[REDACTED]"
+
+// redactedHeaders are the headers whose values are replaced when a failed
+// transaction is recorded, keyed in canonical form
+var redactedHeaders = map[string]bool{
+	"Authorization":       true,
+	"Cookie":              true,
+	"Proxy-Authorization": true,
+	"Set-Cookie":          true,
+	"X-Api-Key":           true,
+}
+
+// redactHeader returns a copy of the provided headers with credential-bearing
+// values replaced
+func redactHeader(header http.Header) http.Header {
+
+	// RULE: copy before writing. These headers belong to a live http.Request or
+	// http.Response, and redacting in place would strip the credential from the very
+	// request that is still using it.
+	result := header.Clone()
+
+	if result == nil {
+		return nil
+	}
+
+	// RULE: walk the map's OWN keys rather than looking up canonical names. A Header
+	// built by hand can hold `authorization`, which no canonical lookup finds -- and
+	// JSON serializes the raw map, so a missed key is a published credential.
+	for name := range result {
+		if redactedHeaders[textproto.CanonicalMIMEHeaderKey(name)] {
+			result[name] = []string{redactedValue}
+		}
+	}
+
+	// A recorded error outlives the transaction it describes: it is wrapped, returned,
+	// serialized, and written to a log somebody else reads.
+	return result
+}
+
 // HTTPRequestReport includes details of a failed HTTP request
 type HTTPRequestReport struct {
 	URL    string      `json:"url"`    // Fully qualified URL that was requested
 	Method string      `json:"method"` // HTTP method (GET, POST, etc) used to make the request
-	Header http.Header `json:"header"` // Headers sent with the request.  NOTE: these are shared with the original http.Request, and may include credentials.
+	Header http.Header `json:"header"` // Headers sent with the request, with credential-bearing values redacted
 }
 
 // HTTPResponseReport includes response details of a failed HTTP request
 type HTTPResponseReport struct {
 	StatusCode int         `json:"statusCode"` // Numeric HTTP status code returned by the server
 	Status     string      `json:"status"`     // Human-readable status line returned by the server
-	Header     http.Header `json:"header"`     // Headers returned with the response.  NOTE: these are shared with the original http.Response.
+	Header     http.Header `json:"header"`     // Headers returned with the response, with credential-bearing values redacted
 }
 
 // Error implements the Error interface, which allows derp.Error objects to be

@@ -75,7 +75,7 @@ func init() {
 func SomewhereInYourCode() {
     // Report passes the error to each of the configured
     // plugins, to deliver the error to its destination.
-    derp.Internal("location", "description", 0, nil).Report()
+    derp.Report(derp.Internal("location", "description", 0, nil))
 }
 ```
 
@@ -90,7 +90,7 @@ derp.IsClientError(err)
 
 ### Plug-Ins
 
-The package includes a default reporter, and you can add to this list easily using `derp.Plugins.Add()` to add any object that implements the `Reporter` interface at startup.
+The package includes a default reporter.  At startup, pass any objects that implement the `Reporter` interface to `derp.SetPlugins()`, which replaces the whole list in a single atomic swap.
 
 * `Console` write a human-friendly error report to the console (this package)
 * [`derp-mongo`](https://github.com/benpate/derp-mongo) writes error reports to a MongoDB database

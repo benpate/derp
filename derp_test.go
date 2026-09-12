@@ -3,6 +3,7 @@ package derp
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
 	"net/http"
 	"strings"
@@ -338,4 +339,39 @@ func TestCodes(t *testing.T) {
 func TestCodeGeneric(t *testing.T) {
 	err := errors.New("whatever, dude")
 	assert.Equal(t, 500, ErrorCode(err))
+}
+
+// A foreign error type that wraps another error, standing in for text/template's ExecError.
+type foreignWrapper struct {
+	inner error
+}
+
+func (e foreignWrapper) Error() string { return "foreign: " + e.inner.Error() }
+func (e foreignWrapper) Unwrap() error { return e.inner }
+
+func TestErrorCode_SurvivesAForeignWrapper(t *testing.T) {
+
+	// A derp error reached through a foreign wrapper keeps its own code.
+	// Regression: html/template reports a failing method as its own ExecError, which
+	// turned every 401 raised inside a template into a 500.
+	unauthorized := Unauthorized("test.Location", "not signed in")
+
+	require.Equal(t, 401, ErrorCode(unauthorized))
+	require.Equal(t, 401, ErrorCode(foreignWrapper{inner: unauthorized}))
+	require.Equal(t, 401, ErrorCode(fmt.Errorf("calling method: %w", unauthorized)))
+
+	// Two foreign layers, which is what html/template actually produces
+	// (ExecError wrapping a fmt.wrapError wrapping the original).
+	doubled := foreignWrapper{inner: fmt.Errorf("calling method: %w", unauthorized)}
+	require.Equal(t, 401, ErrorCode(doubled))
+
+	// Wrapping through derp still works, and still reports the inner code.
+	require.Equal(t, 401, ErrorCode(Wrap(doubled, "outer.Location", "executing template")))
+
+	// An error with no code anywhere in the chain is still a 500.
+	require.Equal(t, 500, ErrorCode(foreignWrapper{inner: errors.New("plain")}))
+	require.Equal(t, 500, ErrorCode(errors.New("plain")))
+
+	// Nil is still zero.
+	require.Equal(t, 0, ErrorCode(nil))
 }

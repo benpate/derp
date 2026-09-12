@@ -3,6 +3,7 @@ package derp
 
 import (
 	"encoding/json"
+	"errors"
 	"time"
 )
 
@@ -219,9 +220,9 @@ func Message(err error) string {
 	return err.Error()
 }
 
-// ErrorCode returns an error code for any error.  It tries to read the error code
-// from objects matching the ErrorCodeGetter interface.  If the provided error does not
-// match this interface, then it assigns a generic "Internal Server Error" code 500.
+// ErrorCode returns an error code for any error.  It reads the code from the outermost value
+// in the chain that matches the ErrorCodeGetter interface, and assigns a generic "Internal
+// Server Error" code 500 when no value in the chain carries one.
 func ErrorCode(err error) int {
 
 	// double nil check to make nilaway happy
@@ -230,6 +231,15 @@ func ErrorCode(err error) int {
 	}
 
 	if getter, ok := err.(ErrorCodeGetter); ok {
+		return getter.GetErrorCode()
+	}
+
+	// RULE: A foreign error that WRAPS a derp error still describes a derp condition, so the code
+	// must survive the foreign layer.  html/template is the case that forced this: it reports a
+	// failing method as its own ExecError, which turned every 401 underneath it into a 500.
+	var getter ErrorCodeGetter
+
+	if errors.As(err, &getter) {
 		return getter.GetErrorCode()
 	}
 

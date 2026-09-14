@@ -1,6 +1,8 @@
 package derp
 
 import (
+	"bytes"
+	"io"
 	"net/http"
 	"net/textproto"
 	"strconv"
@@ -24,7 +26,7 @@ func NewHTTPError(request *http.Request, response *http.Response) HTTPError {
 
 		result.Request = HTTPRequestReport{
 			Method: request.Method,
-			Header: redactHeader(request.Header),
+			Header: RedactHeader(request.Header),
 		}
 
 		// RULE: A Request is not guaranteed to have a URL, which cannot be stringified when nil.
@@ -34,14 +36,69 @@ func NewHTTPError(request *http.Request, response *http.Response) HTTPError {
 	}
 
 	if response != nil {
+
+		body, truncated := captureResponseBody(response)
+
 		result.Response = HTTPResponseReport{
-			StatusCode: response.StatusCode,
-			Status:     response.Status,
-			Header:     redactHeader(response.Header),
+			StatusCode:    response.StatusCode,
+			Status:        response.Status,
+			Header:        RedactHeader(response.Header),
+			Body:          body,
+			BodyTruncated: truncated,
 		}
 	}
 
 	return result
+}
+
+// maxResponseBodyBytes caps how much of a response body is copied into an error report
+const maxResponseBodyBytes = 4096
+
+// captureResponseBody copies the first maxResponseBodyBytes of the response body for
+// the report, reporting whether more was left behind.
+func captureResponseBody(response *http.Response) (string, bool) {
+
+	if response == nil || response.Body == nil {
+		return "", false
+	}
+
+	original := response.Body
+
+	// RULE: read one byte past the cap. That is what distinguishes a body that ends at
+	// exactly the cap from one that was cut off, so the report can say which it was
+	// instead of ending mid-sentence and leaving the reader to guess.
+	//
+	// RULE: a read error is not reported. This is already the error path, the body is
+	// best-effort evidence, and the bytes that did arrive are still the most useful
+	// thing in the report.
+	captured, _ := io.ReadAll(io.LimitReader(original, maxResponseBodyBytes+1))
+
+	// Nothing was consumed, so there is nothing to put back. Leaving the body untouched
+	// also preserves whatever error it is holding for its owner to find.
+	if len(captured) == 0 {
+		return "", false
+	}
+
+	// RULE: restore before returning. The body belongs to a live response whose owner
+	// may still decode it, and Close must still reach the real body or the underlying
+	// connection is never released.
+	response.Body = replayBody{
+		Reader: io.MultiReader(bytes.NewReader(captured), original),
+		Closer: original,
+	}
+
+	if len(captured) > maxResponseBodyBytes {
+		return string(captured[:maxResponseBodyBytes]), true
+	}
+
+	return string(captured), false
+}
+
+// replayBody re-serves bytes captured for an error report, keeping Close attached to
+// the real body so the connection is still released.
+type replayBody struct {
+	io.Reader
+	io.Closer
 }
 
 // WrapHTTPError creates a new HTTPError object from the given request/response
@@ -54,22 +111,34 @@ func WrapHTTPError(err error, request *http.Request, response *http.Response) HT
 	return result
 }
 
-// redactedValue replaces a header value that carries a credential
-const redactedValue = "[REDACTED]"
+// RedactedValue replaces a header value that carries a credential. It is exported so
+// that a caller formatting its own output marks a redaction the same way derp does.
+const RedactedValue = "[REDACTED]"
 
-// redactedHeaders are the headers whose values are replaced when a failed
-// transaction is recorded, keyed in canonical form
+// redactedHeaders are the headers whose values are replaced when a transaction is
+// recorded, keyed in canonical form.
+//
+// RULE: this map stays unexported, and callers reach it through IsSensitiveHeader.
+// An exported map can be emptied by anyone who imports derp, which would silently
+// disable redaction for the whole process.
 var redactedHeaders = map[string]bool{
 	"Authorization":       true,
 	"Cookie":              true,
 	"Proxy-Authorization": true,
 	"Set-Cookie":          true,
+	"Signature":           true,
 	"X-Api-Key":           true,
 }
 
-// redactHeader returns a copy of the provided headers with credential-bearing
+// IsSensitiveHeader returns TRUE if a header carries a credential that must not be
+// logged. Use it when formatting headers by hand; use RedactHeader when you have a map.
+func IsSensitiveHeader(name string) bool {
+	return redactedHeaders[textproto.CanonicalMIMEHeaderKey(name)]
+}
+
+// RedactHeader returns a copy of the provided headers with credential-bearing
 // values replaced
-func redactHeader(header http.Header) http.Header {
+func RedactHeader(header http.Header) http.Header {
 
 	// RULE: copy before writing. These headers belong to a live http.Request or
 	// http.Response, and redacting in place would strip the credential from the very
@@ -85,7 +154,7 @@ func redactHeader(header http.Header) http.Header {
 	// JSON serializes the raw map, so a missed key is a published credential.
 	for name := range result {
 		if redactedHeaders[textproto.CanonicalMIMEHeaderKey(name)] {
-			result[name] = []string{redactedValue}
+			result[name] = []string{RedactedValue}
 		}
 	}
 
@@ -103,9 +172,11 @@ type HTTPRequestReport struct {
 
 // HTTPResponseReport includes response details of a failed HTTP request
 type HTTPResponseReport struct {
-	StatusCode int         `json:"statusCode"` // Numeric HTTP status code returned by the server
-	Status     string      `json:"status"`     // Human-readable status line returned by the server
-	Header     http.Header `json:"header"`     // Headers returned with the response, with credential-bearing values redacted
+	StatusCode    int         `json:"statusCode"`              // Numeric HTTP status code returned by the server
+	Status        string      `json:"status"`                  // Human-readable status line returned by the server
+	Header        http.Header `json:"header"`                  // Headers returned with the response, with credential-bearing values redacted
+	Body          string      `json:"body,omitempty"`          // Up to the first 4KB of the response body, which is usually where the server says what was wrong
+	BodyTruncated bool        `json:"bodyTruncated,omitempty"` // TRUE when the body was longer than the cap, so a reader knows it continues
 }
 
 // Error implements the Error interface, which allows derp.Error objects to be

@@ -44,8 +44,8 @@ func TestNewHTTPError_RedactsCredentials(t *testing.T) {
 	require.Equal(t, "application/json", err.Response.Header.Get("Content-Type"))
 
 	// The redaction is visible rather than silent, so a reader knows a value was sent
-	require.Equal(t, redactedValue, err.Request.Header.Get("Authorization"))
-	require.Equal(t, redactedValue, err.Response.Header.Get("Set-Cookie"))
+	require.Equal(t, RedactedValue, err.Request.Header.Get("Authorization"))
+	require.Equal(t, RedactedValue, err.Response.Header.Get("Set-Cookie"))
 }
 
 // TestNewHTTPError_DoesNotMutateTheRequest guards the copy that keeps redaction from
@@ -103,4 +103,57 @@ func TestNewHTTPError_AbsentHeadersAreNotInvented(t *testing.T) {
 func TestNewHTTPError_NilRequestAndResponse(t *testing.T) {
 	err := NewHTTPError(nil, nil)
 	require.Equal(t, 0, err.Response.StatusCode)
+}
+
+// TestIsSensitiveHeader covers the predicate that callers use when they format their
+// own output instead of handing derp a map
+func TestIsSensitiveHeader(t *testing.T) {
+
+	// A caller printing headers by hand cannot use RedactHeader, so the decision has to
+	// be reachable on its own -- otherwise that caller writes a second list that drifts.
+	require.True(t, IsSensitiveHeader("Authorization"))
+	require.True(t, IsSensitiveHeader("Cookie"))
+	require.True(t, IsSensitiveHeader("Proxy-Authorization"))
+	require.True(t, IsSensitiveHeader("Set-Cookie"))
+	require.True(t, IsSensitiveHeader("Signature"))
+	require.True(t, IsSensitiveHeader("X-Api-Key"))
+
+	require.False(t, IsSensitiveHeader("Accept"))
+	require.False(t, IsSensitiveHeader("Content-Type"))
+	require.False(t, IsSensitiveHeader("User-Agent"))
+}
+
+// TestIsSensitiveHeader_Canonicalizes confirms the predicate agrees with RedactHeader
+// about casing
+func TestIsSensitiveHeader_Canonicalizes(t *testing.T) {
+
+	// RedactHeader canonicalizes before looking up, so a predicate that did not would
+	// disagree with it on exactly the hand-built headers that motivated the rule.
+	require.True(t, IsSensitiveHeader("authorization"))
+	require.True(t, IsSensitiveHeader("AUTHORIZATION"))
+	require.True(t, IsSensitiveHeader("set-cookie"))
+}
+
+// TestRedactHeader_RedactsSignature pins the entry added for BUG-64
+func TestRedactHeader_RedactsSignature(t *testing.T) {
+
+	// An HTTP Signature is not a bearer credential, but it is long, high-entropy, and
+	// of no diagnostic value beyond its presence.
+	header := http.Header{}
+	header.Set("Signature", `keyId="https://example.com/actor#main-key",signature="AAAA-very-long-base64"`)
+
+	result := RedactHeader(header)
+
+	require.Equal(t, RedactedValue, result.Get("Signature"))
+	require.NotContains(t, result.Get("Signature"), "AAAA-very-long-base64")
+}
+
+// TestRedactHeader_NilHeader confirms the exported entry point tolerates a nil map
+func TestRedactHeader_NilHeader(t *testing.T) {
+
+	// Now that this is exported, it is reachable from callers that never went through
+	// NewHTTPError and may hold a nil Header.
+	require.NotPanics(t, func() {
+		require.Nil(t, RedactHeader(nil))
+	})
 }

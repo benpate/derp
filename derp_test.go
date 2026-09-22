@@ -376,13 +376,13 @@ func TestErrorCode_SurvivesAForeignWrapper(t *testing.T) {
 	require.Equal(t, 0, ErrorCode(nil))
 }
 
+// TestRetryAfter_SurvivesAForeignWrapper confirms that a 429's Retry-After is readable
+// through any wrapper, not only through derp's own.
 func TestRetryAfter_SurvivesAForeignWrapper(t *testing.T) {
 
-	// A 429 reached through a foreign wrapper keeps the host's own Retry-After.
-	// Regression: RetryAfter used a bare type assertion, so any non-derp layer in the
-	// chain zeroed the duration.  The CODE still survived via errors.As, so
-	// IsTooManyRequests kept answering TRUE and silently substituted its 1 hour
-	// default -- a host asking for 30 seconds was deferred for an hour instead.
+	// RetryAfter once used a bare type assertion, so a non-derp layer zeroed the duration
+	// while ErrorCode still read 429.  IsTooManyRequests then substituted its 1 hour
+	// default, and a host asking for 30 seconds was deferred for an hour.
 	rateLimited := HTTPError{
 		Response: HTTPResponseReport{
 			StatusCode: 429,
@@ -411,11 +411,12 @@ func TestRetryAfter_SurvivesAForeignWrapper(t *testing.T) {
 	require.Equal(t, time.Duration(0), RetryAfter(nil))
 }
 
+// TestIsTooManyRequests_ReportsTheHostsOwnDelayThroughAnyWrapper confirms that the delay a
+// caller reschedules on is the host's own, whatever wraps the error.
 func TestIsTooManyRequests_ReportsTheHostsOwnDelayThroughAnyWrapper(t *testing.T) {
 
-	// This is the caller-visible half of TestRetryAfter_SurvivesAForeignWrapper: a queue
-	// consumer reschedules on this duration, so losing it changes behavior rather than
-	// only log text.
+	// The caller-visible half of TestRetryAfter_SurvivesAForeignWrapper: a queue consumer
+	// reschedules on this duration, so losing it changes behavior, not just log text.
 	rateLimited := HTTPError{
 		Response: HTTPResponseReport{
 			StatusCode: 429,
@@ -450,12 +451,12 @@ func TestIsTooManyRequests_ReportsTheHostsOwnDelayThroughAnyWrapper(t *testing.T
 	}
 }
 
+// TestErrorGetRetryAfter_StaysADelegation confirms that an Error reports the duration carried
+// below it, which is what lets RetryAfter search past the outermost Error.
 func TestErrorGetRetryAfter_StaysADelegation(t *testing.T) {
 
-	// RetryAfter's errors.As matches the outer Error first, so this delegation is the only
-	// thing that continues the walk.  If someone replaces it with a field read, the tests
-	// above go green for the bare cases and quietly fail for every wrapped one -- this
-	// pins the mechanism directly so the failure names the cause.
+	// Pinned directly so that replacing the delegation with a field read fails HERE and
+	// names the cause, rather than as several unrelated wrapped-chain assertions.
 	inner := HTTPError{
 		Response: HTTPResponseReport{
 			StatusCode: 429,

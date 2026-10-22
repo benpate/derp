@@ -1,6 +1,6 @@
 module github.com/benpate/derp
 
-go 1.19
+go 1.27.3
 
 require github.com/stretchr/testify v1.11.1
 

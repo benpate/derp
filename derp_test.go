@@ -375,3 +375,99 @@ func TestErrorCode_SurvivesAForeignWrapper(t *testing.T) {
 	// Nil is still zero.
 	require.Equal(t, 0, ErrorCode(nil))
 }
+
+// TestRetryAfter_SurvivesAForeignWrapper confirms that a 429's Retry-After is readable
+// through any wrapper, not only through derp's own.
+func TestRetryAfter_SurvivesAForeignWrapper(t *testing.T) {
+
+	// RetryAfter once used a bare type assertion, so a non-derp layer zeroed the duration
+	// while ErrorCode still read 429.  IsTooManyRequests then substituted its 1 hour
+	// default, and a host asking for 30 seconds was deferred for an hour.
+	rateLimited := HTTPError{
+		Response: HTTPResponseReport{
+			StatusCode: 429,
+			Header:     http.Header{"Retry-After": []string{"30"}},
+		},
+	}
+
+	require.Equal(t, 30*time.Second, RetryAfter(rateLimited))
+	require.Equal(t, 30*time.Second, RetryAfter(foreignWrapper{inner: rateLimited}))
+	require.Equal(t, 30*time.Second, RetryAfter(fmt.Errorf("transport: %w", rateLimited)))
+
+	// Two foreign layers, and a foreign layer sandwiched inside derp wrapping, which is
+	// the shape a queue consumer actually sees.
+	doubled := foreignWrapper{inner: fmt.Errorf("transport: %w", rateLimited)}
+	require.Equal(t, 30*time.Second, RetryAfter(doubled))
+	require.Equal(t, 30*time.Second, RetryAfter(Wrap(doubled, "outer.Location", "loading")))
+	require.Equal(t, 30*time.Second, RetryAfter(Wrap(Wrap(doubled, "a", "b"), "c", "d")))
+
+	// errors.Join reaches the 429 through Unwrap() []error, which errors.As also walks.
+	require.Equal(t, 30*time.Second, RetryAfter(errors.Join(errors.New("unrelated"), rateLimited)))
+
+	// Nothing in the chain carries a duration, so there is none to report.
+	require.Equal(t, time.Duration(0), RetryAfter(foreignWrapper{inner: errors.New("plain")}))
+	require.Equal(t, time.Duration(0), RetryAfter(Wrap(nil, "location", "message")))
+	require.Equal(t, time.Duration(0), RetryAfter(NotFound("location", "gone")))
+	require.Equal(t, time.Duration(0), RetryAfter(nil))
+}
+
+// TestIsTooManyRequests_ReportsTheHostsOwnDelayThroughAnyWrapper confirms that the delay a
+// caller reschedules on is the host's own, whatever wraps the error.
+func TestIsTooManyRequests_ReportsTheHostsOwnDelayThroughAnyWrapper(t *testing.T) {
+
+	// The caller-visible half of TestRetryAfter_SurvivesAForeignWrapper: a queue consumer
+	// reschedules on this duration, so losing it changes behavior, not just log text.
+	rateLimited := HTTPError{
+		Response: HTTPResponseReport{
+			StatusCode: 429,
+			Header:     http.Header{"Retry-After": []string{"30"}},
+		},
+	}
+
+	chains := map[string]error{
+		"bare":            rateLimited,
+		"derp.Wrap":       Wrap(rateLimited, "location", "message"),
+		"foreign":         foreignWrapper{inner: rateLimited},
+		"fmt.Errorf":      fmt.Errorf("transport: %w", rateLimited),
+		"derp(foreign())": Wrap(foreignWrapper{inner: rateLimited}, "location", "message"),
+	}
+
+	for name, err := range chains {
+		isTooMany, retryAfter := IsTooManyRequests(err)
+		require.True(t, isTooMany, name)
+		require.Equal(t, 30*time.Second, retryAfter, name)
+	}
+
+	// A 429 that sends no usable Retry-After still falls back to one hour, never zero.
+	noHeader := HTTPError{Response: HTTPResponseReport{StatusCode: 429}}
+
+	for name, err := range map[string]error{
+		"bare":       noHeader,
+		"fmt.Errorf": fmt.Errorf("transport: %w", noHeader),
+	} {
+		isTooMany, retryAfter := IsTooManyRequests(err)
+		require.True(t, isTooMany, name)
+		require.Equal(t, time.Hour, retryAfter, name)
+	}
+}
+
+// TestErrorGetRetryAfter_StaysADelegation confirms that an Error reports the duration carried
+// below it, which is what lets RetryAfter search past the outermost Error.
+func TestErrorGetRetryAfter_StaysADelegation(t *testing.T) {
+
+	// Pinned directly so that replacing the delegation with a field read fails HERE and
+	// names the cause, rather than as several unrelated wrapped-chain assertions.
+	inner := HTTPError{
+		Response: HTTPResponseReport{
+			StatusCode: 429,
+			Header:     http.Header{"Retry-After": []string{"45"}},
+		},
+	}
+
+	outer := Error{Code: 429, Location: "location", Message: "message", WrappedValue: inner}
+
+	require.Equal(t, 45*time.Second, outer.GetRetryAfter())
+
+	// An Error with nothing below it has no duration of its own to report.
+	require.Equal(t, time.Duration(0), Error{Code: 429}.GetRetryAfter())
+}

@@ -261,7 +261,8 @@ func Location(err error) string {
 	return ""
 }
 
-// RetryAfter retrieves the best-fit retry-after duration (in seconds) for any type of error
+// RetryAfter retrieves the best-fit retry-after duration for any type of error.  It reads the
+// duration from the outermost value in the chain that carries one, through foreign wrappers.
 func RetryAfter(err error) time.Duration {
 
 	// double nil check to make nilaway happy
@@ -269,7 +270,12 @@ func RetryAfter(err error) time.Duration {
 		return 0
 	}
 
-	if getter, ok := err.(RetryAfterGetter); ok {
+	// RULE: A foreign error that WRAPS a derp error still describes a derp condition, so the
+	// duration must survive the foreign layer -- the same rule ErrorCode follows, and for the
+	// same reason.  Error.GetRetryAfter continues the search from whatever this matches.
+	var getter RetryAfterGetter
+
+	if errors.As(err, &getter) {
 		return getter.GetRetryAfter()
 	}
 

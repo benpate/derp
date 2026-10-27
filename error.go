@@ -64,11 +64,13 @@ func (err Error) GetMessage() string {
 	return err.Message
 }
 
-// GetRetryAfter returns the retry-after duration (in seconds)
-// provided by the WrappedValue.  If the WrappedValue is nil,
-// or does not implement the RetryAfterGetter interface,
-// this method returns 0
+// GetRetryAfter returns the retry-after duration carried by this Error's WrappedValue,
+// or zero when nothing below it carries one.
 func (err Error) GetRetryAfter() time.Duration {
+
+	// RULE: This MUST stay a delegation.  RetryAfter's errors.As matches this Error first,
+	// so re-entering it one level down is what searches the rest of the chain.  Reading a
+	// field here instead would stop the search at the top.
 	return RetryAfter(err.WrappedValue)
 }
 

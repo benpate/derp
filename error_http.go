@@ -11,8 +11,9 @@ import (
 
 // HTTPError wraps a standard derp.Error, including additional data about a failed HTTP transaction
 type HTTPError struct {
-	Request  HTTPRequestReport  `json:"request"`  // Details of the HTTP request that failed
-	Response HTTPResponseReport `json:"response"` // Details of the HTTP response that was returned
+	Request  HTTPRequestReport  `json:"request"`           // Details of the HTTP request that failed
+	Response HTTPResponseReport `json:"response"`          // Details of the HTTP response that was returned
+	Message  string             `json:"message,omitempty"` // Why the transaction failed, when the status line alone does not say
 
 	WrappedValue error `json:"innerError,omitempty"` // An underlying error object used to identify the root cause of this error.
 }
@@ -182,6 +183,15 @@ type HTTPResponseReport struct {
 // Error implements the Error interface, which allows derp.Error objects to be
 // used anywhere a standard error is used.
 func (err HTTPError) Error() string {
+
+	// RULE: An explanation wins over the status line.  An HTTPError that decorates a failure
+	// the status did not cause -- a 200 whose body could not be decoded -- would otherwise
+	// explain itself as "200 OK", and RootMessage would carry that to every consumer.
+	if err.Message != "" {
+		return err.Message
+	}
+
+	// For an ordinary status failure, the status line IS the reason
 	return err.Response.Status
 }
 

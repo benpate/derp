@@ -48,3 +48,11 @@ type Unwrapper interface {
 	// Unwrap returns the inner error bundled inside of an outer error.
 	Unwrap() error
 }
+
+// TimeoutReporter wraps the Timeout method that the standard library's network, context, and
+// deadline errors use to say that an operation ran out of time
+type TimeoutReporter interface {
+
+	// Timeout returns TRUE if the error was caused by a timeout
+	Timeout() bool
+}

@@ -1,9 +1,12 @@
 package derp
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"math"
 	"net/http"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -365,6 +368,56 @@ func TestIsNotImplemented(t *testing.T) {
 	require.True(t, IsNotImplemented(notImplemented))
 }
 
+// timeoutError is a foreign error that reports whether it was a timeout, as net.Error does
+type timeoutError struct {
+	isTimeout bool
+}
+
+// Error returns the error message
+func (err timeoutError) Error() string {
+	return "network trouble"
+}
+
+// Timeout returns TRUE if the error was caused by a timeout
+func (err timeoutError) Timeout() bool {
+	return err.isTimeout
+}
+
+// TestIsTimeoutError verifies each code and each kind of error that counts as a timeout, bare and wrapped
+func TestIsTimeoutError(t *testing.T) {
+
+	timeouts := map[string]error{
+		"408":                       newError(408, "location", "message"),
+		"504":                       newError(504, "location", "message"),
+		"524":                       Timeout("location", "message"),
+		"context deadline":          context.DeadlineExceeded,
+		"os deadline":               os.ErrDeadlineExceeded,
+		"network timeout":           timeoutError{isTimeout: true},
+		"wrapped by derp":           Wrap(context.DeadlineExceeded, "location", "message"),
+		"wrapped by fmt":            fmt.Errorf("transport: %w", timeoutError{isTimeout: true}),
+		"wrapped code":              fmt.Errorf("transport: %w", newError(504, "location", "message")),
+		"timeout with another code": Wrap(context.DeadlineExceeded, "location", "message", WithCode(502)),
+	}
+
+	for name, err := range timeouts {
+		require.True(t, IsTimeoutError(err), name)
+	}
+
+	others := map[string]error{
+		"nil":                 nil,
+		"500":                 newError(500, "location", "message"),
+		"429":                 newError(429, "location", "message"),
+		"404":                 newError(404, "location", "message"),
+		"plain error":         errors.New("plain"),
+		"canceled":            context.Canceled,
+		"network, no timeout": timeoutError{isTimeout: false},
+	}
+
+	for name, err := range others {
+		require.False(t, IsTimeoutError(err), name)
+	}
+}
+
 func TestIsBadGateway(t *testing.T) {
 	otherError := newError(0, "location", "message")
 	require.False(t, IsBadGateway(otherError))
@@ -387,11 +440,11 @@ func TestIsTooManyRequests(t *testing.T) {
 		require.Equal(t, time.Duration(0), retryAfter)
 	}
 
-	// a 429 error with no retry-after header defaults to 1 hour
+	// a 429 error with no retry-after header defaults to 1 minute
 	{
 		ok, retryAfter := IsTooManyRequests(newError(codeTooManyRequestsError, "location", "message"))
 		require.True(t, ok)
-		require.Equal(t, time.Hour, retryAfter)
+		require.Equal(t, time.Minute, retryAfter)
 	}
 
 	// a 429 error with a retry-after header uses that duration

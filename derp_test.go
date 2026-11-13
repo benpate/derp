@@ -381,8 +381,8 @@ func TestErrorCode_SurvivesAForeignWrapper(t *testing.T) {
 func TestRetryAfter_SurvivesAForeignWrapper(t *testing.T) {
 
 	// RetryAfter once used a bare type assertion, so a non-derp layer zeroed the duration
-	// while ErrorCode still read 429.  IsTooManyRequests then substituted its 1 hour
-	// default, and a host asking for 30 seconds was deferred for an hour.
+	// while ErrorCode still read 429.  IsTooManyRequests then substituted its default
+	// default, and a host asking for 30 seconds was deferred for far longer.
 	rateLimited := HTTPError{
 		Response: HTTPResponseReport{
 			StatusCode: 429,
@@ -438,7 +438,7 @@ func TestIsTooManyRequests_ReportsTheHostsOwnDelayThroughAnyWrapper(t *testing.T
 		require.Equal(t, 30*time.Second, retryAfter, name)
 	}
 
-	// A 429 that sends no usable Retry-After still falls back to one hour, never zero.
+	// A 429 that sends no usable Retry-After still falls back to one minute, never zero.
 	noHeader := HTTPError{Response: HTTPResponseReport{StatusCode: 429}}
 
 	for name, err := range map[string]error{
@@ -447,7 +447,7 @@ func TestIsTooManyRequests_ReportsTheHostsOwnDelayThroughAnyWrapper(t *testing.T
 	} {
 		isTooMany, retryAfter := IsTooManyRequests(err)
 		require.True(t, isTooMany, name)
-		require.Equal(t, time.Hour, retryAfter, name)
+		require.Equal(t, time.Minute, retryAfter, name)
 	}
 }
 

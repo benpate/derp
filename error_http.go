@@ -214,7 +214,7 @@ func (err HTTPError) Unwrap() error {
 // in the HTTP response, including `Retry-After`, `X-Ratelimit-Reset`,
 // and `X-Rate-Limit-Reset`.
 //
-// If no such header is found, this method returns a default of 1 hour.
+// If no such header is found, this method returns a default of 1 minute.
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/429
 func (err HTTPError) GetRetryAfter() time.Duration {
 
@@ -260,8 +260,8 @@ func (err HTTPError) GetRetryAfter() time.Duration {
 		}
 	}
 
-	// If no value is found, wait 1 hour before retrying
-	return time.Hour
+	// If no value is found, wait 1 minute before retrying
+	return defaultRetryAfter
 }
 
 // nonNegative clamps a retry-after duration to zero.

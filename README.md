@@ -86,6 +86,8 @@ Derp uses HTTP status codes to classify error states, and includes several funct
 ```go
 derp.IsBadRequest(err)
 derp.IsClientError(err)
+derp.IsServerError(err)  // any 5xx code
+derp.IsTimeoutError(err) // a 408, 504, or 524 code, an expired context, or a network deadline
 ```
 
 ### Plug-Ins

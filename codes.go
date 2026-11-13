@@ -8,6 +8,11 @@
 
 package derp
 
+import "time"
+
+// defaultRetryAfter is how long to wait when a rate-limited response names no wait of its own
+const defaultRetryAfter = time.Minute
+
 const (
 
 	// codeBadRequestError indicates that the request is not properly formatted.
@@ -48,6 +53,10 @@ const (
 	// https://www.rfc-editor.org/rfc/rfc9110.html#name-422-unprocessable-content
 	codeValidationError = 422
 
+	// codeRequestTimeoutError indicates that the server gave up waiting for the client to finish its request.
+	// https://www.rfc-editor.org/rfc/rfc9110.html#name-408-request-timeout
+	codeRequestTimeoutError = 408
+
 	// codeTooManyRequestsError indicates that the user has sent too many requests in a given amount of time.
 	// https://www.rfc-editor.org/rfc/rfc9110.html#name-429-too-many-requests
 	codeTooManyRequestsError = 429
@@ -64,6 +73,10 @@ const (
 	// such as a malformed body or a Content-Type that contradicts what was requested.
 	// https://www.rfc-editor.org/rfc/rfc9110.html#name-502-bad-gateway
 	codeBadGatewayError = 502
+
+	// codeGatewayTimeoutError indicates that an upstream server did not answer in time.
+	// https://www.rfc-editor.org/rfc/rfc9110.html#name-504-gateway-timeout
+	codeGatewayTimeoutError = 504
 
 	// codeTimeout is an unofficial server error, used by derp to indicate an internal timeout.
 	// https://http.dev/524

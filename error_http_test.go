@@ -192,24 +192,24 @@ func TestHTTPError_Interface(t *testing.T) {
 
 func TestHTTPError_GetRetryAfter_Default(t *testing.T) {
 
-	// With no recognized headers, GetRetryAfter falls back to 1 hour.
+	// With no recognized headers, GetRetryAfter falls back to 1 minute.
 	err := HTTPError{
 		Response: HTTPResponseReport{StatusCode: 429},
 	}
-	require.Equal(t, time.Hour, err.GetRetryAfter())
+	require.Equal(t, time.Minute, err.GetRetryAfter())
 }
 
 func TestHTTPError_GetRetryAfter_InvalidValue(t *testing.T) {
 
 	// A header value that is neither an integer nor a timestamp is ignored,
-	// so GetRetryAfter falls back to 1 hour.
+	// so GetRetryAfter falls back to 1 minute.
 	err := HTTPError{
 		Response: HTTPResponseReport{
 			StatusCode: 429,
 			Header:     http.Header{"Retry-After": []string{"not-a-number"}},
 		},
 	}
-	require.Equal(t, time.Hour, err.GetRetryAfter())
+	require.Equal(t, time.Minute, err.GetRetryAfter())
 }
 
 func TestHTTPError_GetRetryAfter_RFC1123(t *testing.T) {
@@ -249,7 +249,7 @@ func TestNewHTTPError_NilBoth(t *testing.T) {
 	require.Equal(t, "", result.Request.URL)
 	require.Equal(t, "", result.Response.Status)
 	require.Equal(t, 0, result.GetErrorCode())
-	require.Equal(t, time.Hour, result.GetRetryAfter())
+	require.Equal(t, time.Minute, result.GetRetryAfter())
 	require.Nil(t, result.Unwrap())
 }
 

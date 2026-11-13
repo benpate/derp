@@ -1,6 +1,7 @@
 package derp
 
 import (
+	"errors"
 	"reflect"
 	"strings"
 	"time"
@@ -83,7 +84,7 @@ func IsValidationError(err error) bool {
 
 // IsTooManyRequests returns TRUE if this is a 429 (Too Many Requests) error.
 // If TRUE, it tries to find the recommended retry duration from the returned
-// error.  If no duration is found, then a default 1 hour retry duration is used.
+// error.  If no duration is found, then a default 1 minute retry duration is used.
 func IsTooManyRequests(err error) (bool, time.Duration) {
 
 	// Early return if NOT a 429 (Too Many Requests) error
@@ -96,8 +97,8 @@ func IsTooManyRequests(err error) (bool, time.Duration) {
 		return true, retryAfter
 	}
 
-	// If not retry-after duration is given, use 1 hour as a default
-	return true, time.Hour
+	// If no retry-after duration is given, use 1 minute as a default
+	return true, defaultRetryAfter
 }
 
 // IsInternalServerError returns TRUE if this is a 500 (Internal Server Error) error.
@@ -114,6 +115,30 @@ func IsNotImplemented(err error) bool {
 // upstream server returning a malformed or contradictory response.
 func IsBadGateway(err error) bool {
 	return ErrorCode(err) == codeBadGatewayError
+}
+
+// IsTimeoutError returns TRUE if something took too long: a 408, 504, or 524 code, or any
+// error in the chain that reports a timeout, such as an expired context or a network deadline.
+func IsTimeoutError(err error) bool {
+
+	// double nil check to make nilaway happy
+	if IsNil(err) || err == nil {
+		return false
+	}
+
+	switch ErrorCode(err) {
+	case codeRequestTimeoutError, codeGatewayTimeoutError, codeTimeout:
+		return true
+	}
+
+	// The standard library marks its own timeouts this way, context.DeadlineExceeded included
+	var reporter TimeoutReporter
+
+	if errors.As(err, &reporter) {
+		return reporter.Timeout()
+	}
+
+	return false
 }
 
 /******************************************
